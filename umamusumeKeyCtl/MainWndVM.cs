@@ -5,6 +5,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.IO.Compression;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Media.Imaging;
 using OpenCvSharp;
 using umamusumeKeyCtl.Annotations;
@@ -14,8 +16,11 @@ namespace umamusumeKeyCtl
 {
     public class MainWndVM : INotifyPropertyChanged
     {
-        private BitmapImage _myImage;
-        public BitmapImage MyImage
+        [DllImport("gdi32")]
+        public static extern bool DeleteObject(IntPtr hObject);
+        
+        private BitmapSource _myImage;
+        public BitmapSource MyImage
         {
             get => _myImage;
             private set
@@ -56,15 +61,12 @@ namespace umamusumeKeyCtl
 
         public void OnPrintWnd(Bitmap image)
         {
-            var bitmap = BitmapToImageSource(image);
-            
-            MyImage = new BitmapImage();
-            MyImage = bitmap;
+            //MyImage = BitmapToBitmapSource(image);
+
+            MyImage = BitmapToImageSource(image);
 
             WndHeight = MyImage.PixelHeight + 9;
             WndWidth = MyImage.PixelWidth;
-            
-            image.Dispose();
         }
             
         BitmapImage BitmapToImageSource(Bitmap bitmap)
@@ -73,23 +75,28 @@ namespace umamusumeKeyCtl
             
             using (MemoryStream memory = new MemoryStream())
             {
-                try
-                {
-                    bitmap.Save(memory, ImageFormat.Bmp);
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e);
-                    throw;
-                }
+                bitmap.Save(memory, ImageFormat.Bmp);
+                bitmap.Dispose();
                 memory.Position = 0;
                 bitmapimage.BeginInit();
                 bitmapimage.StreamSource = memory;
                 bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
                 bitmapimage.EndInit();
+                bitmapimage.Freeze();
             }
             
             return bitmapimage;
+        }
+
+        private BitmapSource BitmapToBitmapSource(Bitmap bitmap)
+        {
+            IntPtr hbitmap = bitmap.GetHbitmap();
+            BitmapSource bitmapSource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(hbitmap, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());
+
+            bitmap.Dispose();
+            DeleteObject(hbitmap);
+            
+            return bitmapSource;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
