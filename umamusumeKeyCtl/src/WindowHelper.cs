@@ -4,6 +4,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using WpfScreenHelper;
 
 namespace umamusumeKeyCtl
 {
@@ -73,11 +74,6 @@ namespace umamusumeKeyCtl
                 DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS,
                 out rect,
                 Marshal.SizeOf(typeof(RECT)));
-
-            rect.Left = (int) Math.Clamp(rect.Left, 0, SystemParameters.PrimaryScreenWidth - 1);
-            rect.Right = (int) Math.Clamp(rect.Right, 1, SystemParameters.PrimaryScreenWidth);
-            rect.Top = (int) Math.Clamp(rect.Top, 1, SystemParameters.PrimaryScreenHeight);
-            rect.Bottom = (int) Math.Clamp(rect.Bottom, 0, SystemParameters.PrimaryScreenHeight - 1);
 
             return rect;
         }
