@@ -24,6 +24,58 @@
       <Resource Include="devilman.bmp">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Resource>
+      <None Remove="Resource\bar_ikusei.png" />
+      <Resource Include="Resource\bar_ikusei.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\bar_lase.png" />
+      <Resource Include="Resource\bar_lase.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\bar_skill.png" />
+      <Resource Include="Resource\bar_skill.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\bar_training.png" />
+      <Resource Include="Resource\bar_training.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\confirm_oyasumi.png" />
+      <Resource Include="Resource\confirm_oyasumi.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\gotolase.png" />
+      <Resource Include="Resource\gotolase.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\ikuseiEvent.png" />
+      <Resource Include="Resource\ikuseiEvent.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\ikuseiMenu.png" />
+      <Resource Include="Resource\ikuseiMenu.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\ikuseiresult.png" />
+      <Resource Include="Resource\ikuseiresult.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\ikuseiResult_next.png" />
+      <Resource Include="Resource\ikuseiResult_next.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\inshikeishow.png" />
+      <Resource Include="Resource\inshikeishow.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\skill_button.png" />
+      <Resource Include="Resource\skill_button.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\yosoukekka.png" />
+      <Resource Include="Resource\yosoukekka.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
     <ItemGroup>
