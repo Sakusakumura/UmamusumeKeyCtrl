@@ -16,6 +16,21 @@ namespace umamusumeKeyCtl
         [DllImport("dwmapi.dll")]
         private static extern long DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT rect, int cbAttribute);
         
+        [DllImport("user32")]
+        public static extern int GetClientRect(IntPtr hWnd, out Rect rect);
+        
+        [DllImport("user32")]
+        public static extern int ClientToScreen(IntPtr hWnd, out System.Drawing.Point lpPoint);
+        
+        [StructLayout(LayoutKind.Sequential)]
+        public struct Rect
+        {
+            public int left;
+            public int top;
+            public int right;
+            public int bottom;
+        }
+        
         enum DWMWINDOWATTRIBUTE
         {
             DWMWA_NCRENDERING_ENABLED = 1,
@@ -64,18 +79,13 @@ namespace umamusumeKeyCtl
             return hWnd;
         }
 
-        public static RECT GetWindowRect(IntPtr hWnd)
+        public static Rectangle GetWindowRect(IntPtr hWnd)
         {
-            var factor = getScalingFactor(hWnd);
-            
-            RECT rect;
-            
-            DwmGetWindowAttribute(hWnd,
-                DWMWINDOWATTRIBUTE.DWMWA_EXTENDED_FRAME_BOUNDS,
-                out rect,
-                Marshal.SizeOf(typeof(RECT)));
+            ClientToScreen(hWnd, out System.Drawing.Point _Point);
+            GetClientRect(hWnd, out Rect _Rect);
+            Rectangle _Rectangle = new Rectangle(_Point.X, _Point.Y, _Rect.right, _Rect.bottom);
 
-            return rect;
+            return _Rectangle;
         }
 
         private static (double X, double Y) GetScreenScale(IntPtr targetHwnd)
@@ -88,18 +98,6 @@ namespace umamusumeKeyCtl
             }
             
             return (hwndSource.CompositionTarget.TransformToDevice.M11, hwndSource.CompositionTarget.TransformToDevice.M12);
-        }
-
-        private static float getScalingFactor(IntPtr hwnd)
-        {
-            Graphics g = Graphics.FromHwnd(hwnd);
-            IntPtr desktop = g.GetHdc();
-            int LogicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.VERTRES);
-            int PhysicalScreenHeight = GetDeviceCaps(desktop, (int)DeviceCap.DESKTOPVERTRES); 
-
-            float ScreenScalingFactor = (float)PhysicalScreenHeight / (float)LogicalScreenHeight;
-
-            return ScreenScalingFactor; // 1.25 = 125%
         }
     }
 }

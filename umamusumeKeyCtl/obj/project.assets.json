@@ -141,6 +141,15 @@
           "lib/netcoreapp2.0/System.Runtime.CompilerServices.Unsafe.dll": {}
         }
       },
+      "UniRx/5.4.1": {
+        "type": "package",
+        "compile": {
+          "lib/UniRx.dll": {}
+        },
+        "runtime": {
+          "lib/UniRx.dll": {}
+        }
+      },
       "WpfScreenHelper/1.0.0": {
         "type": "package",
         "compile": {
@@ -399,6 +408,19 @@
         "version.txt"
       ]
     },
+    "UniRx/5.4.1": {
+      "sha512": "kqJaUocGGO4WcMXhpkeQm2W4ZMyO+1arB/ylOqyVVPJ00CDb/RvJtU6eqg50DwlqKm3rvpxEjR9afOA0D5VorQ==",
+      "type": "package",
+      "path": "unirx/5.4.1",
+      "files": [
+        ".nupkg.metadata",
+        ".signature.p7s",
+        "lib/UniRx.dll",
+        "lib/UniRx.xml",
+        "unirx.5.4.1.nupkg.sha512",
+        "unirx.nuspec"
+      ]
+    },
     "WpfScreenHelper/1.0.0": {
       "sha512": "OX9vitUalpiYOf1p3ZGeWAts9daluQ7PlID4ByUGcjXZALCDMZi9A6668WIXoebezV1aQx+I1k4y0k6eMCIt4Q==",
       "type": "package",
@@ -417,6 +439,7 @@
     "net5.0-windows7.0": [
       "OpenCvSharp4.Windows >= 4.5.2.20210404",
       "System.Reactive >= 5.0.0",
+      "UniRx >= 5.4.1",
       "WpfScreenHelper >= 1.0.0"
     ]
   },
@@ -474,6 +497,10 @@
             "target": "Package",
             "version": "[5.0.0, )"
           },
+          "UniRx": {
+            "target": "Package",
+            "version": "[5.4.1, )"
+          },
           "WpfScreenHelper": {
             "target": "Package",
             "version": "[1.0.0, )"
@@ -500,5 +527,17 @@
         "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\5.0.203\\RuntimeIdentifierGraph.json"
       }
     }
-  }
+  },
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'UniRx 5.4.1' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8' instead of the project target framework 'net5.0-windows7.0'. This package may not be fully compatible with your project.",
+      "libraryId": "UniRx",
+      "targetGraphs": [
+        "net5.0-windows7.0"
+      ]
+    }
+  ]
 }

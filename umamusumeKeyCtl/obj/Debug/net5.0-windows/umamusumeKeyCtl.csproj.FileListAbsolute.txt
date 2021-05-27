@@ -34,3 +34,7 @@ D:\User\document\CSProjects\umamusumeKeyCtl\umamusumeKeyCtl\obj\Debug\net5.0-win
 D:\User\document\CSProjects\umamusumeKeyCtl\umamusumeKeyCtl\obj\Debug\net5.0-windows\umamusumeKeyCtl.genruntimeconfig.cache
 D:\User\document\CSProjects\umamusumeKeyCtl\umamusumeKeyCtl\obj\Debug\net5.0-windows\GeneratedInternalTypeHelper.g.cs
 D:\User\document\CSProjects\umamusumeKeyCtl\umamusumeKeyCtl\bin\Debug\net5.0-windows\WpfScreenHelper.dll
+D:\User\document\CSProjects\umamusumeKeyCtl\umamusumeKeyCtl\bin\Debug\net5.0-windows\UniRx.dll
+D:\User\document\CSProjects\umamusumeKeyCtl\umamusumeKeyCtl\obj\Debug\net5.0-windows\umamusumeKeyCtl_Content.g.cs
+D:\User\document\CSProjects\umamusumeKeyCtl\umamusumeKeyCtl\obj\Debug\net5.0-windows\NameInputPopupWindow.g.cs
+D:\User\document\CSProjects\umamusumeKeyCtl\umamusumeKeyCtl\obj\Debug\net5.0-windows\NameInputPopupWindow.baml

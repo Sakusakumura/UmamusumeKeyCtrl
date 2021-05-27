@@ -11,5 +11,11 @@
     <Setting Name="ImageResolutionWidth" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">300</Value>
     </Setting>
+    <Setting Name="GameAspectRatio" Type="System.Single" Scope="User">
+      <Value Profile="(Default)">1.77777779</Value>
+    </Setting>
+    <Setting Name="ScreenShotLocation" Type="System.String" Scope="User">
+      <Value Profile="(Default)">./CapturedImages</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
