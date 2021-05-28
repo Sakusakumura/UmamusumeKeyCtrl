@@ -11,8 +11,10 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Shapes;
 using umamusumeKeyCtl.Annotations;
 using umamusumeKeyCtl.CaptureSettingSets;
+using umamusumeKeyCtl.Properties;
 using umamusumeKeyCtl.UserInput;
 
 namespace umamusumeKeyCtl
@@ -23,6 +25,8 @@ namespace umamusumeKeyCtl
     public partial class MainWindow : Window, IDisposable
     {
         private CancellationTokenSource _tokenSource;
+
+        public event Action<bool> OnChangeRemoveMode;
 
         public MainWindow()
         {
@@ -38,6 +42,56 @@ namespace umamusumeKeyCtl
             CaptureSettingSetsHolder.Instance.OnLoadSettings += sets =>
             {
                 SettingsView.ItemsSource = sets;
+
+                var dockPanels = new List<DockPanel>();
+                var converter = new BrushConverter();
+
+                for (int i = 0; i < sets.Count; i++)
+                {
+                    var setting = sets[i];
+                    var panel = new DockPanel()
+                    {
+                        Width = 100,
+                        Background = Brushes.Transparent,
+                        LastChildFill = true
+                    };
+                    var removeLabel = new Label()
+                    {
+                        Content = "\uECC9",
+                        FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                        FontSize = 15,
+                        Foreground = (Brush) converter.ConvertFromString("#ff5c5c"),
+                        Background = Brushes.Transparent,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalContentAlignment = HorizontalAlignment.Left,
+                        BorderThickness = new Thickness(0),
+                        VerticalAlignment = VerticalAlignment.Center,
+                        HorizontalAlignment = HorizontalAlignment.Center
+                    };
+                    
+                    var label = new Label()
+                    {
+                        Content = setting.Name,
+                        Foreground = (Brush) converter.ConvertFromString("#e9eaea"),
+                        Background = Brushes.Transparent,
+                        VerticalContentAlignment = VerticalAlignment.Center,
+                        HorizontalContentAlignment = HorizontalAlignment.Left,
+                    };
+                    removeLabel.MouseLeftButtonUp += (_, _) => CaptureSettingSetsHolder.Instance.RemoveSetting(setting.Name);
+                    removeLabel.Visibility = Visibility.Hidden;
+                    
+                    OnChangeRemoveMode += b => removeLabel.Visibility = b ? Visibility.Visible : Visibility.Hidden;
+
+                    panel.Children.Add(removeLabel);
+                    panel.Children.Add(label);
+
+                    DockPanel.SetDock(removeLabel, Dock.Right);
+                    DockPanel.SetDock(label, Dock.Left);
+                    
+                    dockPanels.Add(panel);
+                }
+
+                SettingsView.ItemsSource = dockPanels;
             };
 
             ((INotifyCollectionChanged)SettingsView.Items).CollectionChanged += (sender, args) =>
@@ -92,8 +146,32 @@ namespace umamusumeKeyCtl
                     
                 var converter = new BrushConverter();
                 lbi.Foreground = (Brush) converter.ConvertFromString("#f1f1f1");
-                lbi.Background = (Brush) converter.ConvertFromString("#535755");
-                lbi.BorderBrush = (Brush) converter.ConvertFromString("#6f7472");
+                lbi.Background = (Brush) converter.ConvertFromString("#3f4240");
+                lbi.BorderBrush = (Brush) converter.ConvertFromString("#535755");
+                lbi.BorderThickness = new Thickness(0.2);
+                lbi.Margin = new Thickness(0);
+            }
+        }
+
+        /// <summary>
+        /// TODO: Implement toggle remove buttons
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        /// <param name="token"></param>
+        private async void OnSettingsListViewPushed(object sender, NotifyCollectionChangedEventArgs args,
+            CancellationToken token)
+        {
+            await WaitForContainer(SettingsView.ItemContainerGenerator, token);
+            
+            for (int i = 0; i < SettingsView.ItemContainerGenerator.Items.Count; i++)
+            {
+                ListViewItem lbi = SettingsView.ItemContainerGenerator.ContainerFromIndex(i) as ListViewItem;
+                    
+                var converter = new BrushConverter();
+                lbi.Foreground = (Brush) converter.ConvertFromString("#f1f1f1");
+                lbi.Background = (Brush) converter.ConvertFromString("#3f4240");
+                lbi.BorderBrush = (Brush) converter.ConvertFromString("#535755");
                 lbi.BorderThickness = new Thickness(0.2);
                 lbi.Margin = new Thickness(0);
             }
@@ -169,6 +247,11 @@ namespace umamusumeKeyCtl
         private void OnReloadButtonClick(object sender, RoutedEventArgs e)
         {
             CaptureSettingSetsHolder.Instance.LoadSettings();
+        }
+
+        private void OnRemoveButtonClick(object sender, RoutedEventArgs e)
+        {
+            OnChangeRemoveMode.Invoke(true);
         }
 
         protected override void OnClosing(CancelEventArgs e)

@@ -121,5 +121,19 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             
             Settings.Add(settingSet);
         }
+
+        public void RemoveSetting(string settingName)
+        {
+            var target = Settings.Find(setting => setting.Name == settingName);
+            
+            if (target == null)
+            {
+                return;
+            }
+
+            Settings.Remove(target);
+            
+            OnLoadSettings.Invoke(Settings);
+        }
     }
 }
