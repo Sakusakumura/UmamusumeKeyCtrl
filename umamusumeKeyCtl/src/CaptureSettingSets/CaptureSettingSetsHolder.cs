@@ -84,7 +84,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             
             try
             {
-                _ = Task.Run(AsyncSaveSettings);
+                _ = Task.Run(InternalSaveSettings);
             }
             catch (Exception e)
             {
@@ -93,7 +93,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             }
         }
 
-        private async Task AsyncSaveSettings()
+        private void InternalSaveSettings()
         {
             isBusy = true;
             

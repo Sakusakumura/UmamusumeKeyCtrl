@@ -39,60 +39,7 @@ namespace umamusumeKeyCtl
             InitializeComponent();
 
             // Handle event on settings are loaded
-            CaptureSettingSetsHolder.Instance.OnLoadSettings += sets =>
-            {
-                SettingsView.ItemsSource = sets;
-
-                var dockPanels = new List<DockPanel>();
-                var converter = new BrushConverter();
-
-                for (int i = 0; i < sets.Count; i++)
-                {
-                    var setting = sets[i];
-                    var panel = new DockPanel()
-                    {
-                        Width = 100,
-                        Background = Brushes.Transparent,
-                        LastChildFill = true
-                    };
-                    var removeLabel = new Label()
-                    {
-                        Content = "\uECC9",
-                        FontFamily = new FontFamily("Segoe MDL2 Assets"),
-                        FontSize = 15,
-                        Foreground = (Brush) converter.ConvertFromString("#ff5c5c"),
-                        Background = Brushes.Transparent,
-                        VerticalContentAlignment = VerticalAlignment.Center,
-                        HorizontalContentAlignment = HorizontalAlignment.Left,
-                        BorderThickness = new Thickness(0),
-                        VerticalAlignment = VerticalAlignment.Center,
-                        HorizontalAlignment = HorizontalAlignment.Center
-                    };
-                    
-                    var label = new Label()
-                    {
-                        Content = setting.Name,
-                        Foreground = (Brush) converter.ConvertFromString("#e9eaea"),
-                        Background = Brushes.Transparent,
-                        VerticalContentAlignment = VerticalAlignment.Center,
-                        HorizontalContentAlignment = HorizontalAlignment.Left,
-                    };
-                    removeLabel.MouseLeftButtonUp += (_, _) => CaptureSettingSetsHolder.Instance.RemoveSetting(setting.Name);
-                    removeLabel.Visibility = Visibility.Hidden;
-                    
-                    OnChangeRemoveMode += b => removeLabel.Visibility = b ? Visibility.Visible : Visibility.Hidden;
-
-                    panel.Children.Add(removeLabel);
-                    panel.Children.Add(label);
-
-                    DockPanel.SetDock(removeLabel, Dock.Right);
-                    DockPanel.SetDock(label, Dock.Left);
-                    
-                    dockPanels.Add(panel);
-                }
-
-                SettingsView.ItemsSource = dockPanels;
-            };
+            CaptureSettingSetsHolder.Instance.OnLoadSettings += OnLoadSettings;
 
             ((INotifyCollectionChanged)SettingsView.Items).CollectionChanged += (sender, args) =>
             {
@@ -110,7 +57,7 @@ namespace umamusumeKeyCtl
 
             var _vm = new MainWndVM();
             
-            var windowCapture = new WindowCapture(Properties.Settings.Default.CaptureWindowTitle, Properties.Settings.Default.CaptureInterval);
+            var windowCapture = new WindowCapture(Settings.Default.CaptureWindowTitle, Settings.Default.CaptureInterval);
 
             windowCapture.CaptureResultObservable.Subscribe(bitmap =>
             {
@@ -134,6 +81,59 @@ namespace umamusumeKeyCtl
             this.DataContext = _vm;
 
             var _ = SampleImageHolder.Instance;
+        }
+
+        private void OnLoadSettings(List<CaptureSettingSet> sets)
+        {
+            var dockPanels = new List<DockPanel>();
+            var converter = new BrushConverter();
+
+            for (int i = 0; i < sets.Count; i++)
+            {
+                var setting = sets[i];
+                var panel = new DockPanel()
+                {
+                    Width = 100,
+                    Background = Brushes.Transparent,
+                    LastChildFill = true
+                };
+                var removeLabel = new Label()
+                {
+                    Content = "\uECC9",
+                    FontFamily = new FontFamily("Segoe MDL2 Assets"),
+                    FontSize = 15,
+                    Foreground = (Brush) converter.ConvertFromString("#ff5c5c"),
+                    Background = Brushes.Transparent,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
+                    BorderThickness = new Thickness(0),
+                    VerticalAlignment = VerticalAlignment.Center,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                
+                var label = new Label()
+                {
+                    Content = setting.Name,
+                    Foreground = (Brush) converter.ConvertFromString("#e9eaea"),
+                    Background = Brushes.Transparent,
+                    VerticalContentAlignment = VerticalAlignment.Center,
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
+                };
+                removeLabel.MouseLeftButtonUp += (_, _) => CaptureSettingSetsHolder.Instance.RemoveSetting(setting.Name);
+                removeLabel.Visibility = Visibility.Hidden;
+                
+                OnChangeRemoveMode += b => removeLabel.Visibility = b ? Visibility.Visible : Visibility.Hidden;
+
+                panel.Children.Add(removeLabel);
+                panel.Children.Add(label);
+
+                DockPanel.SetDock(removeLabel, Dock.Right);
+                DockPanel.SetDock(label, Dock.Left);
+                
+                dockPanels.Add(panel);
+            }
+
+            SettingsView.ItemsSource = dockPanels;
         }
 
         private async void ChangeColor([CanBeNull] object sender, NotifyCollectionChangedEventArgs args, CancellationToken token)

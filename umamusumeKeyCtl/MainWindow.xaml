@@ -95,7 +95,7 @@
             <DockPanel DockPanel.Dock="Left" Background="#535755" MaxWidth="400" LastChildFill="True" Margin="0.2">
                 <StackPanel DockPanel.Dock="Top" Background="#383a39" Orientation="Vertical" Margin="0.3, 0.2, 0.2, 0.3" >
                     <DockPanel Name="ScrapSettings">
-                        <Button Name="ContextMenu" DockPanel.Dock="Right" FontFamily="Segoe MDL2 Assets" FontSize="10" Content="&#xE700;" Foreground="#f4f5f4" Background="Transparent" BorderThickness="0" Margin="1" Width="20">
+                        <Button Name="SettingsContextMenu" DockPanel.Dock="Right" FontFamily="Segoe MDL2 Assets" FontSize="10" Content="&#xE700;" Foreground="#f4f5f4" Background="Transparent" BorderThickness="0" Margin="1" Width="20">
                             <Button.ContextMenu>
                                 <ContextMenu Style="{StaticResource ResourceKey=ContextMenu}">
                                     <MenuItem Header="設定の追加..." Click="OnButtonClick" HorizontalContentAlignment="Left" Foreground="#f4f5f4" Background="Transparent"/>
