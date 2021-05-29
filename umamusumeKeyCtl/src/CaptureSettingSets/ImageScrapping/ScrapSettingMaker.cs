@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
@@ -17,7 +16,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets.ImageScrapping
         private bool _drawRectangle;
 
         private List<RectangleGetter> _getters;
-        private List<Rectangle> _rectangles;
+        private List<ScrapInfo> _rectangles;
         
         public ScrapSettingMaker(Canvas canvas, UIElement eventListenSource, bool drawRectangle)
         {
@@ -33,9 +32,23 @@ namespace umamusumeKeyCtl.CaptureSettingSets.ImageScrapping
             _getters.Add(getter);
         }
 
-        private void OnGetRectangle(Rectangle rectangle)
+        public void Cancel()
         {
-            _rectangles.Add(rectangle);
+            if (_drawRectangle)
+            {
+                foreach (var getter in _getters)
+                {
+                    getter.Unload();
+                    getter.Cancel();
+                }
+            }
+            
+            _getters.Clear();
+        }
+
+        private void OnGetRectangle(Rect rectangle)
+        {
+            _rectangles.Add(new ScrapInfo(_rectangles.Count, rectangle));
 
             _getters.Last().OnGetRectangle -= OnGetRectangle;
             
@@ -59,7 +72,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets.ImageScrapping
             
             _getters.Clear();
             
-            OnMadeScrapSetting?.Invoke(new ScrapSetting(_rectangles.ToArray()));
+            OnMadeScrapSetting?.Invoke(new ScrapSetting(_rectangles));
         }
     }
 }

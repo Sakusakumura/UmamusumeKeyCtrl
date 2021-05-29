@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:umamusumeKeyCtl"
         mc:Ignorable="d"
-        Title="NameInputPopupWindow" Height="200" Width="500"
+        Title="NameInputPopupWindow" Height="150" Width="500"
         WindowStyle="None"
         AllowsTransparency="True"
         VirtualizingStackPanel.IsVirtualizing="False">
@@ -33,8 +33,6 @@
             </Setter>
         </Style>
 
-
-
         <Style x:Key="MinimizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
             <Setter Property="Content" Value="&#xE949;"/>
         </Style>
@@ -50,7 +48,6 @@
         <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
             <Setter Property="Content" Value="&#xE711;"/>
         </Style>
-
     </Window.Resources>
 
     <DockPanel Background="#2B2C2B" LastChildFill="True">
@@ -75,17 +72,17 @@
 
         </DockPanel>
 
-        <UniformGrid Columns="1">
+        <StackPanel Orientation="Vertical">
             <Label Content="作成する設定名を入力してください" Height="30" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="#f4f5f4" Margin="0, 10, 0, 0"></Label>
-            <Label Name="ErrorLabel" Content="a" VerticalContentAlignment="Top" Height="30" HorizontalContentAlignment="Center" Foreground="#E74C3C"></Label>
+            <Label Name="ErrorLabel" Content="" Height="0" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Foreground="#E74C3C"/>
 
-            <TextBox Name="NameTextBox" Background="#535755" Foreground="#e9eaea" Margin="10" AcceptsReturn="False" TextWrapping="NoWrap"></TextBox>
+            <TextBox Name="NameTextBox" Background="#535755" FontSize="18" Foreground="#e9eaea" Margin="10" AcceptsReturn="False" TextWrapping="NoWrap"></TextBox>
 
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 10">
                 <Button Name="ConfirmEvent" Content="決定" Width="100" Height="20" Click="OnConfirmButtonEvent" Foreground="#f4f5f4" Background="#6f7472" Margin="0, 0, 5, 0"></Button>
                 <Button Name="CancelEvent" Content="キャンセル" Width="100" Height="20" Click="OnCancelButtonEvent" Foreground="#f4f5f4" Background="#6f7472" Margin="5, 0, 0, 0"></Button>
             </StackPanel>
-        </UniformGrid>
+        </StackPanel>
 
     </DockPanel>
 </Window>

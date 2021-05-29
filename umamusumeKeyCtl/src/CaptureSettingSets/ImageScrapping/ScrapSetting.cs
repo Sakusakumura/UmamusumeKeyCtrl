@@ -1,13 +1,13 @@
-using System.Drawing;
+using System.Collections.Generic;
 
 namespace umamusumeKeyCtl.CaptureSettingSets.ImageScrapping
 {
     public class ScrapSetting
     {
-        private Rectangle[] _scrapInfos;
-        public Rectangle[] ScrapInfos => _scrapInfos;
+        private List<ScrapInfo> _scrapInfos;
+        public List<ScrapInfo> ScrapInfos => _scrapInfos;
 
-        public ScrapSetting(Rectangle[] scrapInfos)
+        public ScrapSetting(List<ScrapInfo> scrapInfos)
         {
             _scrapInfos = scrapInfos;
         }

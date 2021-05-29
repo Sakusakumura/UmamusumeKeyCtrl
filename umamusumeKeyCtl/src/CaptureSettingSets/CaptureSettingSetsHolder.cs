@@ -1,39 +1,49 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
+using umamusumeKeyCtl.Util;
 
 namespace umamusumeKeyCtl.CaptureSettingSets
 {
     public class CaptureSettingSetsHolder : Singleton<CaptureSettingSetsHolder>
     {
-        private bool isBusy = false;
+        private bool kill = false;
+
+        private CancellationTokenSource _tokenSource;
+        private Queue<Task> _taskQueue = new();
         
         private List<CaptureSettingSet> _settings = new();
-        public List<CaptureSettingSet> Settings
-        {
-            get => _settings;
-            private set
-            {
-                _settings = value;
-                OnLoadSettings.Invoke(_settings);
-            }
-        }
+        public CaptureSettingSet[] Settings => _settings.ToArray();
 
         public event Action<List<CaptureSettingSet>> OnLoadSettings;
 
-        public async void LoadSettings()
+        public CaptureSettingSetsHolder()
         {
-            if (isBusy)
-            {
-                return;
-            }
-            
+            _tokenSource = new CancellationTokenSource();
+            _ = ExecuteQueue(_tokenSource.Token);
+        }
+
+        public void Kill()
+        {
+            kill = true;
+        }
+
+        public void LoadSettings()
+        {
+            _taskQueue.Enqueue(AsyncLoadSettings());
+        }
+
+        private async Task AsyncLoadSettings()
+        {
             try
             {
-                Settings = await Task<List<CaptureSettingSet>>.Run(AsyncLoadSettings);
+                _settings = await Task<List<CaptureSettingSet>>.Run(InternalAsyncLoadSettings);
+                OnLoadSettings?.Invoke(_settings);
             }
             catch (Exception e)
             {
@@ -42,9 +52,8 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             }
         }
 
-        private async Task<List<CaptureSettingSet>> AsyncLoadSettings()
+        private async Task<List<CaptureSettingSet>> InternalAsyncLoadSettings()
         {
-            isBusy = true;
             List<CaptureSettingSet> result = new();
 
             try
@@ -65,38 +74,20 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             }
             catch (Exception e)
             {
-                isBusy = false;
                 Console.WriteLine(e);
                 throw;
             }
-
-            isBusy = false;
 
             return result;
         }
 
         public void SaveSettings()
         {
-            if (isBusy)
-            {
-                return;
-            }
-            
-            try
-            {
-                _ = Task.Run(InternalSaveSettings);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-                throw;
-            }
+            _taskQueue.Enqueue(InternalSaveSettings());
         }
 
-        private void InternalSaveSettings()
+        private Task InternalSaveSettings()
         {
-            isBusy = true;
-            
             try
             {
                 var str = JsonSerializer.Serialize(Settings);
@@ -104,36 +95,72 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             }
             catch (Exception e)
             {
-                isBusy = false;
                 Console.WriteLine(e);
                 throw;
             }
 
-            isBusy = false;
+            return Task.CompletedTask;
         }
 
         public void AddSettings(CaptureSettingSet settingSet)
         {
-            if (Settings.Contains(settingSet))
+            if (_settings.Contains(settingSet))
             {
                 return;
             }
             
-            Settings.Add(settingSet);
+            _settings.Add(settingSet);
+            
+            OnLoadSettings?.Invoke(_settings);
+
+            if (Properties.Settings.Default.AutoSave)
+            {
+                SaveSettings();
+            }
         }
 
         public void RemoveSetting(string settingName)
         {
-            var target = Settings.Find(setting => setting.Name == settingName);
+            var target = _settings.Find(setting => setting.Name == settingName);
             
             if (target == null)
             {
                 return;
             }
 
-            Settings.Remove(target);
+            _settings.Remove(target);
             
-            OnLoadSettings.Invoke(Settings);
+            OnLoadSettings?.Invoke(_settings);
+
+            if (Properties.Settings.Default.AutoSave)
+            {
+                SaveSettings();
+            }
+        }
+
+        private async Task ExecuteQueue(CancellationToken token)
+        {
+            while (token.IsCancellationRequested == false && kill == false)
+            {
+                while (_taskQueue.Count == 0 && token.IsCancellationRequested == false && kill == false)
+                {
+                    await Task.Delay(1);
+                }
+
+                try
+                {
+                    var task = _taskQueue.Dequeue();
+                    
+                    await Task.Run(() => task, token);
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                    throw;
+                }
+            }
+            
+            Debug.Print($"Execute queue finished. Statuses: kill={kill}, cancellationToken.IsCancellationRequested={token.IsCancellationRequested}");
         }
     }
 }

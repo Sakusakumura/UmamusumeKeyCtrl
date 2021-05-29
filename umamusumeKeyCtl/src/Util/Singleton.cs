@@ -1,4 +1,4 @@
-namespace umamusumeKeyCtl
+namespace umamusumeKeyCtl.Util
 {
     public class Singleton<T> where T : class, new()
     {

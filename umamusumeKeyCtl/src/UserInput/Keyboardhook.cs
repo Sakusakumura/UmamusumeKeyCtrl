@@ -24,7 +24,7 @@ using System.Windows.Input;
 
 namespace umamusumeKeyCtl.UserInput
 {
-    public class LowLevelKeyboardListener : Singleton<LowLevelKeyboardListener>
+    public class LowLevelKeyboardListener
     {
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;

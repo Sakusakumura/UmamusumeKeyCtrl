@@ -43,7 +43,12 @@ namespace umamusumeKeyCtl.CaptureSettingSets
 
             SettingMakeState = CaptureSettingMakeState.Naming;
 
-            OnCaptureSettingSetCreated += _ => CaptureSettingSetsHolder.Instance.SaveSettings();
+            OnCaptureSettingSetCreated += setting =>
+            {
+                CaptureSettingSetsHolder.Instance.AddSettings(setting);
+                CaptureSettingSetsHolder.Instance.SaveSettings();
+                CaptureSettingSetsHolder.Instance.LoadSettings();
+            };
         }
 
         private void OnStateChanged(CaptureSettingMakeState state)
@@ -95,6 +100,11 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                 
                 OnCaptureSettingSetCreated?.Invoke(new CaptureSettingSet(_name, _virtualKeySettings, _scrapSetting));
             }
+        }
+
+        private void OnCancel()
+        {
+            _settingMakeState = CaptureSettingMakeState.Waiting;
         }
 
         private void OnGetName(string str)

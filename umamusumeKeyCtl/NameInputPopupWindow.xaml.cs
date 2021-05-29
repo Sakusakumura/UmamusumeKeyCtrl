@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 using umamusumeKeyCtl.CaptureSettingSets;
@@ -10,12 +11,25 @@ namespace umamusumeKeyCtl
     /// </summary>
     public partial class NameInputPopupWindow : Window
     {
+        private string errorMessage = "";
+        public string ErrorMessage
+        {
+            get => errorMessage;
+            set
+            {
+                errorMessage = value;
+                OnErrorMessageChanged(errorMessage);
+            }
+        }
+
         public event Action<string> OnConfirm; 
         public event Action OnCanceled;
         
-        public NameInputPopupWindow()
+        public NameInputPopupWindow()   
         {
             InitializeComponent();
+
+            ErrorMessage = "";
             
             this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, OnCloseWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
@@ -24,14 +38,29 @@ namespace umamusumeKeyCtl
 
         private void OnConfirmButtonEvent(object sender, RoutedEventArgs e)
         {
-            if (CaptureSettingSetsHolder.Instance.Settings.Exists(val => val.Name == NameTextBox.Text))
+            if (CaptureSettingSetsHolder.Instance.Settings.ToList().Exists(val => val.Name == NameTextBox.Text))
             {
-                ErrorLabel.Content = "重複した設定名です";
+                ErrorMessage = "重複した設定名です";
                 return;
             }
             
             OnConfirm?.Invoke(NameTextBox.Text);
             this.Close();
+        }
+
+        private void OnErrorMessageChanged(string str)
+        {
+            ErrorLabel.Content = str;
+            
+            if (String.IsNullOrEmpty(str) == false)
+            {
+                Height = 180;
+                ErrorLabel.Height = 30;
+                return;
+            }
+
+            Height = 150;
+            ErrorLabel.Height = 0;
         }
 
         private void OnCancelButtonEvent(object sender, RoutedEventArgs e)

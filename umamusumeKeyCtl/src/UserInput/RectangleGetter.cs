@@ -1,7 +1,4 @@
 using System;
-using System.Drawing;
-using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -21,7 +18,7 @@ namespace umamusumeKeyCtl.UserInput
         private System.Windows.Shapes.Rectangle _rectangle;
         private bool _drawRectangle;
 
-        public event Action<Rectangle> OnGetRectangle; 
+        public event Action<Rect> OnGetRectangle; 
 
         public RectangleGetter(Canvas canvas, UIElement eventListenSource, bool drawRectangle)
         {
@@ -31,6 +28,11 @@ namespace umamusumeKeyCtl.UserInput
 
             eventListenSource.MouseLeftButtonUp += OnLeftMouseDown;
             eventListenSource.MouseMove += OnMouseMove;
+        }
+
+        public void Cancel()
+        {
+            _captureState = CaptureState.Captured;
         }
 
         public void Unload()
@@ -46,7 +48,7 @@ namespace umamusumeKeyCtl.UserInput
         {
             if (_captureState == CaptureState.Capturing_pos2 && _rectangle != null)
             {
-                var rect = GetRect(_point1, e.GetPosition(_uiElement));
+                var rect = RectangleHelper.GetRect(_point1, e.GetPosition(_uiElement));
                 
                 _rectangle.Width = rect.Width;
                 _rectangle.Height = rect.Height;
@@ -84,19 +86,9 @@ namespace umamusumeKeyCtl.UserInput
             {
                 _point2 = mousePos;
                 _captureState = CaptureState.Captured;
-                OnGetRectangle?.Invoke(GetRect(_point1, _point2));
+                OnGetRectangle?.Invoke(RectangleHelper.GetRect(_point1, _point2));
                 return;
             }
-        }
-
-        private Rectangle GetRect(Point point1, Point point2)
-        {
-            var minX = (int) Math.Min(point1.X, point2.X);
-            var maxX = (int) Math.Max(point1.X, point2.X);
-            var minY = (int) Math.Min(point1.Y, point2.Y);
-            var maxY = (int) Math.Max(point1.Y, point2.Y);
-            
-            return new Rectangle(minX, minY, maxX - minX, maxY - minY);
         }
         
         private enum CaptureState

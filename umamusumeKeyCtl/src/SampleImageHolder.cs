@@ -7,6 +7,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using umamusumeKeyCtl.CaptureSettingSets;
 using umamusumeKeyCtl.Properties;
+using umamusumeKeyCtl.Util;
 
 namespace umamusumeKeyCtl
 {
@@ -47,7 +48,7 @@ namespace umamusumeKeyCtl
                 throw;
             }
 
-            for (int i = 0; i < CaptureSettingSetsHolder.Instance.Settings.Count; i++)
+            for (int i = 0; i < CaptureSettingSetsHolder.Instance.Settings.Length; i++)
             {
                 Samples.Add(CaptureSettingSetsHolder.Instance.Settings[i].Name, tasks[i].Result);
                 tasks[i].Dispose();
