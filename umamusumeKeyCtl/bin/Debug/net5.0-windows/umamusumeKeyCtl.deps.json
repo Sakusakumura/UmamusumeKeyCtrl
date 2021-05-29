@@ -10,6 +10,7 @@
         "dependencies": {
           "OpenCvSharp4.Windows": "4.5.2.20210404",
           "System.Reactive": "5.0.0",
+          "UniRx": "5.4.1",
           "WpfScreenHelper": "1.0.0"
         },
         "runtime": {
@@ -116,6 +117,14 @@
         }
       },
       "System.Runtime.CompilerServices.Unsafe/5.0.0": {},
+      "UniRx/5.4.1": {
+        "runtime": {
+          "lib/UniRx.dll": {
+            "assemblyVersion": "5.4.1.0",
+            "fileVersion": "5.4.1.0"
+          }
+        }
+      },
       "WpfScreenHelper/1.0.0": {
         "runtime": {
           "lib/netcoreapp3.0/WpfScreenHelper.dll": {
@@ -201,6 +210,13 @@
       "sha512": "sha512-ZD9TMpsmYJLrxbbmdvhwt9YEgG5WntEnZ/d1eH8JBX9LBp+Ju8BSBhUGbZMNVHHomWo2KVImJhTDl2hIgw/6MA==",
       "path": "system.runtime.compilerservices.unsafe/5.0.0",
       "hashPath": "system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512"
+    },
+    "UniRx/5.4.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-kqJaUocGGO4WcMXhpkeQm2W4ZMyO+1arB/ylOqyVVPJ00CDb/RvJtU6eqg50DwlqKm3rvpxEjR9afOA0D5VorQ==",
+      "path": "unirx/5.4.1",
+      "hashPath": "unirx.5.4.1.nupkg.sha512"
     },
     "WpfScreenHelper/1.0.0": {
       "type": "package",

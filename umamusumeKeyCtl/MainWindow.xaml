@@ -5,12 +5,169 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:umamusumeKeyCtl"
         mc:Ignorable="d"
-        Title="MainWindow" Height="{Binding WndHeight, Mode=TwoWay}" Width="{Binding WndWidth, Mode=TwoWay}" d:DataContext="{d:DesignInstance }">
+        Title="MainWindow" Height="{Binding WndHeight, Mode=TwoWay}" Width="{Binding WndWidth, Mode=TwoWay}"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        VirtualizingStackPanel.IsVirtualizing="False">
     <Window.DataContext>
         <vm:MainWndVM/>
     </Window.DataContext>
-    
-    <StackPanel>
-        <Image Source="{Binding Path=MyImage}"/>
-    </StackPanel>
+    <Window.Resources>
+
+        <Style x:Key="CaptionButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="LayoutRoot" Background="Transparent" Width="44" Height="30">
+                            <TextBlock x:Name="txt" Text="{TemplateBinding Content}" FontFamily="Segoe MDL2 Assets" FontSize="10" 
+                                Foreground="#e9eaea" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                RenderOptions.ClearTypeHint="Auto" TextOptions.TextRenderingMode="Aliased"  TextOptions.TextFormattingMode="Display"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="LayoutRoot" Property="Background" Value="#E5E5E5"/>
+                                <Setter TargetName="txt" Property="Foreground" Value="#686d6b"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="txt" Property="Foreground" Value="#939795"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+
+
+        <Style x:Key="MinimizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE949;"/>
+        </Style>
+
+        <Style x:Key="MaximizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE739;"/>
+        </Style>
+
+        <Style x:Key="RestoreButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE923;"/>
+        </Style>
+
+        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE711;"/>
+        </Style>
+
+        <Style x:Key="ContextMenu" TargetType="{x:Type ContextMenu}">
+            <Setter Property="OverridesDefaultStyle" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type ContextMenu}">
+                        <Border Background="#2A2C2B" BorderBrush="#535755" BorderThickness="1" Margin="0">
+                            <StackPanel ClipToBounds="True" Orientation="Vertical" IsItemsHost="True" Margin="0"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </Window.Resources>
+
+    <DockPanel Background="#2B2C2B">
+        <DockPanel Name="CaptionPanel" DockPanel.Dock="Top" Background="#535755" HorizontalAlignment="Stretch" MaxWidth="400" LastChildFill="True" MouseLeftButtonDown="CaptionPanel_MouseLeftButtonDown">
+            <StackPanel DockPanel.Dock="Top" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+
+                <Button x:Name="MinimizeButton"
+                        KeyboardNavigation.IsTabStop="False"
+                        Command="{x:Static SystemCommands.MinimizeWindowCommand}"
+                        Style="{StaticResource MinimizeButtonStyle}"/>
+
+                <Button x:Name="MaximizeButton" 
+                        Command="{x:Static SystemCommands.MaximizeWindowCommand}" 
+                        Style="{StaticResource MaximizeButtonStyle}" IsEnabled="False"/>
+
+                <Button x:Name="CloseButton" 
+                        Command="{x:Static SystemCommands.CloseWindowCommand}" 
+                        Style="{StaticResource CloseButtonStyle}" IsEnabled="True"/>
+
+
+            </StackPanel>
+            
+        </DockPanel>
+
+        <Border BorderBrush="#535755" BorderThickness="0, 1, 1, 1">
+            <StackPanel Orientation="Horizontal">
+                <DockPanel DockPanel.Dock="Left" Background="#535755" MaxWidth="400" LastChildFill="True">
+                    <DockPanel DockPanel.Dock="Left" Background="#535755" MaxWidth="400" LastChildFill="True" Margin="0.2">
+                        <StackPanel Name="ToolPanel" DockPanel.Dock="Top" Background="#2B2C2B" Orientation="Vertical" Margin="0.3, 0.2, 0.2, 0">
+                            <StackPanel Name="ScrapSettings" Orientation="Vertical" Width="120">
+                                <DockPanel>
+                                    <Button Name="SettingsContextMenu" DockPanel.Dock="Right" FontFamily="Segoe MDL2 Assets" FontSize="10" Content="&#xE700;" Foreground="#f4f5f4" Background="Transparent" BorderBrush="#535755" BorderThickness="0, 0.5, 0, 0.25" Margin="0" Width="20">
+                                        <Button.ContextMenu>
+                                            <ContextMenu Style="{StaticResource ResourceKey=ContextMenu}">
+                                                <MenuItem Header="設定の追加..." Click="OnButtonClick" HorizontalContentAlignment="Left" Foreground="#f4f5f4" Background="Transparent"/>
+                                                <MenuItem Header="設定の保存" Click="OnSaveSettingsButtonClick" HorizontalContentAlignment="Left" Foreground="#f4f5f4" Background="Transparent"/>
+                                                <MenuItem Header="設定の再読み込み" Click="OnReloadButtonClick" HorizontalContentAlignment="Left" Foreground="#f4f5f4" Background="Transparent"/>
+                                                <MenuItem Header="設定の削除" Click="OnRemoveButtonClick" HorizontalContentAlignment="Left" Foreground="#f4f5f4" Background="Transparent"/>
+                                                <MenuItem Header="設定の編集..." Click="OnModifyButtonClick" HorizontalContentAlignment="Left" Foreground="#f4f5f4" Background="Transparent"/>
+                                            </ContextMenu>
+                                        </Button.ContextMenu>
+
+                                        <Button.Style>
+                                            <Style TargetType="{x:Type Button}">
+                                                <Style.Triggers>
+                                                    <EventTrigger RoutedEvent="Click">
+                                                        <EventTrigger.Actions>
+                                                            <BeginStoryboard>
+                                                                <Storyboard>
+                                                                    <BooleanAnimationUsingKeyFrames Storyboard.TargetProperty="ContextMenu.IsOpen">
+                                                                        <DiscreteBooleanKeyFrame KeyTime="0:0:0" Value="True"/>
+                                                                    </BooleanAnimationUsingKeyFrames>
+                                                                </Storyboard>
+                                                            </BeginStoryboard>
+                                                        </EventTrigger.Actions>
+                                                    </EventTrigger>
+                                                </Style.Triggers>
+                                                <Setter Property="ContextMenu">
+                                                    <Setter.Value>
+                                                        <ContextMenu>
+                                                            <MenuItem />
+                                                            <MenuItem />
+                                                        </ContextMenu>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Label Width="5" BorderBrush="#535755" BorderThickness="0, 0.5, 0, 0.25"></Label>
+                                    <Button Click="OnChangeCollapsedButtonClick" DockPanel.Dock="Left" Content="スクラップ設定" HorizontalContentAlignment="Left" Foreground="#f1f1f1" Background="Transparent" BorderBrush="#535755" BorderThickness="0, 0.5, 0, 0.25">
+                                        <ToolTipService.ToolTip>
+                                            <ToolTip Content="一覧表示を切替..."/>
+                                        </ToolTipService.ToolTip>
+                                    </Button>
+                                </DockPanel>
+                                <ListView Name="SettingsView" DockPanel.Dock="Top" Background="#383a39" BorderThickness="0" Margin="0" Visibility="Visible"/>
+                            </StackPanel>
+                            <!--
+                        <RadioButton Style="{StaticResource {x:Type ToggleButton}}" IsChecked="True">
+                            ToggleButtonA
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource {x:Type ToggleButton}}">
+                            ToggleButtonB
+                        </RadioButton>
+                        <RadioButton Style="{StaticResource {x:Type ToggleButton}}">
+                            ToggleButtonC
+                        </RadioButton>
+                    -->
+                        </StackPanel>
+
+                        <StackPanel DockPanel.Dock="Bottom" Background="#2B2C2B" Margin="0.2"/>
+                    </DockPanel>
+                </DockPanel>
+
+                <Grid>
+                    <Image Name="Image" Source="{Binding Path=MyImage}"/>
+                    <Canvas x:Name="canvas" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                </Grid>
+            </StackPanel>
+        </Border>
+
+    </DockPanel>
 </Window>

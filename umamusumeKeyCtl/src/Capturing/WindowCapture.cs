@@ -1,13 +1,8 @@
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Reactive.Subjects;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Interop;
-using WpfScreenHelper;
 
 namespace umamusumeKeyCtl
 {
@@ -81,7 +76,7 @@ namespace umamusumeKeyCtl
             return bitmap;
         }
 
-        private static Bitmap TakeCopyOfScreen(RECT targetWndRect)
+        private static Bitmap TakeCopyOfScreen(Rectangle targetWndRect)
         {
             double screenLeft = targetWndRect.Left;
             double screenTop = targetWndRect.Top;

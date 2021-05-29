@@ -10,6 +10,7 @@
     <ItemGroup>
       <PackageReference Include="OpenCvSharp4.Windows" Version="4.5.2.20210404" />
       <PackageReference Include="System.Reactive" Version="5.0.0" />
+      <PackageReference Include="UniRx" Version="5.4.1" />
       <PackageReference Include="WpfScreenHelper" Version="1.0.0" />
     </ItemGroup>
 
@@ -29,9 +30,6 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
       <None Remove="Resource\bar_lase.png" />
-      <Resource Include="Resource\bar_lase.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\bar_skill.png" />
       <Resource Include="Resource\bar_skill.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -45,9 +43,6 @@
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
       <None Remove="Resource\gotolase.png" />
-      <Resource Include="Resource\gotolase.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\ikuseiEvent.png" />
       <Resource Include="Resource\ikuseiEvent.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -76,14 +71,19 @@
       <Resource Include="Resource\yosoukekka.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Resource>
+      <None Remove="docs\umamusu_gamenCaptures.afphoto" />
+      <None Remove="Resource\bar_race.png" />
+      <Resource Include="Resource\bar_race.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
+      <None Remove="Resource\gotorace.png" />
+      <Resource Include="Resource\gotorace.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </Resource>
     </ItemGroup>
 
     <ItemGroup>
       <Compile Remove="src\Defines.cs" />
-    </ItemGroup>
-
-    <ItemGroup>
-      <Folder Include="Resource" />
     </ItemGroup>
 
     <ItemGroup>
@@ -99,6 +99,10 @@
         <Generator>SettingsSingleFileGenerator</Generator>
         <LastGenOutput>Settings.Designer.cs</LastGenOutput>
       </None>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Include="docs\UmamusumeKeyCtl.puml" />
     </ItemGroup>
 
 </Project>

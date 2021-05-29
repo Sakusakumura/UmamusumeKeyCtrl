@@ -53,6 +53,10 @@
               "target": "Package",
               "version": "[5.0.0, )"
             },
+            "UniRx": {
+              "target": "Package",
+              "version": "[5.4.1, )"
+            },
             "WpfScreenHelper": {
               "target": "Package",
               "version": "[1.0.0, )"

@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "Hpci3/OlQpfKL9bkbO8U0ObBv7t8TxRf1l/iCO9uuIVn5WsIq+3XE3Jw1s/vNl0z9Z02wbZAZIIb862B1hScLg==",
+  "dgSpecHash": "tUNhaoJT9NB78zRLKs8BG9d6a0/j3d1fT4DtrXoenG1S4AfwuCPleGSxMUeLsvvHWeMG89EzKCzakshWMd8LYg==",
   "success": true,
   "projectFilePath": "D:\\User\\document\\CSProjects\\umamusumeKeyCtl\\umamusumeKeyCtl\\umamusumeKeyCtl.csproj",
   "expectedPackageFiles": [
@@ -14,7 +14,19 @@
     "C:\\Users\\Sakusakumura\\.nuget\\packages\\system.memory\\4.5.4\\system.memory.4.5.4.nupkg.sha512",
     "C:\\Users\\Sakusakumura\\.nuget\\packages\\system.reactive\\5.0.0\\system.reactive.5.0.0.nupkg.sha512",
     "C:\\Users\\Sakusakumura\\.nuget\\packages\\system.runtime.compilerservices.unsafe\\5.0.0\\system.runtime.compilerservices.unsafe.5.0.0.nupkg.sha512",
+    "C:\\Users\\Sakusakumura\\.nuget\\packages\\unirx\\5.4.1\\unirx.5.4.1.nupkg.sha512",
     "C:\\Users\\Sakusakumura\\.nuget\\packages\\wpfscreenhelper\\1.0.0\\wpfscreenhelper.1.0.0.nupkg.sha512"
   ],
-  "logs": []
+  "logs": [
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "warningLevel": 1,
+      "message": "Package 'UniRx 5.4.1' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8' instead of the project target framework 'net5.0-windows7.0'. This package may not be fully compatible with your project.",
+      "libraryId": "UniRx",
+      "targetGraphs": [
+        "net5.0-windows7.0"
+      ]
+    }
+  ]
 }

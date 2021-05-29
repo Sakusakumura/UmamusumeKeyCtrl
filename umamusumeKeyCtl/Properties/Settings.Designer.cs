@@ -58,5 +58,41 @@ namespace umamusumeKeyCtl.Properties {
                 this["ImageResolutionWidth"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.77777779")]
+        public float GameAspectRatio {
+            get {
+                return ((float)(this["GameAspectRatio"]));
+            }
+            set {
+                this["GameAspectRatio"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("./CapturedImages")]
+        public string ScreenShotLocation {
+            get {
+                return ((string)(this["ScreenShotLocation"]));
+            }
+            set {
+                this["ScreenShotLocation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoSave {
+            get {
+                return ((bool)(this["AutoSave"]));
+            }
+            set {
+                this["AutoSave"] = value;
+            }
+        }
     }
 }

@@ -5,16 +5,9 @@ using OpenCvSharp.Extensions;
 namespace umamusumeKeyCtl
 {
     public class ImageSimilaritySearcher
-    {
-
-        public ImageSimilaritySearcher()
+    { 
+        public static double CalcurateSimilarity(Bitmap srcImage, Bitmap targetImage)
         {
-        }
-
-        public double CalcurateSimilarity(Bitmap srcImage, Bitmap targetImage)
-        {
-            double result = 0.0;
-            
             // 検索対象の画像とテンプレート画像
             using (Mat src = BitmapConverter.ToMat(srcImage))
             using (Mat target = BitmapConverter.ToMat(targetImage))
@@ -41,14 +34,13 @@ namespace umamusumeKeyCtl
                     // ウィンドウに画像を表示
                     Cv2.ImShow("template1_show", src);
 
+                    return maxval;
                 }
                 else
                 {
-                    // 見つからない
+                    return -1;
                 }
             }
-
-            return 0.0;
         }
     }
 }
