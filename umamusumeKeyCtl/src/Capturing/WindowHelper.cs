@@ -2,9 +2,11 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Interop;
 using WpfScreenHelper;
+using Point = System.Drawing.Point;
 
 namespace umamusumeKeyCtl
 {
@@ -29,6 +31,14 @@ namespace umamusumeKeyCtl
             public int top;
             public int right;
             public int bottom;
+
+            public Rect(int left, int top, int right, int bottom)
+            {
+                this.left = left;
+                this.top = top;
+                this.right = right;
+                this.bottom = bottom;
+            }
         }
         
         enum DWMWINDOWATTRIBUTE
@@ -79,11 +89,28 @@ namespace umamusumeKeyCtl
             return hWnd;
         }
 
+        /// <summary>
+        /// Get window handle of window that matches given name.
+        /// </summary>
+        /// <param name="wName">Window name.</param>
+        /// <returns>Should contain the handle but may be zero if the title doesn't match</returns>
+        public static async Task<IntPtr> AsyncGetHWndByName(string wName)
+        {
+            return await Task<IntPtr>.Run(() => { return GetHWndByName(wName); });
+        }
+
         public static Rectangle GetWindowRect(IntPtr hWnd)
         {
-            ClientToScreen(hWnd, out System.Drawing.Point _Point);
-            GetClientRect(hWnd, out Rect _Rect);
-            Rectangle _Rectangle = new Rectangle(_Point.X, _Point.Y, _Rect.right, _Rect.bottom);
+            var clientToScreenResult = ClientToScreen(hWnd, out Point point);
+
+            var clientRectResult = GetClientRect(hWnd, out Rect rect);
+            
+            if (clientToScreenResult * clientRectResult == 0)
+            {
+                return Rectangle.Empty;
+            }
+
+            Rectangle _Rectangle = new Rectangle(point.X, point.Y, rect.right, rect.bottom);
 
             return _Rectangle;
         }
