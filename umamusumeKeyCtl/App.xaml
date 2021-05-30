@@ -1,9 +1,10 @@
 ﻿<Application x:Class="umamusumeKeyCtl.App"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:local="clr-namespace:umamusumeKeyCtl"
+             xmlns:ui="http://schemas.modernwpf.com/2019"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
+
         <SolidColorBrush x:Key="Button.Static.Background" Color="#2B2C2B"/>
         <SolidColorBrush x:Key="Button.Static.Border" Color="#535755"/>
         <SolidColorBrush x:Key="Button.Static.Foreground" Color="#a8acaa"/>

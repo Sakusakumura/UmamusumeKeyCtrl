@@ -11,6 +11,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using umamusumeKeyCtl.Annotations;
+using umamusumeKeyCtl.AppSettings;
 using umamusumeKeyCtl.CaptureSettingSets;
 using umamusumeKeyCtl.Properties;
 
@@ -31,32 +32,12 @@ namespace umamusumeKeyCtl
             this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, OnCloseWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, OnRestoreWindow, OnCanResizeWindow));
-
-
-            var _vm = new MainWndVM();
             
-            var windowCapture = new WindowCapture(Settings.Default.CaptureWindowTitle, Settings.Default.CaptureInterval);
-
-            windowCapture.CaptureResultObservable.Subscribe(bitmap =>
-            {
-                using (bitmap)
-                {
-                    _vm.OnPrintWnd(bitmap);
-                }
-            }, exception => Console.Write(exception));
-            windowCapture.CaptureResultObservable.Subscribe(bitmap =>
-            {
-                using (bitmap)
-                {
-                    canvas.Width = Image.Width;
-                    canvas.Height = Image.Height;
-                }
-            }, exception => Console.Write(exception));
-
-            Closing += (sender, args) => windowCapture.StopCapture();
-            Closing += (sender, args) => SampleImageHolder.Instance.Dispose();
+            var _vm = new MainWndVM();
 
             this.DataContext = _vm;
+
+            SetUpWindowCapture(_vm);
 
             var _ = SampleImageHolder.Instance;
         }
@@ -81,6 +62,40 @@ namespace umamusumeKeyCtl
             
             //Load settings
             CaptureSettingSetsHolder.Instance.LoadSettings();
+            
+            //Draw Application setting panel
+            new AppSettingsUILoader(AppSettingsView).LoadAndDraw();
+        }
+
+        private void SetUpWindowCapture(MainWndVM vm)
+        {
+            var captureSetting = new CaptureSetting(Settings.Default.CaptureInterval, Settings.Default.CaptureWindowTitle);
+            Settings.Default.PropertyChanged += (_, _) =>
+            {
+                captureSetting.Interval = Settings.Default.CaptureInterval;
+                captureSetting.CaptureWndName = Settings.Default.CaptureWindowTitle;
+            };
+
+            var windowCapture = new WindowCapture(captureSetting);
+
+            windowCapture.CaptureResultObservable.Subscribe(bitmap =>
+            {
+                using (bitmap)
+                {
+                    vm.OnPrintWnd(bitmap);
+                }
+            }, exception => Console.Write(exception));
+            windowCapture.CaptureResultObservable.Subscribe(bitmap =>
+            {
+                using (bitmap)
+                {
+                    canvas.Width = Image.Width;
+                    canvas.Height = Image.Height;
+                }
+            }, exception => Console.Write(exception));
+
+            Closing += (_, _) => windowCapture.StopCapture();
+            Closing += (_, _) => SampleImageHolder.Instance.Dispose();
         }
 
         private async void ChangeColor([CanBeNull] object sender, NotifyCollectionChangedEventArgs args, CancellationToken token)
@@ -172,11 +187,13 @@ namespace umamusumeKeyCtl
 
         private void OnRemoveButtonClick(object sender, RoutedEventArgs e)
         {
+            _settingSetViewer.ModifyMode = false;
             _settingSetViewer.RemoveMode = true;
         }
         
         public void OnModifyButtonClick(object sender, RoutedEventArgs routedEventArgs)
         {
+            _settingSetViewer.RemoveMode = false;
             _settingSetViewer.ModifyMode = true;
         }
 
@@ -185,6 +202,19 @@ namespace umamusumeKeyCtl
             SettingsView.Visibility = SettingsView.Visibility == Visibility.Collapsed
                 ? Visibility.Visible
                 : Visibility.Collapsed;
+        }
+
+        public void OnToggleSettingViewButtonClick(object sender, RoutedEventArgs routedEventArgs)
+        {
+            var visibility = MainPanel.Visibility == Visibility.Visible;
+
+            if (visibility == false)
+            {
+                Settings.Default.Save();
+            }
+
+            MainPanel.Visibility = visibility ? Visibility.Hidden : Visibility.Visible;
+            AppSettingsPanel.Visibility = visibility ? Visibility.Visible : Visibility.Hidden;
         }
 
         protected override void OnClosing(CancelEventArgs e)

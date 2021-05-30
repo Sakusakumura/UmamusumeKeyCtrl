@@ -79,7 +79,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             if (state == CaptureSettingMakeState.Completed)
             {
                 // take a screenshot.
-                var capture = new WindowCapture(Settings.Default.CaptureWindowTitle, Settings.Default.CaptureInterval);
+                var capture = new WindowCapture(new CaptureSetting(Settings.Default.CaptureInterval, Settings.Default.CaptureWindowTitle));
                 capture.CaptureResultObservable.Subscribe(bitmap =>
                 {
                     using (bitmap)

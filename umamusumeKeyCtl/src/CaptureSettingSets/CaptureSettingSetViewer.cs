@@ -48,11 +48,11 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                 var setting = captureSettingSets[i];
                 var panel = new DockPanel()
                 {
-                    Width = 100,
                     Background = Brushes.Transparent,
                     LastChildFill = true,
                 };
 
+                // Will be added remove and modify label.
                 var grid = new Grid();
 
                 var removeLabel = new Label()
@@ -65,8 +65,6 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                     VerticalContentAlignment = VerticalAlignment.Center,
                     HorizontalContentAlignment = HorizontalAlignment.Left,
                     BorderThickness = new Thickness(0),
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center
                 };
                 removeLabel.MouseLeftButtonUp +=
                     (_, _) => CaptureSettingSetsHolder.Instance.RemoveSetting(setting.Name);
@@ -83,8 +81,6 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                     VerticalContentAlignment = VerticalAlignment.Center,
                     HorizontalContentAlignment = HorizontalAlignment.Left,
                     BorderThickness = new Thickness(0),
-                    VerticalAlignment = VerticalAlignment.Center,
-                    HorizontalAlignment = HorizontalAlignment.Center
                 };
                 modifyLabel.MouseLeftButtonUp += (_, _) =>
                 {
@@ -97,6 +93,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                 grid.Children.Add(removeLabel);
                 grid.Children.Add(modifyLabel);
 
+                // setting name label.
                 var label = new Label()
                 {
                     Content = setting.Name,
@@ -110,7 +107,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                 panel.Children.Add(label);
 
                 DockPanel.SetDock(grid, Dock.Right);
-                DockPanel.SetDock(label, Dock.Left);
+                DockPanel.SetDock(label, Dock.Right);
 
                 dockPanels.Add(panel);
             }
@@ -155,7 +152,6 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             var cancelDockPanel = new DockPanel()
             {
                 Height = 0,
-                Width = 100,
                 Background = Brushes.Transparent,
                 LastChildFill = true
             };
