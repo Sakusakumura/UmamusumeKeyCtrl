@@ -4,12 +4,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace umamusumeKeyCtl.CaptureSettingSets
+namespace umamusumeKeyCtl.CaptureScene
 {
     /// <summary>
     /// CaptureSettingSetをListViewerで表示するためのクラス。
     /// </summary>
-    public class CaptureSettingSetViewer
+    public class SceneSettingViewer
     {
         private bool _removeMode = false;
 
@@ -38,7 +38,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
         public event Action<bool> OnChangeRemoveMode;
         public event Action<bool> OnChangeModifyMode;
 
-        public void OnLoadSettings(List<CaptureSettingSet> captureSettingSets, Canvas canvas, StackPanel toolPanel, ListView listView)
+        public void OnLoadSettings(List<SceneSetting> captureSettingSets, Canvas canvas, StackPanel toolPanel, ListView listView)
         {
             var dockPanels = new List<DockPanel>();
             var converter = new BrushConverter();
@@ -67,7 +67,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                     BorderThickness = new Thickness(0),
                 };
                 removeLabel.MouseLeftButtonUp +=
-                    (_, _) => CaptureSettingSetsHolder.Instance.RemoveSetting(setting.Name);
+                    (_, _) => SceneSettingHolder.Instance.RemoveSetting(setting.Name);
                 removeLabel.Visibility = Visibility.Hidden;
                 OnChangeRemoveMode += b => removeLabel.Visibility = b ? Visibility.Visible : Visibility.Hidden;
 
@@ -84,7 +84,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                 };
                 modifyLabel.MouseLeftButtonUp += (_, _) =>
                 {
-                    new CaptureSettingSetModifier(setting, canvas, toolPanel);
+                    new SceneSettingModifier(setting, canvas, toolPanel);
                     OnChangeModifyMode.Invoke(false);
                 };
                 modifyLabel.Visibility = Visibility.Hidden;

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace umamusumeKeyCtl.CaptureSettingSets.ImageScrapping
+namespace umamusumeKeyCtl.CaptureScene
 {
     public class ScrapSetting
     {

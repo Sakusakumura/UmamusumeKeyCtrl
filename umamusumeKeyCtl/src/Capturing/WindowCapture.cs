@@ -1,9 +1,11 @@
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 using System.Reactive.Subjects;
-using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using Image = System.Drawing.Image;
 
 namespace umamusumeKeyCtl
 {
@@ -33,9 +35,15 @@ namespace umamusumeKeyCtl
             _cancellationTokenSource = new CancellationTokenSource();
             _captureResultSubject = new Subject<Bitmap>();
 
-            _waitingImage = (Bitmap) Image.FromFile("devilman.jpg");
+            using (var image = (Bitmap) Image.FromFile("devilman.bmp"))
+            {
+                _waitingImage = (Bitmap) image.Clone();
+            }
 
-            internalAsyncCaptureTask = InternalAsyncCapture(_captureSetting, _cancellationTokenSource);
+            internalAsyncCaptureTask = Task.Run(() =>
+            {
+                return InternalAsyncCapture(_captureSetting, _cancellationTokenSource.Token);
+            });
         }
 
         /// <summary>
@@ -47,37 +55,36 @@ namespace umamusumeKeyCtl
             _captureResultSubject.Dispose();
         }
 
-        private async Task InternalAsyncCapture(CaptureSetting captureSetting, CancellationTokenSource cancellationTokenSource)
+        private async Task InternalAsyncCapture(CaptureSetting captureSetting, CancellationToken token)
         {
             var hWnd = await WindowHelper.AsyncGetHWndByName(captureSetting.CaptureWndName);
             
-            while (cancellationTokenSource.Token.IsCancellationRequested == false)
+            while (token.IsCancellationRequested == false)
             {
                 while (hWnd == IntPtr.Zero)
                 {
-                    await Task.Run(() => { return Task.Delay(1000); });
+                    await Task.Delay(1000);
 
                     hWnd = await WindowHelper.AsyncGetHWndByName(captureSetting.CaptureWndName);
                 }
 
-                using (CaptureResult result = await AsyncPrintBitmap(hWnd))
+                using (CaptureResult result = await Task<CaptureResult>.Run(() => PrintBitmap(hWnd)))
                 {
                     if (result.IsSucceed == false)
                     {
                         hWnd = IntPtr.Zero;
                     }
-                    _captureResultSubject.OnNext(result.Image ?? new Bitmap(1, 1));
+
+                    using (result)
+                    {
+                        _captureResultSubject.OnNext(result.Image ?? new Bitmap(1, 1));
+                    }
                 }
 
-                await Task.Run(() => { return Task.Delay(captureSetting.Interval); });
+                await Task.Delay(captureSetting.Interval);
             }
             
             this.Dispose();
-        }
-
-        private async Task<CaptureResult> AsyncPrintBitmap(IntPtr hwnd)
-        {
-            return await Task<CaptureResult>.Run(() => { return PrintBitmap(hwnd); });
         }
 
         private CaptureResult PrintBitmap(IntPtr hwnd)
@@ -86,7 +93,7 @@ namespace umamusumeKeyCtl
 
             if (rectangle == Rectangle.Empty)
             {
-                return new CaptureResult(false, _waitingImage);
+                return new CaptureResult(false, (Bitmap) _waitingImage.Clone());
             }
 
             var bitmap = TakeCopyOfScreen(rectangle);
@@ -95,7 +102,7 @@ namespace umamusumeKeyCtl
             return new CaptureResult(true, bitmap);
         }
 
-        private static Bitmap TakeCopyOfScreen(Rectangle targetWndRect)
+        private Bitmap TakeCopyOfScreen(Rectangle targetWndRect)
         {
             double screenLeft = targetWndRect.Left;
             double screenTop = targetWndRect.Top;

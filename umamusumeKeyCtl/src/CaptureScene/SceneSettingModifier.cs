@@ -1,27 +1,25 @@
 using System.Collections.Generic;
 using System.Windows.Controls;
-using umamusumeKeyCtl.CaptureSettingSets.ImageScrapping;
-using umamusumeKeyCtl.CaptureSettingSets.VirtualKeyPushing;
 
-namespace umamusumeKeyCtl.CaptureSettingSets
+namespace umamusumeKeyCtl.CaptureScene
 {
-    public class CaptureSettingSetModifier
+    public class SceneSettingModifier
     {
-        private CaptureSettingSet _captureSettingSet;
-        private CaptureSettingSetModifyToolBox _toolBox;
+        private SceneSetting _sceneSetting;
+        private SceneSettingModifyToolBox _toolBox;
         private ScrapSettingModifier _scrapSettingModifier;
         private VirtualKeySettingModifier _virtualKeySettingModifier;
         private Canvas _canvas;
 
-        public CaptureSettingSetModifier(CaptureSettingSet captureSettingSet, Canvas drawToCanvas, StackPanel toolPanel)
+        public SceneSettingModifier(SceneSetting sceneSetting, Canvas drawToCanvas, StackPanel toolPanel)
         {
-            _toolBox = new CaptureSettingSetModifyToolBox(toolPanel);
+            _toolBox = new SceneSettingModifyToolBox(toolPanel);
             _toolBox.OnFinishEditing += OnFinishEditing;
 
             _canvas = drawToCanvas;
             
-            _captureSettingSet = captureSettingSet;
-            DrawSettingToCanvas(_captureSettingSet, _canvas);
+            _sceneSetting = sceneSetting;
+            DrawSettingToCanvas(_sceneSetting, _canvas);
         }
 
         public void Discard()
@@ -33,14 +31,14 @@ namespace umamusumeKeyCtl.CaptureSettingSets
 
         private void OnFinishEditing()
         {
-            var instance = CaptureSettingSetsHolder.Instance;
-            instance.RemoveSetting(_captureSettingSet.Name);
-            instance.AddSettings(_captureSettingSet);
+            var instance = SceneSettingHolder.Instance;
+            instance.RemoveSetting(_sceneSetting.Name);
+            instance.AddSettings(_sceneSetting);
             
             Discard();
         }
 
-        private void DrawSettingToCanvas(CaptureSettingSet target, Canvas drawToCanvas)
+        private void DrawSettingToCanvas(SceneSetting target, Canvas drawToCanvas)
         {
             _scrapSettingModifier = new ScrapSettingModifier(target.ScrapSetting, drawToCanvas);
             _scrapSettingModifier.OnChangeScrapSetting += OnChangeScrapSetting;
@@ -64,8 +62,8 @@ namespace umamusumeKeyCtl.CaptureSettingSets
 
         private void OnChangeScrapSetting(ScrapSetting setting)
         {
-            _captureSettingSet =
-                new CaptureSettingSet(_captureSettingSet.Name, _captureSettingSet.VirtualKeySettings, setting);
+            _sceneSetting =
+                new SceneSetting(_sceneSetting.Name, _sceneSetting.VirtualKeySettings, setting);
 
             _toolBox.ScrapSettingEditMode = _toolBox.ScrapSettingEditMode == EditMode.Add ? EditMode.Modify : _toolBox.ScrapSettingEditMode;
 
@@ -74,8 +72,8 @@ namespace umamusumeKeyCtl.CaptureSettingSets
 
         private void OnChangeVirtualKeys(List<VirtualKeySetting> virtualKeys)
         {
-            _captureSettingSet =
-                new CaptureSettingSet(_captureSettingSet.Name, virtualKeys, _captureSettingSet.ScrapSetting);
+            _sceneSetting =
+                new SceneSetting(_sceneSetting.Name, virtualKeys, _sceneSetting.ScrapSetting);
             
             _toolBox.VirtualKeySettingEditMode = _toolBox.VirtualKeySettingEditMode == EditMode.Add ? EditMode.Modify : _toolBox.VirtualKeySettingEditMode;
 

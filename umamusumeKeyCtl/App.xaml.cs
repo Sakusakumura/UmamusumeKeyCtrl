@@ -1,5 +1,5 @@
 ﻿using System.Windows;
-using umamusumeKeyCtl.CaptureSettingSets;
+using umamusumeKeyCtl.CaptureScene;
 
 namespace umamusumeKeyCtl
 {
@@ -10,7 +10,7 @@ namespace umamusumeKeyCtl
     {
         protected override void OnExit(ExitEventArgs e)
         {
-            CaptureSettingSetsHolder.Instance.Kill();
+            SceneSettingHolder.Instance.Kill();
         }
     }
 }

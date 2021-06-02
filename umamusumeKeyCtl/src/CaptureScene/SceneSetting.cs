@@ -1,10 +1,8 @@
 using System.Collections.Generic;
-using umamusumeKeyCtl.CaptureSettingSets.ImageScrapping;
-using umamusumeKeyCtl.CaptureSettingSets.VirtualKeyPushing;
 
-namespace umamusumeKeyCtl.CaptureSettingSets
+namespace umamusumeKeyCtl.CaptureScene
 {
-    public class CaptureSettingSet
+    public class SceneSetting
     {
         private string _name;
         public string Name => _name;
@@ -15,7 +13,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
         private ScrapSetting _scrapSetting;
         public ScrapSetting ScrapSetting => _scrapSetting;
 
-        public CaptureSettingSet(string name, List<VirtualKeySetting> virtualKeySettings, ScrapSetting scrapSetting)
+        public SceneSetting(string name, List<VirtualKeySetting> virtualKeySettings, ScrapSetting scrapSetting)
         {
             _name = name;
             _virtualKeySettings = virtualKeySettings;

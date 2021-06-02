@@ -7,7 +7,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using umamusumeKeyCtl.UserInput;
 
-namespace umamusumeKeyCtl.CaptureSettingSets.VirtualKeyPushing
+namespace umamusumeKeyCtl.CaptureScene
 {
     public class VirtualKeySettingModifier
     {

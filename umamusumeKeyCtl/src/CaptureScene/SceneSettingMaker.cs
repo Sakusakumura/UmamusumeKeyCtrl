@@ -4,13 +4,11 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Windows;
 using System.Windows.Controls;
-using umamusumeKeyCtl.CaptureSettingSets.ImageScrapping;
-using umamusumeKeyCtl.CaptureSettingSets.VirtualKeyPushing;
 using umamusumeKeyCtl.Properties;
 
-namespace umamusumeKeyCtl.CaptureSettingSets
+namespace umamusumeKeyCtl.CaptureScene
 {
-    public class CaptureSettingSetMaker
+    public class SceneSettingMaker
     {
         private CaptureSettingMakeState _settingMakeState = CaptureSettingMakeState.Waiting;
 
@@ -24,7 +22,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             }
         }
 
-        public event Action<CaptureSettingSet> OnCaptureSettingSetCreated; 
+        public event Action<SceneSetting> OnCaptureSettingSetCreated; 
 
         private event Action<CaptureSettingMakeState> _onMakeStateChanged;
 
@@ -35,7 +33,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
         private ScrapSetting _scrapSetting;
         private List<VirtualKeySetting> _virtualKeySettings;
 
-        public CaptureSettingSetMaker(Canvas canvas, UIElement uiElement)
+        public SceneSettingMaker(Canvas canvas, UIElement uiElement)
         {
             _uiElement = uiElement;
             _canvas = canvas;
@@ -45,9 +43,9 @@ namespace umamusumeKeyCtl.CaptureSettingSets
 
             OnCaptureSettingSetCreated += setting =>
             {
-                CaptureSettingSetsHolder.Instance.AddSettings(setting);
-                CaptureSettingSetsHolder.Instance.SaveSettings();
-                CaptureSettingSetsHolder.Instance.LoadSettings();
+                SceneSettingHolder.Instance.AddSettings(setting);
+                SceneSettingHolder.Instance.SaveSettings();
+                SceneSettingHolder.Instance.LoadSettings();
             };
         }
 
@@ -96,9 +94,9 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                         }
                         capture.StopCapture();
                     }
+                    
+                    OnCaptureSettingSetCreated?.Invoke(new SceneSetting(_name, _virtualKeySettings, _scrapSetting));
                 });
-                
-                OnCaptureSettingSetCreated?.Invoke(new CaptureSettingSet(_name, _virtualKeySettings, _scrapSetting));
             }
         }
 

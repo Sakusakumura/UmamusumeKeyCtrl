@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -7,9 +8,11 @@ using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using umamusumeKeyCtl.Annotations;
 using umamusumeKeyCtl.Properties;
+using umamusumeKeyCtl.Util;
 
 namespace umamusumeKeyCtl
 {
@@ -19,6 +22,7 @@ namespace umamusumeKeyCtl
         public static extern bool DeleteObject(IntPtr hObject);
         
         private BitmapSource _myImage;
+
         public BitmapSource MyImage
         {
             get => _myImage;
@@ -67,28 +71,24 @@ namespace umamusumeKeyCtl
 
         public MainWndVM()
         {
-            MyImage = BitmapToImageSource((Bitmap) Bitmap.FromFile("devilman.jpg"));
             _toolPanelWidth = Settings.Default.ImageResolutionWidth;
         }
 
         public void OnPrintWnd(Bitmap image)
         {
-            using (image)
-            {
-                MyImage = BitmapToImageSource(image);
+            MyImage = BitmapToImageSource(image);
             
-                WndHeight = MyImage.PixelHeight;
-                WndWidth = MyImage.PixelWidth + 100;
-                ToolPanelWidth = 100;
-            }
+            WndHeight = MyImage.PixelHeight;
+            WndWidth = MyImage.PixelWidth + 100;
+            ToolPanelWidth = 100;
         }
-            
+
         BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
-            using (bitmap)
+            BitmapImage bitmapimage = new BitmapImage();
+
+            try
             {
-                BitmapImage bitmapimage = new BitmapImage();
-            
                 using (MemoryStream memory = new MemoryStream())
                 {
                     bitmap.Save(memory, ImageFormat.Bmp);
@@ -99,9 +99,14 @@ namespace umamusumeKeyCtl
                     bitmapimage.EndInit();
                     bitmapimage.Freeze();
                 }
-            
-                return bitmapimage;
             }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                throw;
+            }
+
+            return bitmapimage;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

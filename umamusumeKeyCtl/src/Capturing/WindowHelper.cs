@@ -29,15 +29,15 @@ namespace umamusumeKeyCtl
         {
             public int left;
             public int top;
-            public int right;
-            public int bottom;
+            public int width;
+            public int height;
 
-            public Rect(int left, int top, int right, int bottom)
+            public Rect(int left, int top, int width, int height)
             {
                 this.left = left;
                 this.top = top;
-                this.right = right;
-                this.bottom = bottom;
+                this.width = width;
+                this.height = height;
             }
         }
         
@@ -105,12 +105,12 @@ namespace umamusumeKeyCtl
 
             var clientRectResult = GetClientRect(hWnd, out Rect rect);
             
-            if (clientToScreenResult * clientRectResult == 0)
+            if (clientToScreenResult * clientRectResult == 0 || new Point(rect.width, rect.height) == Point.Empty)
             {
                 return Rectangle.Empty;
             }
 
-            Rectangle _Rectangle = new Rectangle(point.X, point.Y, rect.right, rect.bottom);
+            Rectangle _Rectangle = new Rectangle(point.X, point.Y, rect.width, rect.height);
 
             return _Rectangle;
         }

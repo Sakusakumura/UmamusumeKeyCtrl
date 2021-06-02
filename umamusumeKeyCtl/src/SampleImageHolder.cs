@@ -5,7 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using umamusumeKeyCtl.CaptureSettingSets;
+using umamusumeKeyCtl.CaptureScene;
 using umamusumeKeyCtl.Properties;
 using umamusumeKeyCtl.Util;
 
@@ -33,7 +33,7 @@ namespace umamusumeKeyCtl
 
             Directory.CreateDirectory(Settings.Default.ScreenShotLocation);
 
-            foreach (var captureSettingSet in CaptureSettingSetsHolder.Instance.Settings)
+            foreach (var captureSettingSet in SceneSettingHolder.Instance.Settings)
             {
                 tasks.Add(LoadAsset($"{Settings.Default.ScreenShotLocation}/{captureSettingSet.Name}.bmp"));
             }
@@ -48,9 +48,9 @@ namespace umamusumeKeyCtl
                 throw;
             }
 
-            for (int i = 0; i < CaptureSettingSetsHolder.Instance.Settings.Length; i++)
+            for (int i = 0; i < SceneSettingHolder.Instance.Settings.Length; i++)
             {
-                Samples.Add(CaptureSettingSetsHolder.Instance.Settings[i].Name, tasks[i].Result);
+                Samples.Add(SceneSettingHolder.Instance.Settings[i].Name, tasks[i].Result);
                 tasks[i].Dispose();
             }
         }

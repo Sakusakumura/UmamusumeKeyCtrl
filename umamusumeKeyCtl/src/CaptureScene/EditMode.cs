@@ -1,4 +1,4 @@
-namespace umamusumeKeyCtl.CaptureSettingSets
+namespace umamusumeKeyCtl.CaptureScene
 {
     public enum EditMode
     {
