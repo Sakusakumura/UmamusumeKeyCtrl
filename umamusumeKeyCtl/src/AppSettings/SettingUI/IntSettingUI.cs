@@ -30,7 +30,7 @@ namespace umamusumeKeyCtl.AppSettings.SettingUI
             textBlock.PreviewTextInput += (sender, args) =>
             {
                 // Allow only digits
-                var regex = new Regex(@"^[1-9][0-9]*$");
+                var regex = new Regex(@"^[0-9]*$");
 
                 var inserted = textBlock.Text.Insert(textBlock.CaretIndex, args.Text);
 
@@ -44,7 +44,18 @@ namespace umamusumeKeyCtl.AppSettings.SettingUI
             textBlock.SetBinding(TextBlock.TextProperty, binding);
             textBlock.LostFocus += (_, _) =>
             {
-                bindingTarget.SettingValue = int.Parse(textBlock.Text);
+                if (int.TryParse(textBlock.Text, out int val))
+                {
+                    if (val <= 0)
+                    {
+                        val = 1;
+                    }
+
+                    textBlock.Text = val.ToString();
+                    bindingTarget.SettingValue = val;
+                }
+                
+                textBlock.Text = ((int) bindingTarget.SettingValue).ToString();
             };
 
             return textBlock;

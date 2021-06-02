@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using umamusumeKeyCtl.UserInput;
 
-namespace umamusumeKeyCtl.CaptureSettingSets.ImageScrapping
+namespace umamusumeKeyCtl.CaptureScene
 {
     public class ScrapSettingMaker
     {

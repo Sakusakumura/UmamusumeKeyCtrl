@@ -1,6 +1,6 @@
 using System.Windows;
 
-namespace umamusumeKeyCtl.CaptureSettingSets.ImageScrapping
+namespace umamusumeKeyCtl.CaptureScene
 {
     public class ScrapInfo
     {

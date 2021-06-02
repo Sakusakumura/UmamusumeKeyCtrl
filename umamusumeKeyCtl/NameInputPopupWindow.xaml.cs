@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
-using umamusumeKeyCtl.CaptureSettingSets;
+using umamusumeKeyCtl.CaptureScene;
 
 namespace umamusumeKeyCtl
 {
@@ -38,7 +38,7 @@ namespace umamusumeKeyCtl
 
         private void OnConfirmButtonEvent(object sender, RoutedEventArgs e)
         {
-            if (CaptureSettingSetsHolder.Instance.Settings.ToList().Exists(val => val.Name == NameTextBox.Text))
+            if (SceneSettingHolder.Instance.Settings.ToList().Exists(val => val.Name == NameTextBox.Text))
             {
                 ErrorMessage = "重複した設定名です";
                 return;

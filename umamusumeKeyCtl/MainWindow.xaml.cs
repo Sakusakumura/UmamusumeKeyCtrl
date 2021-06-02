@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,7 +11,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using umamusumeKeyCtl.Annotations;
 using umamusumeKeyCtl.AppSettings;
-using umamusumeKeyCtl.CaptureSettingSets;
+using umamusumeKeyCtl.CaptureScene;
 using umamusumeKeyCtl.Properties;
 
 namespace umamusumeKeyCtl
@@ -23,7 +22,7 @@ namespace umamusumeKeyCtl
     public partial class MainWindow : Window, IDisposable
     {
         private CancellationTokenSource _tokenSource;
-        private CaptureSettingSetViewer _settingSetViewer;
+        private SceneSettingViewer _sceneSettingViewer;
 
         public MainWindow()
         {
@@ -39,7 +38,9 @@ namespace umamusumeKeyCtl
 
             SetUpWindowCapture(_vm);
 
-            var _ = SampleImageHolder.Instance;
+            _ = SampleImageHolder.Instance;
+
+            _ = SceneHolder.Instance;
         }
 
         private void Initialize()
@@ -50,9 +51,9 @@ namespace umamusumeKeyCtl
             
             InitializeComponent();
             
-            _settingSetViewer = new CaptureSettingSetViewer();
+            _sceneSettingViewer = new SceneSettingViewer();
             
-            CaptureSettingSetsHolder.Instance.OnLoadSettings += settingSets => _settingSetViewer.OnLoadSettings(settingSets, canvas, ToolPanel, SettingsView);
+            SceneSettingHolder.Instance.OnLoadSettings += settingSets => _sceneSettingViewer.OnLoadSettings(settingSets, canvas, ToolPanel, SettingsView);
             
             ((INotifyCollectionChanged)SettingsView.Items).CollectionChanged += (sender, args) =>
             {
@@ -61,7 +62,7 @@ namespace umamusumeKeyCtl
             };
             
             //Load settings
-            CaptureSettingSetsHolder.Instance.LoadSettings();
+            SceneSettingHolder.Instance.LoadSettings();
             
             //Draw Application setting panel
             new AppSettingsUILoader(AppSettingsView).LoadAndDraw();
@@ -80,18 +81,12 @@ namespace umamusumeKeyCtl
 
             windowCapture.CaptureResultObservable.Subscribe(bitmap =>
             {
-                using (bitmap)
-                {
-                    vm.OnPrintWnd(bitmap);
-                }
-            }, exception => Console.Write(exception));
-            windowCapture.CaptureResultObservable.Subscribe(bitmap =>
-            {
-                using (bitmap)
+                vm.OnPrintWnd(bitmap);
+                this.Dispatcher.Invoke(() =>
                 {
                     canvas.Width = Image.Width;
                     canvas.Height = Image.Height;
-                }
+                });
             }, exception => Console.Write(exception));
 
             Closing += (_, _) => windowCapture.StopCapture();
@@ -142,12 +137,12 @@ namespace umamusumeKeyCtl
 
         public void OnButtonClick(object sender, RoutedEventArgs e)
         {
-            new CaptureSettingSetMaker(canvas, canvas);
+            new SceneSettingMaker(canvas, canvas);
         }
 
         private void OnSaveSettingsButtonClick(object sender, RoutedEventArgs e)
         {
-            CaptureSettingSetsHolder.Instance.SaveSettings();
+            SceneSettingHolder.Instance.SaveSettings();
         }
 
         private void OnCanMinimizeWindow(object sender, CanExecuteRoutedEventArgs e)
@@ -182,19 +177,19 @@ namespace umamusumeKeyCtl
 
         private void OnReloadButtonClick(object sender, RoutedEventArgs e)
         {
-            CaptureSettingSetsHolder.Instance.LoadSettings();
+            SceneSettingHolder.Instance.LoadSettings();
         }
 
         private void OnRemoveButtonClick(object sender, RoutedEventArgs e)
         {
-            _settingSetViewer.ModifyMode = false;
-            _settingSetViewer.RemoveMode = true;
+            _sceneSettingViewer.ModifyMode = false;
+            _sceneSettingViewer.RemoveMode = true;
         }
         
         public void OnModifyButtonClick(object sender, RoutedEventArgs routedEventArgs)
         {
-            _settingSetViewer.RemoveMode = false;
-            _settingSetViewer.ModifyMode = true;
+            _sceneSettingViewer.RemoveMode = false;
+            _sceneSettingViewer.ModifyMode = true;
         }
 
         public void OnChangeCollapsedButtonClick(object sender, RoutedEventArgs args)

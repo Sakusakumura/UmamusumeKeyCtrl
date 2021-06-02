@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
-namespace umamusumeKeyCtl.CaptureSettingSets
+namespace umamusumeKeyCtl.CaptureScene
 {
-    public class CaptureSettingSetModifyToolBox
+    public class SceneSettingModifyToolBox
     {
         private StackPanel _toolPanel;
         private StackPanel _rootPanel;
@@ -40,7 +39,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
         public event Action<EditMode> OnVirtualKeySettingModifyModeSelected;
         public event Action OnFinishEditing;
 
-        public CaptureSettingSetModifyToolBox(StackPanel toolPanel)
+        public SceneSettingModifyToolBox(StackPanel toolPanel)
         {
             _toolPanel = toolPanel;
             _toolPanel.Children.Add(CreateToolBox());

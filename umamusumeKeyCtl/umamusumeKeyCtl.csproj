@@ -17,15 +17,13 @@
 
     <ItemGroup>
       <None Remove="devilman.jpg" />
-      <Resource Include="devilman.jpg">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
+      <EmbeddedResource Include="devilman.jpg" />
       <None Remove="yagidenryu.png" />
       <Resource Include="yagidenryu.png" />
       <None Remove="devilman.bmp" />
-      <Resource Include="devilman.bmp">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Resource>
+      <EmbeddedResource Include="devilman.bmp">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
       <None Remove="Resource\bar_ikusei.png" />
       <Resource Include="Resource\bar_ikusei.png">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>

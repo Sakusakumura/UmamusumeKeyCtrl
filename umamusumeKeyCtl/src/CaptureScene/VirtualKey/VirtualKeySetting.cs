@@ -1,7 +1,7 @@
 using System.Windows;
 using System.Windows.Input;
 
-namespace umamusumeKeyCtl.CaptureSettingSets.VirtualKeyPushing
+namespace umamusumeKeyCtl.CaptureScene
 {
     public class VirtualKeySetting
     {

@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -8,21 +7,21 @@ using System.Threading;
 using System.Threading.Tasks;
 using umamusumeKeyCtl.Util;
 
-namespace umamusumeKeyCtl.CaptureSettingSets
+namespace umamusumeKeyCtl.CaptureScene
 {
-    public class CaptureSettingSetsHolder : Singleton<CaptureSettingSetsHolder>
+    public class SceneSettingHolder : Singleton<SceneSettingHolder>
     {
         private bool kill = false;
 
         private CancellationTokenSource _tokenSource;
         private Queue<Task> _taskQueue = new();
         
-        private List<CaptureSettingSet> _settings = new();
-        public CaptureSettingSet[] Settings => _settings.ToArray();
+        private List<SceneSetting> _settings = new();
+        public SceneSetting[] Settings => _settings.ToArray();
 
-        public event Action<List<CaptureSettingSet>> OnLoadSettings;
+        public event Action<List<SceneSetting>> OnLoadSettings;
 
-        public CaptureSettingSetsHolder()
+        public SceneSettingHolder()
         {
             _tokenSource = new CancellationTokenSource();
             _ = ExecuteQueue(_tokenSource.Token);
@@ -42,7 +41,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
         {
             try
             {
-                _settings = await Task<List<CaptureSettingSet>>.Run(InternalAsyncLoadSettings);
+                _settings = await Task<List<SceneSetting>>.Run(InternalAsyncLoadSettings);
                 OnLoadSettings?.Invoke(_settings);
             }
             catch (Exception e)
@@ -52,9 +51,9 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             }
         }
 
-        private async Task<List<CaptureSettingSet>> InternalAsyncLoadSettings()
+        private async Task<List<SceneSetting>> InternalAsyncLoadSettings()
         {
-            List<CaptureSettingSet> result = new();
+            List<SceneSetting> result = new();
 
             try
             {
@@ -70,7 +69,7 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                     return result;
                 }
                 
-                result = JsonSerializer.Deserialize<List<CaptureSettingSet>>(str);
+                result = JsonSerializer.Deserialize<List<SceneSetting>>(str);
             }
             catch (Exception e)
             {
@@ -102,14 +101,14 @@ namespace umamusumeKeyCtl.CaptureSettingSets
             return Task.CompletedTask;
         }
 
-        public void AddSettings(CaptureSettingSet settingSet)
+        public void AddSettings(SceneSetting sceneSetting)
         {
-            if (_settings.Contains(settingSet))
+            if (_settings.Contains(sceneSetting))
             {
                 return;
             }
             
-            _settings.Add(settingSet);
+            _settings.Add(sceneSetting);
             
             OnLoadSettings?.Invoke(_settings);
 
@@ -159,8 +158,6 @@ namespace umamusumeKeyCtl.CaptureSettingSets
                     throw;
                 }
             }
-            
-            Debug.Print($"Execute queue finished. Statuses: kill={kill}, cancellationToken.IsCancellationRequested={token.IsCancellationRequested}");
         }
     }
 }

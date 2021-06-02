@@ -8,7 +8,7 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using umamusumeKeyCtl.UserInput;
 
-namespace umamusumeKeyCtl.CaptureSettingSets.VirtualKeyPushing
+namespace umamusumeKeyCtl.CaptureScene
 {
     public class VirtualKeySettingMaker
     {
@@ -47,9 +47,6 @@ namespace umamusumeKeyCtl.CaptureSettingSets.VirtualKeyPushing
             
             _eventListeningSource = eventListeningSource;
             _eventListeningSource.MouseLeftButtonUp += OnMouseLeftUp;
-            _keyboardListener = new LowLevelKeyboardListener();
-            _keyboardListener.HookKeyboard();
-            _keyboardListener.OnKeyPressed += OnKeyPressed;
 
             _drawCircle = drawCircle;
             _canvas = canvas;
@@ -144,6 +141,11 @@ namespace umamusumeKeyCtl.CaptureSettingSets.VirtualKeyPushing
             if (state == VirtualKeySettingMakingState.GetBindKey)
             {
                 MessageBox.Show("割り当てるキーを入力してください");
+                
+                _keyboardListener = new LowLevelKeyboardListener();
+                _keyboardListener.HookKeyboard();
+                _keyboardListener.OnKeyPressed += OnKeyPressed;
+                
                 return;
             }
             
@@ -178,6 +180,11 @@ namespace umamusumeKeyCtl.CaptureSettingSets.VirtualKeyPushing
         private int GetNewIndex(List<VirtualKeySetting> infos)
         {
             int temp;
+
+            if (infos.Count == 0)
+            {
+                return 0;
+            }
 
             var maxIndex = infos.Select(val => val.Index).Max();
 

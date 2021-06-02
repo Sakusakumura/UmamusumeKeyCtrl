@@ -8,7 +8,7 @@ using umamusumeKeyCtl.Helpers;
 using Brushes = System.Windows.Media.Brushes;
 using Point = System.Windows.Point;
 
-namespace umamusumeKeyCtl.CaptureSettingSets.ImageScrapping
+namespace umamusumeKeyCtl.CaptureScene
 {
     public class ScrapSettingModifier
     {

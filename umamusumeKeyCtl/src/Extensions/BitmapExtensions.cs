@@ -14,7 +14,16 @@ namespace umamusumeKeyCtl
         /// <returns></returns>
         public static Bitmap PerformCrop(this Bitmap bitmap, Rectangle rectangle)
         {
-            Bitmap cropped = bitmap.Clone(rectangle, bitmap.PixelFormat);
+            Bitmap cropped;
+            
+            var x = Math.Clamp(rectangle.X, 0, bitmap.Width - 1);
+            var y = Math.Clamp(rectangle.Y, 0, bitmap.Height - 1);
+            var width = Math.Clamp(rectangle.Width, 1, bitmap.Width - x);
+            var height = Math.Clamp(rectangle.Height, 1, bitmap.Height - y);
+
+            var clamped = new Rectangle(x, y, width, height);
+
+            cropped = bitmap.Clone(clamped, bitmap.PixelFormat);
             
             return cropped;
         }
