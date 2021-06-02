@@ -77,6 +77,7 @@ namespace umamusumeKeyCtl
         public void OnPrintWnd(Bitmap image)
         {
             MyImage = BitmapToImageSource(image);
+            image.Dispose();
             
             WndHeight = MyImage.PixelHeight;
             WndWidth = MyImage.PixelWidth + 100;
@@ -85,19 +86,24 @@ namespace umamusumeKeyCtl
 
         BitmapImage BitmapToImageSource(Bitmap bitmap)
         {
-            BitmapImage bitmapimage = new BitmapImage();
-
             try
             {
                 using (MemoryStream memory = new MemoryStream())
                 {
-                    bitmap.Save(memory, ImageFormat.Bmp);
-                    memory.Position = 0;
-                    bitmapimage.BeginInit();
-                    bitmapimage.StreamSource = memory;
-                    bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                    bitmapimage.EndInit();
-                    bitmapimage.Freeze();
+                    using (WrappingStream wStream = new WrappingStream(memory))
+                    {
+                        bitmap.Save(wStream, ImageFormat.Bmp);
+                        bitmap.Dispose();
+
+                        wStream.Position = 0;
+                        BitmapImage bitmapimage = new BitmapImage();
+                        bitmapimage.BeginInit();
+                        bitmapimage.StreamSource = wStream;
+                        bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                        bitmapimage.EndInit();
+                        bitmapimage.Freeze();
+                        return bitmapimage;
+                    }
                 }
             }
             catch (Exception e)
@@ -105,8 +111,6 @@ namespace umamusumeKeyCtl
                 Debug.Print(e.ToString());
                 throw;
             }
-
-            return bitmapimage;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

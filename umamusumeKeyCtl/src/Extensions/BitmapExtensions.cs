@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -95,7 +96,7 @@ namespace umamusumeKeyCtl
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Debug.Print(e.ToString());
                     throw;
                 }
             }

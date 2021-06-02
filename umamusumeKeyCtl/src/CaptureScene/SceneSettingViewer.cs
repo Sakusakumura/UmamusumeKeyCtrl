@@ -1,5 +1,7 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -40,12 +42,19 @@ namespace umamusumeKeyCtl.CaptureScene
 
         public void OnLoadSettings(List<SceneSetting> captureSettingSets, Canvas canvas, StackPanel toolPanel, ListView listView)
         {
+            if (Thread.CurrentThread.GetApartmentState() == ApartmentState.MTA)
+            {
+                Debug.Print("[SceneSettingViewer.OnLoadSettings()] MTAのスレッドで実行されています。STAで実行してください。");
+                return;
+            }
+            
             var dockPanels = new List<DockPanel>();
             var converter = new BrushConverter();
 
             for (var i = 0; i < captureSettingSets.Count; i++)
             {
                 var setting = captureSettingSets[i];
+
                 var panel = new DockPanel()
                 {
                     Background = Brushes.Transparent,

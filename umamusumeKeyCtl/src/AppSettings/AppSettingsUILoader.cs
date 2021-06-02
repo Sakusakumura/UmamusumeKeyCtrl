@@ -54,7 +54,7 @@ namespace umamusumeKeyCtl.AppSettings
         private async Task Publish()
         {
             _descriptions.Add(new AppSettingDescription("AutoSave", "bool", "自動保存", "設定が追加・削除・編集されると自動で編集内容が保存されます。"));
-            _descriptions.Add(new AppSettingDescription("CaptureSetting", "int", "キャプチャ間隔", "ゲーム画面をキャプチャする間隔です。（ミリ秒）"));
+            _descriptions.Add(new AppSettingDescription("CaptureInterval", "int", "キャプチャ間隔", "ゲーム画面をキャプチャする間隔です。（ミリ秒）"));
 
             var json = JsonSerializer.Serialize(_descriptions);
 
