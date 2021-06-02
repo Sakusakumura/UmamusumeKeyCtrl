@@ -22,11 +22,14 @@ namespace umamusumeKeyCtl.UserInput
 
         public RectangleGetter(Canvas canvas, UIElement eventListenSource, bool drawRectangle)
         {
+            new MessageWindow("領域をドラッグ&ドロップで指定して下さい").ShowDialog();
+            
             _canvas = canvas;
             _uiElement = eventListenSource;
             _drawRectangle = drawRectangle;
 
-            eventListenSource.MouseLeftButtonUp += OnLeftMouseDown;
+            eventListenSource.MouseLeftButtonDown += OnLeftMouseDownUp;
+            eventListenSource.MouseLeftButtonUp += OnLeftMouseDownUp;
             eventListenSource.MouseMove += OnMouseMove;
         }
 
@@ -58,11 +61,11 @@ namespace umamusumeKeyCtl.UserInput
             }
         }
 
-        private void OnLeftMouseDown(object sender, MouseButtonEventArgs e)
+        private void OnLeftMouseDownUp(object sender, MouseButtonEventArgs e)
         {
             var mousePos = e.GetPosition(_uiElement);
             
-            if (_captureState == CaptureState.Capturing_pos1)
+            if (e.ButtonState == MouseButtonState.Pressed && _captureState == CaptureState.Capturing_pos1)
             {
                 _point1 = mousePos;
                 _captureState = CaptureState.Capturing_pos2;
@@ -82,7 +85,7 @@ namespace umamusumeKeyCtl.UserInput
                 return;
             }
 
-            if (_captureState == CaptureState.Capturing_pos2)
+            if (e.ButtonState == MouseButtonState.Released && _captureState == CaptureState.Capturing_pos2)
             {
                 _point2 = mousePos;
                 _captureState = CaptureState.Captured;

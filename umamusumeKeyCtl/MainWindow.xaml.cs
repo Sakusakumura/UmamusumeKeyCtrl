@@ -53,7 +53,10 @@ namespace umamusumeKeyCtl
             
             _sceneSettingViewer = new SceneSettingViewer();
             
-            SceneSettingHolder.Instance.OnLoadSettings += settingSets => _sceneSettingViewer.OnLoadSettings(settingSets, canvas, ToolPanel, SettingsView);
+            SceneSettingHolder.Instance.OnLoadSettings += settingSets =>
+            {
+                this.Dispatcher.Invoke(() => _sceneSettingViewer.OnLoadSettings(settingSets, canvas, ToolPanel, SettingsView));
+            };
             
             ((INotifyCollectionChanged)SettingsView.Items).CollectionChanged += (sender, args) =>
             {
@@ -81,7 +84,11 @@ namespace umamusumeKeyCtl
 
             windowCapture.CaptureResultObservable.Subscribe(bitmap =>
             {
-                vm.OnPrintWnd(bitmap);
+                using (bitmap)
+                {
+                    vm.OnPrintWnd(bitmap);
+                }
+                
                 this.Dispatcher.Invoke(() =>
                 {
                     canvas.Width = Image.Width;

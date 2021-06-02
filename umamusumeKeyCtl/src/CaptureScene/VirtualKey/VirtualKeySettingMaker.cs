@@ -126,6 +126,9 @@ namespace umamusumeKeyCtl.CaptureScene
                     
                 _uiElements.Add(element);
             }
+            
+            _keyboardListener.OnKeyPressed -= OnKeyPressed;
+            _keyboardListener.UnHookKeyboard();
                 
             state = VirtualKeySettingMakingState.Create;
         }
@@ -134,26 +137,26 @@ namespace umamusumeKeyCtl.CaptureScene
         {
             if (state == VirtualKeySettingMakingState.GetPosTo)
             {
-                MessageBox.Show("押す場所をクリックしてください");
+                new MessageWindow("押す場所をクリックしてください").ShowDialog();
                 return;
             }
 
             if (state == VirtualKeySettingMakingState.GetBindKey)
             {
-                MessageBox.Show("割り当てるキーを入力してください");
-                
+                new MessageWindow("割り当てるキーを入力してください").ShowDialog();
+
                 _keyboardListener = new LowLevelKeyboardListener();
                 _keyboardListener.HookKeyboard();
                 _keyboardListener.OnKeyPressed += OnKeyPressed;
                 
                 return;
             }
-            
+
             if (state == VirtualKeySettingMakingState.Create)
              {
                 _settings.Add(new VirtualKeySetting(GetNewIndex(_settings), _key, _point));
 
-                if (MessageBox.Show("続けて設定しますか？", "Question", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+                if (new YesNoWindow("続けて設定しますか？").ShowDialog().Value)
                 {
                     this.state = VirtualKeySettingMakingState.GetPosTo;
                     
@@ -169,11 +172,9 @@ namespace umamusumeKeyCtl.CaptureScene
                     _uiElements.Clear();
                 }
                 
-                OnSettingCreated?.Invoke(_settings);
-
-                _keyboardListener.OnKeyPressed -= OnKeyPressed;
-                _keyboardListener.UnHookKeyboard();
                 _eventListeningSource.MouseLeftButtonUp -= OnMouseLeftUp;
+                
+                OnSettingCreated?.Invoke(_settings);
             }
         }
         

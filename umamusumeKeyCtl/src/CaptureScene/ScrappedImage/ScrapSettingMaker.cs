@@ -52,7 +52,7 @@ namespace umamusumeKeyCtl.CaptureScene
 
             _getters.Last().OnGetRectangle -= OnGetRectangle;
             
-            if (MessageBox.Show("続けて設定しますか？", "Question", MessageBoxButton.YesNo) == MessageBoxResult.Yes)
+            if (new YesNoWindow("続けて設定しますか？").ShowDialog().Value)
             {
                 var getter = new RectangleGetter(_canvas, _element, _drawRectangle);
                 getter.OnGetRectangle += OnGetRectangle;

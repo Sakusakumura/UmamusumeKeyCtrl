@@ -1,9 +1,14 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Threading;
 using umamusumeKeyCtl.Properties;
 
 namespace umamusumeKeyCtl.CaptureScene
@@ -85,17 +90,25 @@ namespace umamusumeKeyCtl.CaptureScene
                         try
                         {
                             Directory.CreateDirectory("./CapturedImages");
-                            bitmap.PerformGrayScale().Save($"./CapturedImages/{_name}.bmp", ImageFormat.Bmp);
+                            Task.Run(() =>
+                            {
+                                using (var cloned = (Bitmap) bitmap.Clone())
+                                {
+                                    cloned.PerformGrayScale().Save($"./CapturedImages/{_name}.bmp", ImageFormat.Bmp);
+                                }
+
+                                OnCaptureSettingSetCreated?.Invoke(new SceneSetting(_name, _virtualKeySettings, _scrapSetting));
+                            });
                         }
                         catch (Exception e)
                         {
-                            Console.WriteLine(e);
+                            Debug.Print(e.ToString());
                             throw;
                         }
+                            
                         capture.StopCapture();
                     }
-                    
-                    OnCaptureSettingSetCreated?.Invoke(new SceneSetting(_name, _virtualKeySettings, _scrapSetting));
+                    capture.Dispose();
                 });
             }
         }

@@ -75,10 +75,7 @@ namespace umamusumeKeyCtl
                         hWnd = IntPtr.Zero;
                     }
 
-                    using (result)
-                    {
-                        _captureResultSubject.OnNext(result.Image ?? new Bitmap(1, 1));
-                    }
+                    _captureResultSubject.OnNext(result.Image ?? new Bitmap(1, 1));
                 }
 
                 await Task.Delay(captureSetting.Interval);
