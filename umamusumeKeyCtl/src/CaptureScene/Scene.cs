@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Drawing;
 using umamusumeKeyCtl.UserInput;
 
 namespace umamusumeKeyCtl.CaptureScene
@@ -13,16 +12,16 @@ namespace umamusumeKeyCtl.CaptureScene
         public List<VirtualKey> VirtualKeys { get; }
 
         private LowLevelKeyboardListener _keyboardListener;
-        public void Hook() => _keyboardListener?.HookKeyboard();
-        public void UnHook() => _keyboardListener?.UnHookKeyboard();
+        public bool IsSelected = false;
 
-        public Scene(SceneSetting setting, ScrappedImage scrappedImage, List<VirtualKey> virtualKeys)
+        public Scene(SceneSetting setting, ScrappedImage scrappedImage, List<VirtualKey> virtualKeys, LowLevelKeyboardListener listener)
         {
             Setting = setting;
             ScrappedImage = scrappedImage;
             VirtualKeys = virtualKeys;
-            
-            Initialize();
+
+            _keyboardListener = listener;
+            _keyboardListener.OnKeyPressed += OnKeyPressed;
         }
 
         public void SetWindowHandle(IntPtr hwnd)
@@ -33,26 +32,13 @@ namespace umamusumeKeyCtl.CaptureScene
             }
         }
 
-        /// <summary>
-        /// TODO: Compute with captured image and ScrappedImage.
-        /// </summary>
-        /// <param name="capturedImage"></param>
-        public void Compute(Bitmap capturedImage)
-        {
-            using (capturedImage)
-            {
-                
-            }
-        }
-
-        private void Initialize()
-        {
-            _keyboardListener = new LowLevelKeyboardListener();
-            _keyboardListener.OnKeyPressed += OnKeyPressed;
-        }
-
         private void OnKeyPressed(object sender, KeyPressedArgs e)
         {
+            if (IsSelected == false)
+            {
+                return;
+            }
+            
             var vKey = VirtualKeys.Find(val => val.Setting.BindKey == e.KeyPressed);
 
             if (vKey != null)
@@ -64,8 +50,12 @@ namespace umamusumeKeyCtl.CaptureScene
         public void Dispose()
         {
             ScrappedImage?.Dispose();
-            _keyboardListener?.UnHookKeyboard();
-            _keyboardListener = null;
+            
+            if (_keyboardListener != null)
+            {
+                _keyboardListener.OnKeyPressed -= OnKeyPressed;
+                _keyboardListener = null;
+            }
         }
     }
 }

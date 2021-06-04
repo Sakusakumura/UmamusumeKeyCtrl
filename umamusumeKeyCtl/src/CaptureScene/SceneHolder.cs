@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using umamusumeKeyCtl.Properties;
+using umamusumeKeyCtl.UserInput;
 using umamusumeKeyCtl.Util;
 
 namespace umamusumeKeyCtl.CaptureScene
@@ -21,14 +22,30 @@ namespace umamusumeKeyCtl.CaptureScene
         private IntPtr umaWndh = IntPtr.Zero;
 
         private CancellationTokenSource _cancellationTokenSource;
+        private LowLevelKeyboardListener _lowLevelKeyboardListener;
 
         public SceneHolder()
         {
+            _lowLevelKeyboardListener = new LowLevelKeyboardListener();
+            _lowLevelKeyboardListener.HookKeyboard();
+            
             _scenes = new List<Scene>();
             SceneSettingHolder.Instance.OnLoadSettings += OnLoadSettings;
 
             _cancellationTokenSource = new CancellationTokenSource();
             Task.Run(() => { return AsyncWindowHandleCheck(_cancellationTokenSource.Token); }, _cancellationTokenSource.Token);
+        }
+
+        public void Dispose()
+        {
+            _cancellationTokenSource?.Cancel();
+            _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
+            
+            if (_scenes?.Count > 0)
+            {
+                _scenes?.ForEach(scene => scene?.Dispose());
+            }
         }
 
         private void OnLoadSettings(List<SceneSetting> sceneSettings)
@@ -97,7 +114,12 @@ namespace umamusumeKeyCtl.CaptureScene
                         vkList.Add(new VirtualKey(virtualKeySetting));
                     }
 
-                    instance = new Scene(setting, scrappedImage, vkList);
+                    instance = new Scene(setting, scrappedImage, vkList, _lowLevelKeyboardListener);
+
+                    if (umaWndh != IntPtr.Zero)
+                    {
+                        instance.SetWindowHandle(umaWndh);
+                    }
 
                     OnGetUmaWndh += instance.SetWindowHandle;
                 }
@@ -110,7 +132,7 @@ namespace umamusumeKeyCtl.CaptureScene
 
             return instance;
         }
-        
+
         [DllImport("user32.dll")]
         [return: MarshalAs(UnmanagedType.Bool)]
         static extern bool IsWindow(IntPtr hWnd);
@@ -119,26 +141,14 @@ namespace umamusumeKeyCtl.CaptureScene
         {
             while (token.IsCancellationRequested == false)
             {
-                if (IsWindow(umaWndh))
+                if (IsWindow(umaWndh) )
                 {
                     await Task.Delay(500);
                     continue;
                 }
                 
                 umaWndh = WindowHelper.GetHWndByName(Settings.Default.CaptureWindowTitle);
-                OnGetUmaWndh.Invoke(umaWndh);
-            }
-        }
-
-        public void Dispose()
-        {
-            _cancellationTokenSource?.Cancel();
-            _cancellationTokenSource?.Dispose();
-            _cancellationTokenSource = null;
-            
-            if (_scenes?.Count > 0)
-            {
-                _scenes?.ForEach(scene => scene?.Dispose());
+                OnGetUmaWndh?.Invoke(umaWndh);
             }
         }
     }

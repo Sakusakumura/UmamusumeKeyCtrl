@@ -1,8 +1,11 @@
 using System;
 using System.Drawing;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using umamusumeKeyCtl.Helpers;
-using umamusumeKeyCtl.Util;
+using umamusumeKeyCtl.Properties;
+using umamusumeKeyCtl.UserInput;
 
 namespace umamusumeKeyCtl.CaptureScene
 {
@@ -33,18 +36,40 @@ namespace umamusumeKeyCtl.CaptureScene
                 return;
             }
 
-            Push(_setting.PressPos.ToSystemDrawingPoint());
+            var dest = rect.Location;
+            var scaled = CalcurateScaledPoint(_setting.PressPos, rect);
+            dest.Offset(scaled);
+
+            VirtualKeyPushExecutor.Instance.EnQueue(Push(dest));
             
             VirtualMouse.MoveTo(prePos);
         }
 
-        private void Push(Point point)
+        /// <summary>
+        /// サンプル画像のサイズが横幅300px(デフォルトで)になるように縮小しているので、戻す必要がある
+        /// </summary>
+        /// <param name="source"></param>
+        /// <returns></returns>
+        private Point CalcurateScaledPoint(System.Windows.Point source, Rectangle windowRectangle)
+        {
+            double k = windowRectangle.Width / (double) Settings.Default.ImageResolutionWidth;
+            
+            return new Point((int) (source.X * k), (int) (source.Y * k));
+        }
+
+        private Task Push(Point point)
         {
             var prePos = MouseHelper.GetMousePosition();
 
             VirtualMouse.MoveTo(point);
-            VirtualMouse.Click(MouseButton.Left);
+            Thread.Sleep(20);
+            VirtualMouse.Down(MouseButton.Left);
+            Thread.Sleep(20);
+            VirtualMouse.Up(MouseButton.Left);
+            Thread.Sleep(20);
             VirtualMouse.MoveTo(prePos);
+
+            return Task.CompletedTask;
         }
     }
 }

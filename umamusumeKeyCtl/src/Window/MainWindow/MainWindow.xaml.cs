@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -28,6 +29,7 @@ namespace umamusumeKeyCtl
     {
         private CancellationTokenSource _tokenSource;
         private SceneSettingViewer _sceneSettingViewer;
+        private SceneSelector _sceneSelector;
         private Task _task;
 
         public MainWindow()
@@ -70,6 +72,24 @@ namespace umamusumeKeyCtl
                 ChangeColor(_tokenSource.Token);
             };
             
+            // Instantiate debugWindow
+            var debugWindow = new DataGridWindow();
+            debugWindow.Show();
+
+            // Initialize sceneSelector
+            _sceneSelector = new SceneSelector(true);
+            
+            _sceneSelector.ResultPrinted += mat => this.Dispatcher.Invoke(() => Cv2.ImShow("output", mat));
+            _sceneSelector.SrcTgtImgPrinted += tuple =>
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    Cv2.ImShow("src", tuple.Src);
+                    Cv2.ImShow("tgt", tuple.Tgt);
+                });
+            };
+            _sceneSelector.OnGetMatchingResults += list => this.Dispatcher.Invoke(() => debugWindow.Vm.Results = list);
+            
             //Load settings
             SceneSettingHolder.Instance.LoadSettings();
             
@@ -88,33 +108,9 @@ namespace umamusumeKeyCtl
             
             var windowCapture = new WindowCapture(captureSetting);
 
-            var debugWindow = new DataGridWindow();
-            debugWindow.Show();
-
             windowCapture.CaptureResultObservable.Subscribe(source =>
             {
-                _ = Task.Run(async () =>
-                {
-                    var selector = new SceneSelector(true);
-                    selector.ResultPrinted += mat =>
-                    {
-                        this.Dispatcher.Invoke(() => Cv2.ImShow("output", mat));
-                    };
-                    selector.SrcTgtImgPrinted += tuple =>
-                    {
-                        this.Dispatcher.Invoke(() =>
-                        {
-                            Cv2.ImShow("src", tuple.Src);
-                            Cv2.ImShow("tgt", tuple.Tgt);
-                        });
-                    };
-                    var matchingResults = await selector.SelectScene((Bitmap) source.Clone());
-
-                    this.Dispatcher.Invoke(() =>
-                    {
-                        debugWindow.Vm.Results = matchingResults;
-                    });
-                }).ContinueWith(_ => source.Dispose());
+                _ = Task.Run(async () => await _sceneSelector.SelectScene((Bitmap) source.Clone())).ContinueWith(_ => source.Dispose());
 
                 vm.OnPrintWnd((Bitmap) source.Clone());
 
