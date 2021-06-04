@@ -1,6 +1,9 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Drawing;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,10 +12,12 @@ using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
-using umamusumeKeyCtl.Annotations;
+using OpenCvSharp;
 using umamusumeKeyCtl.AppSettings;
 using umamusumeKeyCtl.CaptureScene;
 using umamusumeKeyCtl.Properties;
+using Brush = System.Windows.Media.Brush;
+using Window = System.Windows.Window;
 
 namespace umamusumeKeyCtl
 {
@@ -23,6 +28,7 @@ namespace umamusumeKeyCtl
     {
         private CancellationTokenSource _tokenSource;
         private SceneSettingViewer _sceneSettingViewer;
+        private Task _task;
 
         public MainWindow()
         {
@@ -58,10 +64,10 @@ namespace umamusumeKeyCtl
                 this.Dispatcher.Invoke(() => _sceneSettingViewer.OnLoadSettings(settingSets, canvas, ToolPanel, SettingsView));
             };
             
-            ((INotifyCollectionChanged)SettingsView.Items).CollectionChanged += (sender, args) =>
+            ((INotifyCollectionChanged)SettingsView.Items).CollectionChanged += (_, _) =>
             {
                 SettingsView.UpdateLayout();
-                ChangeColor(sender, args, _tokenSource.Token);
+                ChangeColor(_tokenSource.Token);
             };
             
             //Load settings
@@ -79,35 +85,64 @@ namespace umamusumeKeyCtl
                 captureSetting.Interval = Settings.Default.CaptureInterval;
                 captureSetting.CaptureWndName = Settings.Default.CaptureWindowTitle;
             };
-
+            
             var windowCapture = new WindowCapture(captureSetting);
 
-            windowCapture.CaptureResultObservable.Subscribe(bitmap =>
+            var debugWindow = new DataGridWindow();
+            debugWindow.Show();
+
+            windowCapture.CaptureResultObservable.Subscribe(source =>
             {
-                using (bitmap)
+                _ = Task.Run(async () =>
                 {
-                    vm.OnPrintWnd(bitmap);
-                }
-                
+                    var selector = new SceneSelector(true);
+                    selector.ResultPrinted += mat =>
+                    {
+                        this.Dispatcher.Invoke(() => Cv2.ImShow("output", mat));
+                    };
+                    selector.SrcTgtImgPrinted += tuple =>
+                    {
+                        this.Dispatcher.Invoke(() =>
+                        {
+                            Cv2.ImShow("src", tuple.Src);
+                            Cv2.ImShow("tgt", tuple.Tgt);
+                        });
+                    };
+                    var matchingResults = await selector.SelectScene((Bitmap) source.Clone());
+
+                    this.Dispatcher.Invoke(() =>
+                    {
+                        debugWindow.Vm.Results = matchingResults;
+                    });
+                }).ContinueWith(_ => source.Dispose());
+
+                vm.OnPrintWnd((Bitmap) source.Clone());
+
                 this.Dispatcher.Invoke(() =>
                 {
                     canvas.Width = Image.Width;
                     canvas.Height = Image.Height;
                 });
+
             }, exception => Console.Write(exception));
 
             Closing += (_, _) => windowCapture.StopCapture();
             Closing += (_, _) => SampleImageHolder.Instance.Dispose();
         }
 
-        private async void ChangeColor([CanBeNull] object sender, NotifyCollectionChangedEventArgs args, CancellationToken token)
+        private async void ChangeColor(CancellationToken token)
         {
             await WaitForContainer(SettingsView.ItemContainerGenerator, token);
             
             for (int i = 0; i < SettingsView.ItemContainerGenerator.Items.Count; i++)
             {
                 ListViewItem lbi = SettingsView.ItemContainerGenerator.ContainerFromIndex(i) as ListViewItem;
-                    
+
+                if (lbi == null)
+                {
+                    continue;
+                }
+                
                 var converter = new BrushConverter();
                 lbi.Foreground = (Brush) converter.ConvertFromString("#f1f1f1");
                 lbi.Background = (Brush) converter.ConvertFromString("#3f4240");
@@ -229,6 +264,12 @@ namespace umamusumeKeyCtl
         public void Dispose()
         {
             _tokenSource?.Dispose();
+        }
+
+        private void SettingsView_OnScroll(object sender, ScrollEventArgs e)
+        {
+            SettingsView.UpdateLayout();
+            ChangeColor(_tokenSource.Token);
         }
     }
 }

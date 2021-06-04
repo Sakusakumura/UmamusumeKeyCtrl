@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:umamusumeKeyCtl"
+        xmlns:vm="clr-namespace:umamusumeKeyCtl"
         mc:Ignorable="d"
         Title="MessageWindow"  Height="Auto" Width="Auto"
         SizeToContent="WidthAndHeight"
@@ -50,6 +50,9 @@
             <Setter Property="Content" Value="&#xE711;"/>
         </Style>
     </Window.Resources>
+    <Window.DataContext>
+        <vm:MessageWindowVM/>
+    </Window.DataContext>
 
     <DockPanel Background="#2B2C2B" LastChildFill="True">
         <DockPanel Name="CaptionPanel" DockPanel.Dock="Top" Background="#535755" LastChildFill="True" MouseLeftButtonDown="CaptionPanel_MouseLeftButtonDown">
@@ -76,7 +79,7 @@
         <DockPanel>
             <Button DockPanel.Dock="Bottom" Name="ConfirmEvent" Content="決定" Width="100" Height="20" Click="OnConfirmButtonClick" Foreground="#f4f5f4" Background="#6f7472" Margin="10"></Button>
             
-            <TextBlock Name="MessageTextBlock" DockPanel.Dock="Top" Text="" VerticalAlignment="Center" Foreground="#f4f5f4" Margin="10"></TextBlock>
+            <TextBlock Name="MessageTextBlock" DockPanel.Dock="Top" Text="{Binding TextBlockText}" VerticalAlignment="Center" Foreground="#f4f5f4" Margin="10"></TextBlock>
         </DockPanel>
 
     </DockPanel>

@@ -14,9 +14,9 @@ namespace umamusumeKeyCtl.CaptureScene
     public class SceneHolder : Singleton<SceneHolder>, IDisposable
     {
         private List<Scene> _scenes;
-        public Scene[] Scenes => _scenes.ToArray();
+        public List<Scene> Scenes => _scenes;
 
-        public event Action<Scene[]> OnLoadScenes;
+        public event Action<List<Scene>> OnLoadScenes;
         private event Action<IntPtr> OnGetUmaWndh;
         private IntPtr umaWndh = IntPtr.Zero;
 
@@ -76,7 +76,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 Debug.Print($"[SceneHolder] {instance.Setting.Name} instantiated.");
             }
             
-            OnLoadScenes?.Invoke(_scenes.ToArray());
+            OnLoadScenes?.Invoke(_scenes);
         }
 
         private Scene InternalCreateScene(SceneSetting setting)
@@ -132,7 +132,9 @@ namespace umamusumeKeyCtl.CaptureScene
 
         public void Dispose()
         {
+            _cancellationTokenSource?.Cancel();
             _cancellationTokenSource?.Dispose();
+            _cancellationTokenSource = null;
             
             if (_scenes?.Count > 0)
             {

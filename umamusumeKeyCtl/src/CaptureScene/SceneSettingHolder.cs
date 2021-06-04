@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Text.Json;
@@ -46,7 +47,7 @@ namespace umamusumeKeyCtl.CaptureScene
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Debug.Print(e.ToString());
                 throw;
             }
         }
@@ -73,7 +74,7 @@ namespace umamusumeKeyCtl.CaptureScene
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Debug.Print(e.ToString());
                 throw;
             }
 
@@ -94,7 +95,7 @@ namespace umamusumeKeyCtl.CaptureScene
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
+                Debug.Print(e.ToString());
                 throw;
             }
 
@@ -154,7 +155,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 }
                 catch (Exception e)
                 {
-                    Console.WriteLine(e);
+                    Debug.Print(e.ToString());
                     throw;
                 }
             }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using umamusumeKeyCtl.UserInput;
 
 namespace umamusumeKeyCtl.CaptureScene
@@ -21,6 +22,7 @@ namespace umamusumeKeyCtl.CaptureScene
         public ScrapSettingMaker(Canvas canvas, UIElement eventListenSource, bool drawRectangle)
         {
             _canvas = canvas;
+            
             _element = eventListenSource;
             _drawRectangle = drawRectangle;
             _rectangles = new();

@@ -35,15 +35,12 @@ namespace umamusumeKeyCtl
             _cancellationTokenSource = new CancellationTokenSource();
             _captureResultSubject = new Subject<Bitmap>();
 
-            using (var image = (Bitmap) Image.FromFile("devilman.bmp"))
+            using (var image = (Bitmap) Image.FromFile("Resources/devilman.bmp"))
             {
                 _waitingImage = (Bitmap) image.Clone();
             }
 
-            internalAsyncCaptureTask = Task.Run(() =>
-            {
-                return InternalAsyncCapture(_captureSetting, _cancellationTokenSource.Token);
-            });
+            internalAsyncCaptureTask = InternalAsyncCapture(_captureSetting, _cancellationTokenSource.Token);
         }
 
         /// <summary>
@@ -61,6 +58,11 @@ namespace umamusumeKeyCtl
             
             while (token.IsCancellationRequested == false)
             {
+                if (hWnd == IntPtr.Zero)
+                {
+                    _captureResultSubject.OnNext((Bitmap) _waitingImage.Clone());
+                }
+                
                 while (hWnd == IntPtr.Zero)
                 {
                     await Task.Delay(1000);
@@ -75,7 +77,7 @@ namespace umamusumeKeyCtl
                         hWnd = IntPtr.Zero;
                     }
 
-                    _captureResultSubject.OnNext(result.Image ?? new Bitmap(1, 1));
+                    _captureResultSubject.OnNext((Bitmap) result.Image?.Clone() ?? new Bitmap(1, 1));
                 }
 
                 await Task.Delay(captureSetting.Interval);
@@ -94,7 +96,7 @@ namespace umamusumeKeyCtl
             }
 
             var bitmap = TakeCopyOfScreen(rectangle);
-            bitmap = bitmap.PerformScaling(Properties.Settings.Default.ImageResolutionWidth);
+            bitmap = bitmap.PerformScale(Properties.Settings.Default.ImageResolutionWidth);
             
             return new CaptureResult(true, bitmap);
         }

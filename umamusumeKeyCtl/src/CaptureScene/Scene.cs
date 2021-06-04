@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using umamusumeKeyCtl.UserInput;
 
 namespace umamusumeKeyCtl.CaptureScene
@@ -29,6 +30,18 @@ namespace umamusumeKeyCtl.CaptureScene
             foreach (var virtualKey in VirtualKeys)
             {
                 virtualKey.UmaWndH = hwnd;
+            }
+        }
+
+        /// <summary>
+        /// TODO: Compute with captured image and ScrappedImage.
+        /// </summary>
+        /// <param name="capturedImage"></param>
+        public void Compute(Bitmap capturedImage)
+        {
+            using (capturedImage)
+            {
+                
             }
         }
 
