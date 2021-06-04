@@ -142,7 +142,7 @@ namespace umamusumeKeyCtl
                     }
                 }
 
-                if (goods.Count < 40)
+                if (goods.Count < 80)
                 {
                     Debug.Print($"Not enough match: {goods.Count}");
                     return MatchingResult.Fail;

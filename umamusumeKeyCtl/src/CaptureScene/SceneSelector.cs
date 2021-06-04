@@ -14,18 +14,44 @@ namespace umamusumeKeyCtl.CaptureScene
     public class SceneSelector
     {
         private bool _printResult;
+        public event Action<List<MatchingResult>> OnGetMatchingResults; 
         public event Action<Mat> ResultPrinted; 
-        public event Action<(Mat Src, Mat Tgt)> SrcTgtImgPrinted; 
+        public event Action<(Mat Src, Mat Tgt)> SrcTgtImgPrinted;
 
         public SceneSelector(bool printResult)
         {
             this._printResult = printResult;
         }
 
-        public async Task<List<MatchingResult>> SelectScene(Bitmap capturedImage)
+        public async Task SelectScene(Bitmap capturedImage)
         {
-            // TODO: Returns results for debug.
-            return await GetMatchingResults(capturedImage);
+            try
+            {
+                var matchingResults = await GetMatchingResults(capturedImage);
+                var succeeds = matchingResults.Where(val => val.Result).ToList();
+
+                var scenes = SceneHolder.Instance.Scenes.ToList();
+
+                if (succeeds.Count > 0)
+                {
+                    var targetScene = scenes.Find(val => val.Setting.Name == succeeds.First().SceneName);
+                    
+                    scenes.Remove(targetScene);
+                    targetScene.IsSelected = true;
+                }
+
+                foreach (var scene in scenes)
+                {
+                    scene.IsSelected = false;
+                }
+                
+                OnGetMatchingResults?.Invoke(matchingResults);
+            }
+            catch (Exception e)
+            {
+                Debug.Print(e.ToString());
+                throw;
+            }
         }
 
         private async Task<List<MatchingResult>> GetMatchingResults(Bitmap capturedImage)
@@ -75,15 +101,21 @@ namespace umamusumeKeyCtl.CaptureScene
                     using var srcMat = BitmapConverter.ToMat(scene.ScrappedImage.Image);
                     using var tgtMat = BitmapConverter.ToMat(cloned);
                     using Mat output = new Mat();
-                    Cv2.DrawMatches(srcMat,
-                        srcResult,
-                        tgtMat,
-                        tgtResult.KeyPoints,
-                        result.Matches,
-                        output,
-                        matchColor: Scalar.Green,
-                        flags: DrawMatchesFlags.Default);
-                    
+                    try
+                    {
+                        Cv2.DrawMatches(srcMat,
+                            srcResult,
+                            tgtMat,
+                            tgtResult.KeyPoints,
+                            result.Matches,
+                            output,
+                            matchColor: Scalar.Green,
+                            flags: DrawMatchesFlags.Default);
+                    }
+                    catch
+                    {
+                    }
+
                     ResultPrinted?.Invoke(output);
                 }
 

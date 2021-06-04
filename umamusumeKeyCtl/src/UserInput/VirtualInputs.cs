@@ -5,11 +5,12 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
+using System.Threading.Tasks;
 using System.Windows.Input;
 
 #pragma warning disable SYSLIB0003
 
-namespace umamusumeKeyCtl.Util
+namespace umamusumeKeyCtl.UserInput
 {
     internal static class NativeMethods
     {
@@ -105,6 +106,9 @@ namespace umamusumeKeyCtl.Util
 
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         internal static extern short VkKeyScan(char ch);
+        
+        [DllImport("user32.dll", ExactSpelling=true)]
+        internal static extern long mouse_event(Int32 dwFlags, Int32 dx, Int32 dy, Int32 cButtons, Int32 dwExtraInfo);
 
         #endregion
     }
@@ -127,9 +131,10 @@ namespace umamusumeKeyCtl.Util
         /// Clicks a mouse button.
         /// </summary>
         /// <param name="mouseButton">The mouse button to click.</param>
-        public static void Click(MouseButton mouseButton)
+        public static async Task Click(MouseButton mouseButton)
         {
             Down(mouseButton);
+            await Task.Delay(500);
             Up(mouseButton);
         }
 
@@ -137,10 +142,11 @@ namespace umamusumeKeyCtl.Util
         /// Double-clicks a mouse button.
         /// </summary>
         /// <param name="mouseButton">The mouse button to click.</param>
-        public static void DoubleClick(MouseButton mouseButton)
+        public static async Task DoubleClick(MouseButton mouseButton)
         {
-            Click(mouseButton);
-            Click(mouseButton);
+            await Click(mouseButton);
+            await Task.Delay(500);
+            await Click(mouseButton);
         }
 
         /// <summary>
