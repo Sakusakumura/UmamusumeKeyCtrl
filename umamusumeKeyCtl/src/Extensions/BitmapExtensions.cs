@@ -1,7 +1,11 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Windows.Media.Imaging;
+using umamusumeKeyCtl.Properties;
 
 namespace umamusumeKeyCtl
 {
@@ -15,47 +19,61 @@ namespace umamusumeKeyCtl
         /// <returns></returns>
         public static Bitmap PerformCrop(this Bitmap bitmap, Rectangle rectangle)
         {
-            Bitmap cropped;
+            using (bitmap)
+            {
+                Bitmap cropped;
             
-            var x = Math.Clamp(rectangle.X, 0, bitmap.Width - 1);
-            var y = Math.Clamp(rectangle.Y, 0, bitmap.Height - 1);
-            var width = Math.Clamp(rectangle.Width, 1, bitmap.Width - x);
-            var height = Math.Clamp(rectangle.Height, 1, bitmap.Height - y);
+                var x = Math.Clamp(rectangle.X, 0, bitmap.Width - 1);
+                var y = Math.Clamp(rectangle.Y, 0, bitmap.Height - 1);
+                var width = Math.Clamp(rectangle.Width, 1, bitmap.Width - x);
+                var height = Math.Clamp(rectangle.Height, 1, bitmap.Height - y);
 
-            var clamped = new Rectangle(x, y, width, height);
+                var clamped = new Rectangle(x, y, width, height);
 
-            cropped = bitmap.Clone(clamped, bitmap.PixelFormat);
+                cropped = bitmap.Clone(clamped, bitmap.PixelFormat);
             
-            return cropped;
+                return cropped;
+            }
         }
 
         /// <summary>
         /// Scale given bitmap to target width. Keeps aspect ratio.
         /// </summary>
-        /// <param name="targetWidth">target image width</param>
-        public static Bitmap PerformScaling(this Bitmap sourceBitmap, int targetWidth)
+        /// <param name="source"></param>
+        /// <param name="targetWidth"></param>
+        /// <returns></returns>
+        public static Bitmap PerformScale(this Bitmap source, int targetWidth)
         {
-            Image image = sourceBitmap;
-            
-            var targetSizing = (float) targetWidth / (float) sourceBitmap.Width;
-            var targetHeight = (int) ((float) image.Height * targetSizing);
-
-            Bitmap bitmap = new Bitmap(targetWidth, targetHeight);
-            // サイズ変更した画像を作成する
-            using (Graphics graphics = Graphics.FromImage(bitmap))
+            if (targetWidth <= 0)
             {
-                // 変更サイズを取得する
-                int widthToScale = (int)(image.Width * targetSizing);
-                int heightToScale = (int)(image.Height * targetSizing);
+                throw new ArgumentException("targetWidth must be larger than 0.");
+            }
+            
+            using (source)
+            {
+                using (var cloned = (Bitmap) source.Clone())
+                {
+                    var targetSizing = (float) targetWidth / (float) cloned.Width;
+                
+                    try
+                    {
+                        var scaled = new Bitmap(targetWidth,
+                            (int) (Settings.Default.GameAspectRatio * (float) targetWidth));
+                        using (Graphics graphics = Graphics.FromImage(scaled))
+                        {
+                            graphics.ScaleTransform(targetSizing, targetSizing);
+                            graphics.InterpolationMode = InterpolationMode.Bicubic;
+                            graphics.DrawImage(cloned, new Rectangle(Point.Empty, cloned.Size));
 
-                // 背景色を塗る
-                SolidBrush solidBrush = new SolidBrush(Color.Black);
-                graphics.FillRectangle(solidBrush, new RectangleF(0, 0, targetWidth, targetHeight));
-
-                // サイズ変更した画像に、左上を起点に変更する画像を描画する
-                graphics.DrawImage(image, 0, 0, widthToScale, heightToScale);
-
-                return bitmap;
+                            return scaled;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.Print(e.ToString());
+                        throw;
+                    }
+                }
             }
         }
 
@@ -88,7 +106,7 @@ namespace umamusumeKeyCtl
                     using (ImageAttributes attributes = new ImageAttributes())
                     {
                         attributes.SetColorMatrix(colorMatrix);
-                    
+
                         g.DrawImage(source, new Rectangle(0, 0, source.Width, source.Height), 0, 0, source.Width, source.Height, GraphicsUnit.Pixel, attributes);
                     }
                     

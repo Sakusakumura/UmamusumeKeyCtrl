@@ -8,15 +8,24 @@ namespace umamusumeKeyCtl
     /// </summary>
     public partial class MessageWindow : Window
     {
+        private MessageWindowVM _vm;
+        
         public MessageWindow(string message)
         {
             InitializeComponent();
 
-            MessageTextBlock.Text = message;
+            _vm = new MessageWindowVM();
+            _vm.TextBlockText = message;
+            this.DataContext = _vm;
             
             this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, OnCloseWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, OnRestoreWindow, OnCanResizeWindow));
+        }
+
+        public void SetText(string str)
+        {
+            _vm.TextBlockText = str;
         }
         
         private void OnCanMinimizeWindow(object sender, CanExecuteRoutedEventArgs e)

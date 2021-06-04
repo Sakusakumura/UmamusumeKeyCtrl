@@ -85,29 +85,38 @@ namespace umamusumeKeyCtl.CaptureScene
                 var capture = new WindowCapture(new CaptureSetting(Settings.Default.CaptureInterval, Settings.Default.CaptureWindowTitle));
                 capture.CaptureResultObservable.Subscribe(bitmap =>
                 {
-                    using (bitmap)
+                    try
                     {
-                        try
+                        Directory.CreateDirectory("./CapturedImages");
+                        Task.Run(() =>
                         {
-                            Directory.CreateDirectory("./CapturedImages");
-                            Task.Run(() =>
+                            try
                             {
-                                using (var cloned = (Bitmap) bitmap.Clone())
+                                using (bitmap)
                                 {
-                                    cloned.PerformGrayScale().Save($"./CapturedImages/{_name}.bmp", ImageFormat.Bmp);
+                                    using (var grayScaled = bitmap.PerformGrayScale())
+                                    {
+                                        grayScaled.Save($"./CapturedImages/{_name}.bmp", ImageFormat.Bmp);
+                                    }
                                 }
 
                                 OnCaptureSettingSetCreated?.Invoke(new SceneSetting(_name, _virtualKeySettings, _scrapSetting));
-                            });
-                        }
-                        catch (Exception e)
-                        {
-                            Debug.Print(e.ToString());
-                            throw;
-                        }
-                            
-                        capture.StopCapture();
+                            }
+                            catch (Exception e)
+                            {
+                                Debug.Print(e.ToString());
+                                throw;
+                            }
+                        });
                     }
+                    catch (Exception e)
+                    {
+                        Debug.Print(e.ToString());
+                        throw;
+                    }
+                            
+                    capture.StopCapture();
+
                     capture.Dispose();
                 });
             }

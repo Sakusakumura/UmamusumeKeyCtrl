@@ -6,9 +6,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using umamusumeKeyCtl.Annotations;
 using umamusumeKeyCtl.Properties;
@@ -74,10 +71,13 @@ namespace umamusumeKeyCtl
             _toolPanelWidth = Settings.Default.ImageResolutionWidth;
         }
 
+        /// <summary>
+        /// Convert Bitmap to BitmapImage, set WndHeight, WndWidth, and ToolPanelWidth. 
+        /// </summary>
+        /// <param name="image"></param>
         public void OnPrintWnd(Bitmap image)
         {
             MyImage = BitmapToImageSource(image);
-            image.Dispose();
             
             WndHeight = MyImage.PixelHeight;
             WndWidth = MyImage.PixelWidth + 100;
@@ -93,7 +93,6 @@ namespace umamusumeKeyCtl
                     using (WrappingStream wStream = new WrappingStream(memory))
                     {
                         bitmap.Save(wStream, ImageFormat.Bmp);
-                        bitmap.Dispose();
 
                         wStream.Position = 0;
                         BitmapImage bitmapimage = new BitmapImage();

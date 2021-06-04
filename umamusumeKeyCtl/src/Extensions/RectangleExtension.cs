@@ -11,6 +11,11 @@ namespace umamusumeKeyCtl
         {
             return new((int) rect.X, (int) rect.Y, (int) rect.Width, (int) rect.Height);
         }
+
+        public static OpenCvSharp.Rect ToOpenCvRect(this Rect rect)
+        {
+            return new((int) rect.X, (int) rect.Y, (int) rect.Width, (int) rect.Height);
+        }
     }
 
     public static class PointExtension

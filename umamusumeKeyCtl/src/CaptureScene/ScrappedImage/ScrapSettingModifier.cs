@@ -106,7 +106,7 @@ namespace umamusumeKeyCtl.CaptureScene
             rectShape.MouseLeftButtonUp += (_, _) => OnRemoveSettingSelected(scrapInfo);
             drawToCanvas.MouseLeftButtonUp += (sender, args) =>
             {
-                OnMouseLeftUp((Canvas) sender, rectShape, args, scrapInfo);
+                OnMouseLeftButtonUp((Canvas) sender, rectShape, args, scrapInfo);
             };
             drawToCanvas.MouseMove += (o, args) => OnMouseMove((Canvas) o, rectShape, args, scrapInfo);
 
@@ -129,6 +129,7 @@ namespace umamusumeKeyCtl.CaptureScene
 
             var copy = settings.ScrapInfos.ToArray();
 
+            // remove elements if exists in _scrapSetting.Scrapinfos.
             foreach (var scrapInfo in copy)
             {
                 if (!_scrapSetting.ScrapInfos.Exists(val => val.Index == scrapInfo.Index))
@@ -141,6 +142,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 settings.ScrapInfos.Add(new ScrapInfo(GetNewIndex(_scrapSetting.ScrapInfos), scrapInfo.ScrapArea));
             }
             
+            // Add all passed scrapInfos to field.
             _scrapSetting.ScrapInfos.AddRange(settings.ScrapInfos);
             
             OnChangeScrapSetting?.Invoke(_scrapSetting);
@@ -177,16 +179,13 @@ namespace umamusumeKeyCtl.CaptureScene
                 return;
             }
 
+            // Find and remove target scrapInfo from list in order to edit it's settings.
             var target = _scrapSetting.ScrapInfos.Find(val => val.Index == setting.Index);
             _scrapSetting.ScrapInfos.Remove(target);
-
-            var newScrapInfo = new ScrapInfo(setting.Index, _tempRect);
-            
-            _scrapSetting.ScrapInfos.Add(newScrapInfo);
             
             OnChangeScrapSetting?.Invoke(_scrapSetting);
         }
-
+        
         private void OnMouseLeftDown(Canvas sender, MouseButtonEventArgs args, ScrapInfo info)
         {
             if (_editState != EditState.Waiting)
@@ -267,7 +266,7 @@ namespace umamusumeKeyCtl.CaptureScene
             return Rect.Empty;
         }
 
-        private void OnMouseLeftUp(Canvas sender, Shape shape, MouseButtonEventArgs args, ScrapInfo info)
+        private void OnMouseLeftButtonUp(Canvas sender, Shape shape, MouseButtonEventArgs args, ScrapInfo info)
         {
             if (_editState != EditState.Moving)
             {
