@@ -94,5 +94,17 @@ namespace umamusumeKeyCtl.Properties {
                 this["AutoSave"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int MinExtent {
+            get {
+                return ((int)(this["MinExtent"]));
+            }
+            set {
+                this["MinExtent"] = value;
+            }
+        }
     }
 }
