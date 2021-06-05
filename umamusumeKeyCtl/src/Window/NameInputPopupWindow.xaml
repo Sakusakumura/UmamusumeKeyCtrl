@@ -76,7 +76,7 @@
             <Label Content="作成する設定名を入力してください" Height="30" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Foreground="#f4f5f4" Margin="0, 10, 0, 0"></Label>
             <Label Name="ErrorLabel" Content="" Height="0" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Foreground="#E74C3C"/>
 
-            <TextBox Name="NameTextBox" Background="#535755" FontSize="18" Foreground="#e9eaea" Margin="10" AcceptsReturn="False" TextWrapping="NoWrap"></TextBox>
+            <TextBox Name="NameTextBox" Background="#535755" FontSize="18" Foreground="#e9eaea" Margin="10" AcceptsReturn="False" TextWrapping="NoWrap" PreviewTextInput="NameTextBoxOnPreviewTextInput"></TextBox>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 0, 0, 10">
                 <Button Name="ConfirmEvent" Content="決定" Width="100" Height="20" Click="OnConfirmButtonEvent" Foreground="#f4f5f4" Background="#6f7472" Margin="0, 0, 5, 0"></Button>

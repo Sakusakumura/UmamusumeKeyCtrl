@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -31,9 +32,23 @@ namespace umamusumeKeyCtl
 
             ErrorMessage = "";
             
+            NameTextBox.PreviewTextInput += NameTextBoxOnPreviewTextInput;
+            
             this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, OnCloseWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, OnRestoreWindow, OnCanResizeWindow));
+        }
+
+        private void NameTextBoxOnPreviewTextInput(object sender, TextCompositionEventArgs e)
+        {
+            char[] invalid = (new string(Path.GetInvalidPathChars()) + new string(Path.GetInvalidFileNameChars())).ToCharArray();
+            foreach (var character in invalid)
+            {
+                if (e.Text.Contains(character))
+                {
+                    e.Handled = true;
+                }
+            }
         }
 
         private void OnConfirmButtonEvent(object sender, RoutedEventArgs e)
