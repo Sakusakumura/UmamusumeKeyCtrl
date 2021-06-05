@@ -110,9 +110,9 @@ namespace umamusumeKeyCtl
             {
                 if (srcResult.KeyPoints.Length <= 2 || targetResult.KeyPoints.Length <= 2)
                 {
-                    Debug.Print(
-                        $"Not enough keypoints.\nsourceKeypoints.Length: {srcResult.KeyPoints.Length}, targetKeypoints.Length: {targetResult.KeyPoints.Length}");
-                    return MatchingResult.Fail;
+                    //Debug.Print(
+                    //    $"Not enough keypoints.\nsourceKeypoints.Length: {srcResult.KeyPoints.Length}, targetKeypoints.Length: {targetResult.KeyPoints.Length}");
+                    return MatchingResult.FailWithScore(new DMatch[0]);
                 }
 
                 using var inputParams = new IndexParams();
@@ -142,13 +142,13 @@ namespace umamusumeKeyCtl
                     }
                 }
 
-                if (goods.Count < 80)
+                if (goods.Count < srcResult.KeyPoints.Length * 0.35 && goods.Count < 80)
                 {
-                    Debug.Print($"Not enough match: {goods.Count}");
-                    return MatchingResult.Fail;
+                    //Debug.Print($"Not enough match: {goods.Count}");
+                    return MatchingResult.FailWithScore(goods.ToArray());
                 }
 
-                Debug.Print($"Enough match: {goods.Count}");
+                //Debug.Print($"Enough match: {goods.Count}");
 
                 return MatchingResult.SuccessWithScore(goods.ToArray());
             }

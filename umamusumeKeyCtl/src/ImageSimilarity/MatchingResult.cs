@@ -5,10 +5,10 @@ namespace umamusumeKeyCtl
 {
     public class MatchingResult
     {
-        public bool Result { get; }
-        public double Score { get; }
-        public string SceneName { get; private set; }
-        public DMatch[] Matches { get; }
+        public bool Result { get; set; }
+        public double Score { get; set; }
+        public string SceneName { get; set; }
+        public DMatch[] Matches { get; set; }
 
         /// <summary>
         /// Result of similarity search.
@@ -30,8 +30,11 @@ namespace umamusumeKeyCtl
             this.SceneName = sceneName;
         }
 
-        public static MatchingResult Fail => new MatchingResult(false, -1.0);
-        
+        public static MatchingResult FailWithScore(DMatch[] matches)
+        {
+            return new MatchingResult(false, -1.0, matches);
+        }
+
         public static MatchingResult SuccessWithScore(DMatch[] matches)
         {
             var score = 0.0d;
@@ -42,6 +45,10 @@ namespace umamusumeKeyCtl
             }
 
             score /= matches.Length;
+            var log = Math.Log10(matches.Length + 1);
+            var k = (1 - 0.5 * log);
+
+            score = Math.Max(0, score * k);
 
             return new MatchingResult(true, score, matches);
         }

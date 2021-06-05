@@ -1,4 +1,5 @@
-﻿using System.Windows;
+﻿using System.ComponentModel;
+using System.Windows;
 using System.Windows.Input;
 
 namespace umamusumeKeyCtl
@@ -13,11 +14,13 @@ namespace umamusumeKeyCtl
         public DataGridWindow()
         {
             InitializeComponent();
-
+            
             Vm = new DataGridWindowVM();
 
             this.DataContext = Vm;
-            
+
+            DataGrid.ItemsSource = Vm.Results;
+
             this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, OnCloseWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, OnRestoreWindow, OnCanResizeWindow));
