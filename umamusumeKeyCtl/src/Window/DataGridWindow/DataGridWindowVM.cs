@@ -27,7 +27,7 @@ namespace umamusumeKeyCtl
 
         public void UpdateResults(List<MatchingResult> results)
         {
-            foreach (var dataGridItem in Results)
+            foreach (var dataGridItem in Results.ToArray())
             {
                 if (!results.Exists(val => val.SceneName == dataGridItem.SceneName))
                 {
