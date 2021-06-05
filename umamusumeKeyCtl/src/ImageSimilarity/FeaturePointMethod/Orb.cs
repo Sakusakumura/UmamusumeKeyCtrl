@@ -6,7 +6,7 @@ namespace umamusumeKeyCtl.FeaturePointMethod
     {
         public int edgeThreshold = 40;
         public int patchSize = 40;
-        public int fastThreshold = 20;
+        public int fastThreshold = 16;
         public int nFeatures = 500;
 
         protected override DetectAndCompeteResult _DetectAndCompute(Mat srcMat, InputArray mask)

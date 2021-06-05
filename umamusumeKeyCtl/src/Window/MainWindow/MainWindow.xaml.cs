@@ -30,7 +30,6 @@ namespace umamusumeKeyCtl
         private CancellationTokenSource _tokenSource;
         private SceneSettingViewer _sceneSettingViewer;
         private SceneSelector _sceneSelector;
-        private Task _task;
 
         public MainWindow()
         {
@@ -88,7 +87,13 @@ namespace umamusumeKeyCtl
                     Cv2.ImShow("tgt", tuple.Tgt);
                 });
             };
-            _sceneSelector.OnGetMatchingResults += list => this.Dispatcher.Invoke(() => debugWindow.Vm.Results = list);
+            _sceneSelector.OnGetMatchingResults += list =>
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    debugWindow.Vm.UpdateResults(list);
+                });
+            };
             
             //Load settings
             SceneSettingHolder.Instance.LoadSettings();
@@ -110,7 +115,7 @@ namespace umamusumeKeyCtl
 
             windowCapture.CaptureResultObservable.Subscribe(source =>
             {
-                _ = Task.Run(async () => await _sceneSelector.SelectScene((Bitmap) source.Clone())).ContinueWith(_ => source.Dispose());
+                _ = Task.Run(() => _sceneSelector.SelectScene((Bitmap) source.Clone()).ContinueWith(_ => source.Dispose()));
 
                 vm.OnPrintWnd((Bitmap) source.Clone());
 
