@@ -7,6 +7,7 @@ namespace umamusumeKeyCtl.CaptureScene
     {
         private SceneSetting _sceneSetting;
         private SceneSettingModifyToolBox _toolBox;
+        private SceneSettingNameModifier _sceneSettingNameModifier;
         private ScrapSettingModifier _scrapSettingModifier;
         private VirtualKeySettingModifier _virtualKeySettingModifier;
         private Canvas _canvas;
@@ -32,7 +33,7 @@ namespace umamusumeKeyCtl.CaptureScene
         private void OnFinishEditing()
         {
             var instance = SceneSettingHolder.Instance;
-            instance.RemoveSetting(_sceneSetting.Name);
+            instance.RemoveSetting(_sceneSetting.Guid);
             instance.AddSettings(_sceneSetting);
             
             Discard();
@@ -40,6 +41,10 @@ namespace umamusumeKeyCtl.CaptureScene
 
         private void DrawSettingToCanvas(SceneSetting target, Canvas drawToCanvas)
         {
+            _sceneSettingNameModifier = new SceneSettingNameModifier();
+            _sceneSettingNameModifier.CompleteInputName += OnCompleteInputName;
+            _toolBox.OnModifyTitleClicked += _sceneSettingNameModifier.OnModifyTitleClicked;
+            
             _scrapSettingModifier = new ScrapSettingModifier(target.ScrapSetting, drawToCanvas);
             _scrapSettingModifier.OnChangeScrapSetting += OnChangeScrapSetting;
             _toolBox.OnScrapSettingModifyModeSelected += _scrapSettingModifier.OnEditModeChanged;
@@ -60,10 +65,18 @@ namespace umamusumeKeyCtl.CaptureScene
             _virtualKeySettingModifier.Repaint();
         }
 
+        private void OnCompleteInputName(string obj)
+        {
+            _sceneSetting =
+                new SceneSetting(_sceneSetting.Guid, obj, _sceneSetting.VirtualKeySettings, _sceneSetting.ScrapSetting);
+
+            Repaint();
+        }
+
         private void OnChangeScrapSetting(ScrapSetting setting)
         {
             _sceneSetting =
-                new SceneSetting(_sceneSetting.Name, _sceneSetting.VirtualKeySettings, setting);
+                new SceneSetting(_sceneSetting.Guid, _sceneSetting.DisplayName, _sceneSetting.VirtualKeySettings, setting);
 
             _toolBox.ScrapSettingEditMode = _toolBox.ScrapSettingEditMode == EditMode.Add ? EditMode.Modify : _toolBox.ScrapSettingEditMode;
 
@@ -73,7 +86,7 @@ namespace umamusumeKeyCtl.CaptureScene
         private void OnChangeVirtualKeys(List<VirtualKeySetting> virtualKeys)
         {
             _sceneSetting =
-                new SceneSetting(_sceneSetting.Name, virtualKeys, _sceneSetting.ScrapSetting);
+                new SceneSetting(_sceneSetting.Guid, _sceneSetting.DisplayName, virtualKeys, _sceneSetting.ScrapSetting);
             
             _toolBox.VirtualKeySettingEditMode = _toolBox.VirtualKeySettingEditMode == EditMode.Add ? EditMode.Modify : _toolBox.VirtualKeySettingEditMode;
 

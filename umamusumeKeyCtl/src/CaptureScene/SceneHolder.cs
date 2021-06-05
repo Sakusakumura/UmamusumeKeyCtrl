@@ -55,7 +55,7 @@ namespace umamusumeKeyCtl.CaptureScene
             // Create if setting is added
             foreach (var sceneSetting in sceneSettings)
             {
-                if (_scenes.Exists(val => val.Setting.Name == sceneSetting.Name))
+                if (_scenes.Exists(val => val.Setting.Guid == sceneSetting.Guid))
                 {
                     continue;
                 }
@@ -64,16 +64,16 @@ namespace umamusumeKeyCtl.CaptureScene
             }
 
             // Remove instance if setting is removed
-            foreach (var name in _scenes.ToArray().Select(val => val.Setting.Name))
+            foreach (var guid in _scenes.ToArray().Select(val => val.Setting.Guid))
             {
-                if (sceneSettings.Exists(val => val.Name == name))
+                if (sceneSettings.Exists(val => val.Guid == guid))
                 {
                     continue;
                 }
                 
-                var target = _scenes.Find(val => val.Setting.Name == name);
+                var target = _scenes.Find(val => val.Setting.Guid == guid);
                 _scenes.Remove(target);
-                Debug.Print($"[SceneHolder] {target.Setting.Name} removed.");
+                Debug.Print($"[SceneHolder] {target.Setting.DisplayName}(Guid: {target.Setting.Guid}) removed.");
                 target.Dispose();
             }
 
@@ -90,7 +90,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 var instance = InternalCreateScene(setting);
                 _scenes.Add(instance);
                 
-                Debug.Print($"[SceneHolder] {instance.Setting.Name} instantiated.");
+                Debug.Print($"[SceneHolder] {instance.Setting.DisplayName}(Guid: {instance.Setting.Guid}) instantiated.");
             }
             
             OnLoadScenes?.Invoke(_scenes);
@@ -100,7 +100,7 @@ namespace umamusumeKeyCtl.CaptureScene
         {
             Scene instance;
             
-            var sourcePath = $"{Settings.Default.ScreenShotLocation}/{setting.Name}.bmp";
+            var sourcePath = $"{Settings.Default.ScreenShotLocation}/{setting.Guid}.bmp";
 
             try
             {

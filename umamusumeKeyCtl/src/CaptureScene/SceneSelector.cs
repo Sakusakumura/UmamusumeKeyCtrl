@@ -42,7 +42,7 @@ namespace umamusumeKeyCtl.CaptureScene
 
                 if (succeeds.Count > 0)
                 {
-                    var targetScene = scenes.Find(val => val.Setting.Name == succeeds.First().SceneName);
+                    var targetScene = scenes.Find(val => val.Setting.Guid == succeeds.First().SceneGuid);
 
                     scenes.Remove(targetScene);
                     targetScene.IsSelected = true;
@@ -76,7 +76,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 {
                     var cloned = ((Bitmap) capturedImage.Clone()).PerformScale(300).PerformGrayScale();
 
-                    if (_printResult && scene.Setting.Name == "ホーム")
+                    if (_printResult && scene.Setting.DisplayName == "ホーム")
                     {
                         using Mat src = BitmapConverter.ToMat(scene.ScrappedImage.Image);
                         Cv2.DrawKeypoints(src, scene.ScrappedImage.FeaturePoints.KeyPoints, src, Scalar.Green);
@@ -111,7 +111,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 {
                     using var cloned = ((Bitmap) capturedImage.Clone()).PerformScale(300).PerformGrayScale();
                     
-                    var scene = SceneHolder.Instance.Scenes.Find(val => val.Setting.Name == returns.First().SceneName);
+                    var scene = SceneHolder.Instance.Scenes.Find(val => val.Setting.Guid == returns.First().SceneGuid);
                     
                     var tgtResult = ImageSimilaritySearcher.DetectAndCompete(cloned, MatchingFeaturePointMethod.ORB,
                         scene.ScrappedImage.Setting.ScrapInfos.Select(val => val.ScrapArea.ToOpenCvRect()).ToArray());
@@ -158,7 +158,7 @@ namespace umamusumeKeyCtl.CaptureScene
 
                     var matchingResult = ImageSimilaritySearcher.FeaturePointsMatching(featurePoint, capturedImage, MatchingFeaturePointMethod.ORB, maskArea);
 
-                    return matchingResult.WithSceneName(scene.Setting.Name);
+                    return matchingResult.WithSceneName(scene.Setting.DisplayName).WithSceneGuid(scene.Setting.Guid);
                 }
             });
         }

@@ -13,7 +13,7 @@ namespace umamusumeKeyCtl
 {
     public class SampleImageHolder : Singleton<SampleImageHolder>, IDisposable
     {
-        public Dictionary<string, Bitmap> Samples = new ();
+        public Dictionary<Guid, Bitmap> Samples = new ();
 
         private bool _disposed = false;
 
@@ -35,7 +35,7 @@ namespace umamusumeKeyCtl
 
             foreach (var captureSettingSet in SceneSettingHolder.Instance.Settings)
             {
-                tasks.Add(LoadAsset($"{Settings.Default.ScreenShotLocation}/{captureSettingSet.Name}.bmp"));
+                tasks.Add(LoadAsset($"{Settings.Default.ScreenShotLocation}/{captureSettingSet.Guid}.bmp"));
             }
 
             try
@@ -50,7 +50,7 @@ namespace umamusumeKeyCtl
 
             for (int i = 0; i < SceneSettingHolder.Instance.Settings.Length; i++)
             {
-                Samples.Add(SceneSettingHolder.Instance.Settings[i].Name, tasks[i].Result);
+                Samples.Add(SceneSettingHolder.Instance.Settings[i].Guid, tasks[i].Result);
                 tasks[i].Dispose();
             }
         }

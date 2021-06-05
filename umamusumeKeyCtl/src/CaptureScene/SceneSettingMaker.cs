@@ -81,6 +81,8 @@ namespace umamusumeKeyCtl.CaptureScene
 
             if (state == CaptureSettingMakeState.Completed)
             {
+                var sceneSetting = new SceneSetting(Guid.NewGuid(), _name, _virtualKeySettings, _scrapSetting);
+
                 // take a screenshot.
                 var capture = new WindowCapture(new CaptureSetting(Settings.Default.CaptureInterval, Settings.Default.CaptureWindowTitle));
                 capture.CaptureResultObservable.Subscribe(bitmap =>
@@ -96,11 +98,11 @@ namespace umamusumeKeyCtl.CaptureScene
                                 {
                                     using (var grayScaled = bitmap.PerformGrayScale())
                                     {
-                                        grayScaled.Save($"./CapturedImages/{_name}.bmp", ImageFormat.Bmp);
+                                        grayScaled.Save($"./CapturedImages/{sceneSetting.Guid}.bmp", ImageFormat.Bmp);
                                     }
                                 }
 
-                                OnCaptureSettingSetCreated?.Invoke(new SceneSetting(_name, _virtualKeySettings, _scrapSetting));
+                                OnCaptureSettingSetCreated?.Invoke(sceneSetting);
                             }
                             catch (Exception e)
                             {

@@ -56,12 +56,6 @@ namespace umamusumeKeyCtl
 
         private void OnConfirmButtonEvent(object sender, RoutedEventArgs e)
         {
-            if (SceneSettingHolder.Instance.Settings.ToList().Exists(val => val.Name == NameTextBox.Text))
-            {
-                ErrorMessage = "重複した設定名です";
-                return;
-            }
-            
             OnConfirm?.Invoke(NameTextBox.Text);
             this.Close();
         }

@@ -7,6 +7,7 @@ namespace umamusumeKeyCtl
     {
         public bool Result { get; set; }
         public double Score { get; set; }
+        public Guid SceneGuid { get; set; }
         public string SceneName { get; set; }
         public DMatch[] Matches { get; set; }
 
@@ -56,6 +57,12 @@ namespace umamusumeKeyCtl
         public MatchingResult WithSceneName(string name)
         {
             this.SceneName = name;
+            return this;
+        }
+
+        public MatchingResult WithSceneGuid(Guid guid)
+        {
+            this.SceneGuid = guid;
             return this;
         }
     }

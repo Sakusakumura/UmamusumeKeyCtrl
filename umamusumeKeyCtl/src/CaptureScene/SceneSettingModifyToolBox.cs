@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 
 namespace umamusumeKeyCtl.CaptureScene
@@ -35,6 +36,7 @@ namespace umamusumeKeyCtl.CaptureScene
             }
         }
 
+        public event Action OnModifyTitleClicked; 
         public event Action<EditMode> OnScrapSettingModifyModeSelected;
         public event Action<EditMode> OnVirtualKeySettingModifyModeSelected;
         public event Action OnFinishEditing;
@@ -63,13 +65,11 @@ namespace umamusumeKeyCtl.CaptureScene
             _rootPanel = new StackPanel()
             {
                 Orientation = Orientation.Vertical,
-                Width = 120.0,
-                
             };
 
+            // Toolbox title
             var titlePanel = new DockPanel()
             {
-                Width = 120.0,
                 LastChildFill = true
             };
 
@@ -93,17 +93,37 @@ namespace umamusumeKeyCtl.CaptureScene
             titlePanel.Children.Add(spaceLabel);
             titlePanel.Children.Add(titleButton);
 
+            // Modify title button
+            var modifyTitleButton = new Button()
+            {
+                Content = "設定名変更",
+                HorizontalContentAlignment = HorizontalAlignment.Left,
+                Foreground = (SolidColorBrush) converter.ConvertFromString("#ffffff"),
+                Background = (SolidColorBrush) converter.ConvertFromString("#7d8380"),
+                BorderBrush = (SolidColorBrush) converter.ConvertFromString("#343736"),
+                BorderThickness = new Thickness(1),
+                Margin = new Thickness(5, 3, 5, 3)
+            };
+            modifyTitleButton.Click += (_, _) => OnModifyTitleClicked?.Invoke();
+
+            // create other panel
             var scrapSettingPanel = CreateScrapSettingPanel();
             var virtualKeySettingPanel = CreateVirtualKeySettingPanel();
             var finishEditPanel = CreateFinishEditPanel();
 
+            // Add elements
             _rootPanel.Children.Add(titlePanel);
+            _rootPanel.Children.Add(modifyTitleButton);
             _rootPanel.Children.Add(scrapSettingPanel);
             _rootPanel.Children.Add(virtualKeySettingPanel);
             _rootPanel.Children.Add(finishEditPanel);
-
+            
+            // Set collapse movement
             titleButton.Click += (_, _) =>
             {
+                modifyTitleButton.Visibility = modifyTitleButton.Visibility == Visibility.Visible
+                    ? Visibility.Collapsed
+                    : Visibility.Visible;
                 scrapSettingPanel.Visibility = scrapSettingPanel.Visibility == Visibility.Visible
                     ? Visibility.Collapsed
                     : Visibility.Visible;
@@ -125,7 +145,6 @@ namespace umamusumeKeyCtl.CaptureScene
             var scrapSettingToolMenu = new StackPanel()
             {
                 Orientation = Orientation.Vertical,
-                Width = 120.0
             };
 
             scrapSettingToolMenu.Children.Add(new Label()
@@ -138,17 +157,15 @@ namespace umamusumeKeyCtl.CaptureScene
                 BorderThickness = new Thickness(0, 0.5, 0, 0.25),
             });
 
-            var scrapSettingRadioButtonPanel = new StackPanel()
+            var scrapSettingRadioButtonPanel = new UniformGrid()
             {
-                Width = 120,
-                Orientation = Orientation.Horizontal
+                Columns = 3,
             };
 
             for (int i = 0; i < 3; i++)
             {
                 var radioButton = new RadioButton()
                 {
-                    Width = 40,
                     Style = (Style) Application.Current.Resources["ToggleButtonStyle"],
                     Content = IntToModifyMode[i]
                 };
@@ -185,7 +202,6 @@ namespace umamusumeKeyCtl.CaptureScene
             var virtualKeyToolMenu = new StackPanel()
             {
                 Orientation = Orientation.Vertical,
-                Width = 120.0
             };
 
             virtualKeyToolMenu.Children.Add(new Label()
@@ -198,16 +214,15 @@ namespace umamusumeKeyCtl.CaptureScene
                 BorderThickness = new Thickness(0, 0.5, 0, 0.25),
             });
 
-            var virtualKeyRadioButtonPanel = new StackPanel()
+            var virtualKeyRadioButtonPanel = new UniformGrid()
             {
-                Orientation = Orientation.Horizontal
+                Columns = 3
             };
 
             for (int i = 0; i < 3; i++)
             {
                 var radioButton = new RadioButton()
                 {
-                    Width = 40,
                     Style = (Style) Application.Current.Resources["ToggleButtonStyle"],
                     Content = IntToModifyMode[i]
                 };

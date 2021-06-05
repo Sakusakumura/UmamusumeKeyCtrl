@@ -76,7 +76,7 @@ namespace umamusumeKeyCtl.CaptureScene
                     BorderThickness = new Thickness(0),
                 };
                 removeLabel.MouseLeftButtonUp +=
-                    (_, _) => SceneSettingHolder.Instance.RemoveSetting(setting.Name);
+                    (_, _) => SceneSettingHolder.Instance.RemoveSetting(setting.Guid);
                 removeLabel.Visibility = Visibility.Hidden;
                 OnChangeRemoveMode += b => removeLabel.Visibility = b ? Visibility.Visible : Visibility.Hidden;
 
@@ -105,7 +105,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 // setting name label.
                 var label = new Label()
                 {
-                    Content = setting.Name,
+                    Content = setting.DisplayName,
                     Foreground = (Brush) converter.ConvertFromString("#e9eaea"),
                     Background = Brushes.Transparent,
                     VerticalContentAlignment = VerticalAlignment.Center,

@@ -119,9 +119,9 @@ namespace umamusumeKeyCtl.CaptureScene
             }
         }
 
-        public void RemoveSetting(string settingName)
+        public void RemoveSetting(Guid guid)
         {
-            var target = _settings.Find(setting => setting.Name == settingName);
+            var target = _settings.Find(setting => setting.Guid == guid);
             
             if (target == null)
             {
