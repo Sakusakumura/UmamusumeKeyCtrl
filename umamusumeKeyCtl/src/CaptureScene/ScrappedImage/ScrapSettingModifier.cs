@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Shapes;
 using umamusumeKeyCtl.Helpers;
+using umamusumeKeyCtl.Properties;
 using Brushes = System.Windows.Media.Brushes;
 using Point = System.Windows.Point;
 
@@ -104,10 +105,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 OnMouseLeftDown(drawToCanvas, args, scrapInfo);
             };
             rectShape.MouseLeftButtonUp += (_, _) => OnRemoveSettingSelected(scrapInfo);
-            drawToCanvas.MouseLeftButtonUp += (sender, args) =>
-            {
-                OnMouseLeftButtonUp((Canvas) sender, rectShape, args);
-            };
+            drawToCanvas.MouseLeftButtonUp += (sender, args) => OnMouseLeftButtonUp((Canvas) sender, rectShape, args);
             drawToCanvas.MouseMove += (o, args) => OnMouseMove((Canvas) o, rectShape, args, scrapInfo);
 
             drawToCanvas.Children.Add(rectShape);
@@ -273,7 +271,7 @@ namespace umamusumeKeyCtl.CaptureScene
             var target = _scrapSetting.ScrapInfos.Find(val => val.Index == _targetIndex);
             _scrapSetting.ScrapInfos.Remove(target);
 
-            var newScrapInfo = new ScrapInfo(_targetIndex, _tempRect);
+            var newScrapInfo = new ScrapInfo(_targetIndex, GetClampedRect(_tempRect));
             
             _scrapSetting.ScrapInfos.Add(newScrapInfo);
             
@@ -286,6 +284,19 @@ namespace umamusumeKeyCtl.CaptureScene
             }
 
             _editState = EditState.Waiting;
+        }
+
+        private Rect GetClampedRect(Rect source)
+        {
+            double maxWidth = Settings.Default.ImageResolutionWidth;
+            double maxHeight = maxWidth * Settings.Default.GameAspectRatio;
+            double minExtent = Settings.Default.MinExtent;
+            var x = Math.Clamp(source.X, 0, maxWidth - minExtent);
+            var y = Math.Clamp(source.Y, 0, maxHeight - minExtent);
+            var width = Math.Clamp(source.Width, minExtent, maxWidth - x);
+            var height = Math.Clamp(source.Height, minExtent, maxHeight - y);
+
+            return new(x, y, width, height);
         }
 
         private Point GetRelPos(Point from, Point to)
