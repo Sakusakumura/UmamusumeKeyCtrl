@@ -18,6 +18,8 @@ namespace umamusumeKeyCtl.CaptureScene
         private LowLevelKeyboardListener _keyboardListener;
         private Canvas _canvas;
         private VirtualKeySettingMaker _maker;
+        private int _targetIndex;
+        private VirtualKeySetting _selectingSetting;
 
         public event Action<List<VirtualKeySetting>> OnChangeVirtualKeys;
         
@@ -124,7 +126,7 @@ namespace umamusumeKeyCtl.CaptureScene
             canvas.MouseLeftButtonUp += (obj, args) =>
             {
                 label.Focusable = true;
-                OnMouseLeftUp((Canvas) obj, args, setting);
+                OnMouseLeftUp((Canvas) obj, args);
             };
             canvas.MouseMove += (obj, args) => OnMouseMove((Canvas) obj, element, args);
             label.MouseRightButtonUp += (_, _) => OnMouseRightUp(label, ellipse, setting);
@@ -148,7 +150,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 return;
             }
             
-            _virtualKeySettings.AddRange(settings);
+            _virtualKeySettings = settings;
             
             OnChangeVirtualKeys?.Invoke(_virtualKeySettings);
 
@@ -176,6 +178,8 @@ namespace umamusumeKeyCtl.CaptureScene
             }
             
             _selecting = sender;
+            _selectingSetting = setting;
+            _targetIndex = setting.Index;
             _state = EditState.Moving;
         }
 
@@ -192,16 +196,16 @@ namespace umamusumeKeyCtl.CaptureScene
             Canvas.SetTop(sender, pos.Y - 10);
         }
 
-        private void OnMouseLeftUp(Canvas sender, MouseButtonEventArgs args, VirtualKeySetting setting)
+        private void OnMouseLeftUp(Canvas sender, MouseButtonEventArgs args)
         {
             if (_state != EditState.Moving)
             {
                 return;
             }
 
-            _virtualKeySettings.Remove(_virtualKeySettings.Find(val => val.Index == setting.Index));
+            _virtualKeySettings.Remove(_virtualKeySettings.Find(val => val.Index == _targetIndex));
             
-            _virtualKeySettings.Add(new VirtualKeySetting(setting.Index, setting.BindKey, args.GetPosition(sender)));
+            _virtualKeySettings.Add(new VirtualKeySetting(_targetIndex, _selectingSetting.BindKey, args.GetPosition(sender)));
             
             OnChangeVirtualKeys?.Invoke(_virtualKeySettings);
 

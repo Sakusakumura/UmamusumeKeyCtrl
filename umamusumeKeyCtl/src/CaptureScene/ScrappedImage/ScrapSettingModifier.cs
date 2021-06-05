@@ -106,7 +106,7 @@ namespace umamusumeKeyCtl.CaptureScene
             rectShape.MouseLeftButtonUp += (_, _) => OnRemoveSettingSelected(scrapInfo);
             drawToCanvas.MouseLeftButtonUp += (sender, args) =>
             {
-                OnMouseLeftButtonUp((Canvas) sender, rectShape, args, scrapInfo);
+                OnMouseLeftButtonUp((Canvas) sender, rectShape, args);
             };
             drawToCanvas.MouseMove += (o, args) => OnMouseMove((Canvas) o, rectShape, args, scrapInfo);
 
@@ -134,16 +134,13 @@ namespace umamusumeKeyCtl.CaptureScene
             {
                 if (!_scrapSetting.ScrapInfos.Exists(val => val.Index == scrapInfo.Index))
                 {
+                    _scrapSetting.ScrapInfos.Add(scrapInfo);
                     continue;
                 }
-
-                var temp = scrapInfo;
-                settings.ScrapInfos.Remove(scrapInfo);
-                settings.ScrapInfos.Add(new ScrapInfo(GetNewIndex(_scrapSetting.ScrapInfos), scrapInfo.ScrapArea));
+                
+                var indexed = new ScrapInfo(GetNewIndex(_scrapSetting.ScrapInfos), scrapInfo.ScrapArea);
+                _scrapSetting.ScrapInfos.Add(indexed);
             }
-            
-            // Add all passed scrapInfos to field.
-            _scrapSetting.ScrapInfos.AddRange(settings.ScrapInfos);
             
             OnChangeScrapSetting?.Invoke(_scrapSetting);
 
@@ -162,11 +159,6 @@ namespace umamusumeKeyCtl.CaptureScene
                 }
                 
                 break;
-            }
-
-            if (temp == infos.Count)
-            {
-                temp += 1;
             }
 
             return temp;
@@ -266,7 +258,7 @@ namespace umamusumeKeyCtl.CaptureScene
             return Rect.Empty;
         }
 
-        private void OnMouseLeftButtonUp(Canvas sender, Shape shape, MouseButtonEventArgs args, ScrapInfo info)
+        private void OnMouseLeftButtonUp(Canvas sender, Shape shape, MouseButtonEventArgs args)
         {
             if (_editState != EditState.Moving)
             {
@@ -278,10 +270,10 @@ namespace umamusumeKeyCtl.CaptureScene
                 element.Focusable = true;
             }
 
-            var target = _scrapSetting.ScrapInfos.Find(val => val.Index == info.Index);
+            var target = _scrapSetting.ScrapInfos.Find(val => val.Index == _targetIndex);
             _scrapSetting.ScrapInfos.Remove(target);
 
-            var newScrapInfo = new ScrapInfo(info.Index, _tempRect);
+            var newScrapInfo = new ScrapInfo(_targetIndex, _tempRect);
             
             _scrapSetting.ScrapInfos.Add(newScrapInfo);
             
