@@ -14,6 +14,9 @@ namespace umamusumeKeyCtl
         {
             InitializeComponent();
 
+            this.Owner = Application.Current.MainWindow;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
+
             _vm = new MessageWindowVM();
             _vm.TextBlockText = message;
             this.DataContext = _vm;

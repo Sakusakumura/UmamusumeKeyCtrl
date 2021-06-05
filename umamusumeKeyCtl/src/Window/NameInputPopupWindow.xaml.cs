@@ -29,6 +29,9 @@ namespace umamusumeKeyCtl
         public NameInputPopupWindow()   
         {
             InitializeComponent();
+            
+            this.Owner = Application.Current.MainWindow;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
             ErrorMessage = "";
             

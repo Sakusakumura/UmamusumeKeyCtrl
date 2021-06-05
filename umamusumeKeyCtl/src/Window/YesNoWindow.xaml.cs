@@ -11,6 +11,9 @@ namespace umamusumeKeyCtl
         public YesNoWindow(string message)
         {
             InitializeComponent();
+            
+            this.Owner = Application.Current.MainWindow;
+            this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
             MessageTextBlock.Text = message;
             
