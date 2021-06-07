@@ -1,10 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,6 +46,8 @@ namespace umamusumeKeyCtl
             _ = SampleImageHolder.Instance;
 
             _ = SceneHolder.Instance;
+
+            _ = VirtualKeyPushExecutor.Instance;
         }
 
         private void Initialize()
@@ -115,10 +115,21 @@ namespace umamusumeKeyCtl
 
             windowCapture.CaptureResultObservable.Subscribe(source =>
             {
-                _ = Task.Run(() => _sceneSelector.SelectScene((Bitmap) source.Clone()).ContinueWith(_ => source.Dispose()));
-
                 vm.OnPrintWnd((Bitmap) source.Clone());
-
+                
+                _ = Task.Run(() =>
+                {
+                    try
+                    {
+                        _sceneSelector.SelectScene((Bitmap) source.Clone()).ContinueWith(_ => source.Dispose());
+                    }
+                    catch (Exception e)
+                    {
+                        Debug.WriteLine(e);
+                        throw;
+                    }
+                }, _tokenSource.Token);
+                
                 this.Dispatcher.Invoke(() =>
                 {
                     canvas.Width = Image.Width;
@@ -134,22 +145,30 @@ namespace umamusumeKeyCtl
         private async void ChangeColor(CancellationToken token)
         {
             await WaitForContainer(SettingsView.ItemContainerGenerator, token);
-            
-            for (int i = 0; i < SettingsView.ItemContainerGenerator.Items.Count; i++)
-            {
-                ListViewItem lbi = SettingsView.ItemContainerGenerator.ContainerFromIndex(i) as ListViewItem;
 
-                if (lbi == null)
+            try
+            {
+                for (int i = 0; i < SettingsView.ItemContainerGenerator.Items.Count; i++)
                 {
-                    continue;
-                }
+                    ListViewItem lbi = SettingsView.ItemContainerGenerator.ContainerFromIndex(i) as ListViewItem;
+
+                    if (lbi == null)
+                    {
+                        continue;
+                    }
                 
-                var converter = new BrushConverter();
-                lbi.Foreground = (Brush) converter.ConvertFromString("#f1f1f1");
-                lbi.Background = (Brush) converter.ConvertFromString("#3f4240");
-                lbi.BorderBrush = (Brush) converter.ConvertFromString("#535755");
-                lbi.BorderThickness = new Thickness(0.2);
-                lbi.Margin = new Thickness(0);
+                    var converter = new BrushConverter();
+                    lbi.Foreground = (Brush) converter.ConvertFromString("#f1f1f1");
+                    lbi.Background = (Brush) converter.ConvertFromString("#3f4240");
+                    lbi.BorderBrush = (Brush) converter.ConvertFromString("#535755");
+                    lbi.BorderThickness = new Thickness(0.2);
+                    lbi.Margin = new Thickness(0);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                throw;
             }
         }
 

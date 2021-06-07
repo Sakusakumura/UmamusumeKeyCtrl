@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using umamusumeKeyCtl.Annotations;
 using umamusumeKeyCtl.Properties;
@@ -77,7 +78,9 @@ namespace umamusumeKeyCtl
         /// <param name="image"></param>
         public void OnPrintWnd(Bitmap image)
         {
-            MyImage = BitmapToImageSource(image);
+            MyImage = new WinFormsBitmapWrapper(image);
+            //MyImage = image.ToBitmapSource();
+            //MyImage = BitmapToImageSource(image);
             
             WndHeight = MyImage.PixelHeight;
             WndWidth = MyImage.PixelWidth + 100;
@@ -90,19 +93,15 @@ namespace umamusumeKeyCtl
             {
                 using (MemoryStream memory = new MemoryStream())
                 {
-                    using (WrappingStream wStream = new WrappingStream(memory))
-                    {
-                        bitmap.Save(wStream, ImageFormat.Bmp);
-
-                        wStream.Position = 0;
-                        BitmapImage bitmapimage = new BitmapImage();
-                        bitmapimage.BeginInit();
-                        bitmapimage.StreamSource = wStream;
-                        bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
-                        bitmapimage.EndInit();
-                        bitmapimage.Freeze();
-                        return bitmapimage;
-                    }
+                    bitmap.Save(memory, ImageFormat.Bmp);
+                    memory.Position = 0;
+                    BitmapImage bitmapimage = new BitmapImage();
+                    bitmapimage.BeginInit();
+                    bitmapimage.StreamSource = memory;
+                    bitmapimage.CacheOption = BitmapCacheOption.OnLoad;
+                    bitmapimage.EndInit();
+                    bitmapimage.Freeze();
+                    return bitmapimage;
                 }
             }
             catch (Exception e)

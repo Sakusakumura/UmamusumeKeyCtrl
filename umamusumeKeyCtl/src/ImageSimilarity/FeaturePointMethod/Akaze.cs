@@ -14,5 +14,10 @@ namespace umamusumeKeyCtl.FeaturePointMethod
 
             return result;
         }
+
+        protected override DetectAndCompeteResult _Detect(Mat srcMat, Mat mask)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }
