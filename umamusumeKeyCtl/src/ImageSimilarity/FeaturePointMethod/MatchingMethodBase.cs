@@ -15,10 +15,25 @@ namespace umamusumeKeyCtl.FeaturePointMethod
             }
             catch (Exception e)
             {
-                Debug.Print(e.ToString());
+                Debug.Write(e.ToString());
                 throw;
             }
         }
+
+        public DetectAndCompeteResult Detect(Mat srcMat, [CanBeNull] Mat mask)
+        {
+            try
+            {
+                return _Detect(srcMat, mask);
+            }
+            catch (Exception e)
+            {
+                Debug.Write(e);
+                throw;
+            }
+        }
+        
         protected abstract DetectAndCompeteResult _DetectAndCompute(Mat srcMat, [CanBeNull] InputArray mask);
+        protected abstract DetectAndCompeteResult _Detect(Mat srcMat, [CanBeNull] Mat mask);
     }
 }

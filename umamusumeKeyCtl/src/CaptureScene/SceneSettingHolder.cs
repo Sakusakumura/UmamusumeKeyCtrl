@@ -60,7 +60,12 @@ namespace umamusumeKeyCtl.CaptureScene
             {
                 if (!File.Exists("ScrapSettings.txt"))
                 {
-                    await Task.Run(() => File.Create("ScrapSettings.txt"));
+                    using var stream = await Task<FileStream>.Run(() => File.Create("ScrapSettings.txt"));
+                    var defaultSceneSettings = new List<SceneSetting>()
+                    {
+                        new SceneSetting(Guid.NewGuid(), "Default", new List<VirtualKeySetting>(), new ScrapSetting(new List<ScrapInfo>()))
+                    };
+                    stream.Write(JsonSerializer.SerializeToUtf8Bytes(defaultSceneSettings));
                 }
             
                 var str = File.ReadAllText("ScrapSettings.txt");

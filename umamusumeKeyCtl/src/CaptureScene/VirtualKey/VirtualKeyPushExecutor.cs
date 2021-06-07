@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,41 +9,41 @@ namespace umamusumeKeyCtl.CaptureScene
 {
     public class VirtualKeyPushExecutor : Singleton<VirtualKeyPushExecutor>, IDisposable
     {
-        private Queue<Task> _queue;
+        private ConcurrentQueue<Task> _queue;
         public void EnQueue(Task task) => _queue.Enqueue(task);
         private CancellationTokenSource _cancellationTokenSource;
-        private bool kill = false;
 
         public VirtualKeyPushExecutor()
         {
-            _queue = new Queue<Task>();
+            _queue = new ConcurrentQueue<Task>();
             _cancellationTokenSource = new CancellationTokenSource();
-            _ = Task.Run(() => ExecuteQueue(_cancellationTokenSource.Token));
+            ExecuteQueue(_cancellationTokenSource.Token);
         }
 
-        public void Kill()
+        private async void ExecuteQueue(CancellationToken token)
         {
-            kill = true;
-        }
-
-        private async Task ExecuteQueue(CancellationToken token)
-        {
-            while (token.IsCancellationRequested == false && kill == false)
+            try
             {
-                while (_queue.Count == 0 && token.IsCancellationRequested == false && kill == false)
+                while (token.IsCancellationRequested == false)
                 {
-                    await Task.Delay(1);
-                }
+                    while (_queue.Count == 0 && token.IsCancellationRequested == false)
+                    {
+                        await Task.Delay(1);
+                    }
 
-                try
-                {
-                    await _queue.Dequeue();
+                    Task task = Task.CompletedTask;
+                    while (!_queue.TryDequeue(out task))
+                    {
+                        await Task.Delay(1);
+                    }
+
+                    await task;
                 }
-                catch (Exception e)
-                {
-                    Debug.Print(e.ToString());
-                    throw;
-                }
+            }
+            catch (Exception e)
+            {
+                Debug.Write(e);
+                throw;
             }
         }
 

@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using umamusumeKeyCtl.UserInput;
 
 namespace umamusumeKeyCtl.CaptureScene
@@ -43,7 +44,7 @@ namespace umamusumeKeyCtl.CaptureScene
 
             if (vKey != null)
             {
-                vKey.Push();
+                vKey.OnKeyHook(e);
             }
         }
 

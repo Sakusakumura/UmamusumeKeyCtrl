@@ -96,7 +96,15 @@ namespace umamusumeKeyCtl
         /// <returns>Should contain the handle but may be zero if the title doesn't match</returns>
         public static async Task<IntPtr> AsyncGetHWndByName(string wName)
         {
-            return await Task<IntPtr>.Run(() => { return GetHWndByName(wName); });
+            try
+            {
+                return await Task<IntPtr>.Run(() => { return GetHWndByName(wName); });
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine(e);
+                throw;
+            }
         }
 
         public static Rectangle GetWindowRect(IntPtr hWnd)

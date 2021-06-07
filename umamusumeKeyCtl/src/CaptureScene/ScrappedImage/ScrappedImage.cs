@@ -46,7 +46,7 @@ namespace umamusumeKeyCtl.CaptureScene
                         rect.Intersect(rootRect);
                     
                         using var cloned = (Bitmap) source.Clone();
-                        var bitmap = cloned.PerformCrop(rect);
+                        using var bitmap = cloned.PerformCrop(rect);
                     
                         graphics.DrawImage(bitmap, rect);
                     }

@@ -47,7 +47,7 @@ namespace umamusumeKeyCtl
 
             score /= matches.Length;
             var log = Math.Log10(matches.Length + 1);
-            var k = (1 - 0.5 * log);
+            var k = (1 - 0.40369440861835 * log);
 
             score = Math.Max(0, score * k);
 
