@@ -108,7 +108,7 @@
                 <DockPanel LastChildFill="False">
                     <Grid DockPanel.Dock="Right" Background="Transparent">
                         <Image Name="Image" Source="{Binding Path=MyImage}" MaxWidth="{Binding Source={x:Static properties:Settings.Default}, Path=ImageResolutionWidth}"/>
-                        <Canvas x:Name="canvas" Background="Transparent"/>
+                        <Canvas x:Name="Canvas" Background="Transparent"/>
                     </Grid>
                     <DockPanel DockPanel.Dock="Left" Background="#535755" LastChildFill="True">
                         <DockPanel Background="#2B2C2B" LastChildFill="True" Margin="0.2">

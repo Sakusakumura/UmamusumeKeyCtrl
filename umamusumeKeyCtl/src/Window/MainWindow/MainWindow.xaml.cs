@@ -28,6 +28,7 @@ namespace umamusumeKeyCtl
         private CancellationTokenSource _tokenSource;
         private SceneSettingViewer _sceneSettingViewer;
         private SceneSelector _sceneSelector;
+        private SceneViewer _sceneViewer;
 
         public MainWindow()
         {
@@ -62,7 +63,7 @@ namespace umamusumeKeyCtl
             
             SceneSettingHolder.Instance.OnLoadSettings += settingSets =>
             {
-                this.Dispatcher.Invoke(() => _sceneSettingViewer.OnLoadSettings(settingSets, canvas, ToolPanel, SettingsView));
+                this.Dispatcher.Invoke(() => _sceneSettingViewer.OnLoadSettings(settingSets, Canvas, ToolPanel, SettingsView));
             };
             
             ((INotifyCollectionChanged)SettingsView.Items).CollectionChanged += (_, _) =>
@@ -71,6 +72,9 @@ namespace umamusumeKeyCtl
                 ChangeColor(_tokenSource.Token);
             };
             
+            // Instantiate SceneViewer
+            _sceneViewer = new SceneViewer(Canvas);
+
             // Instantiate debugWindow
             var debugWindow = new DataGridWindow();
             debugWindow.Show();
@@ -92,6 +96,13 @@ namespace umamusumeKeyCtl
                 this.Dispatcher.Invoke(() =>
                 {
                     debugWindow.Vm.UpdateResults(list);
+                });
+            };
+            _sceneSelector.SceneSelected += (_, scene) =>
+            {
+                this.Dispatcher.Invoke(() =>
+                {
+                    _sceneViewer.DrawScene(scene);
                 });
             };
             
@@ -132,8 +143,8 @@ namespace umamusumeKeyCtl
                 
                 this.Dispatcher.Invoke(() =>
                 {
-                    canvas.Width = Image.Width;
-                    canvas.Height = Image.Height;
+                    Canvas.Width = Image.Width;
+                    Canvas.Height = Image.Height;
                 });
 
             }, exception => Console.Write(exception));
@@ -199,7 +210,7 @@ namespace umamusumeKeyCtl
 
         public void OnButtonClick(object sender, RoutedEventArgs e)
         {
-            new SceneSettingMaker(canvas, canvas);
+            new SceneSettingMaker(Canvas, Canvas);
         }
 
         private void OnSaveSettingsButtonClick(object sender, RoutedEventArgs e)

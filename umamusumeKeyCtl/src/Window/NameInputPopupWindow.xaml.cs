@@ -12,6 +12,8 @@ namespace umamusumeKeyCtl
     /// </summary>
     public partial class NameInputPopupWindow : Window
     {
+        private char[] _invalidChars;
+        
         private string errorMessage = "";
         public string ErrorMessage
         {
@@ -30,6 +32,10 @@ namespace umamusumeKeyCtl
         {
             InitializeComponent();
             
+            var invalid = (new string(Path.GetInvalidPathChars()) + new string(Path.GetInvalidFileNameChars())).ToCharArray().ToList();
+            invalid.Remove('/');
+            _invalidChars = invalid.ToArray();
+            
             this.Owner = Application.Current.MainWindow;
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
@@ -44,8 +50,7 @@ namespace umamusumeKeyCtl
 
         private void NameTextBoxOnPreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            char[] invalid = (new string(Path.GetInvalidPathChars()) + new string(Path.GetInvalidFileNameChars())).ToCharArray();
-            foreach (var character in invalid)
+            foreach (var character in _invalidChars)
             {
                 if (e.Text.Contains(character))
                 {
