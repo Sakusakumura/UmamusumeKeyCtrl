@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
@@ -32,13 +33,14 @@ namespace umamusumeKeyCtl.CaptureScene
             }
 
             _isBusy = true;
-
+            
             try
             {
-                var matchingResults = await GetMatchingResults(capturedImage);
+                var scenes = SceneHolder.Instance.Scenes.ToList();
+                
+                var matchingResults = await GetMatchingResults(capturedImage, scenes);
                 var succeeds = matchingResults.Where(val => val.Result).ToList();
 
-                var scenes = SceneHolder.Instance.Scenes.ToList();
 
                 if (succeeds.Count > 0)
                 {
@@ -46,6 +48,16 @@ namespace umamusumeKeyCtl.CaptureScene
 
                     scenes.Remove(targetScene);
                     targetScene.IsSelected = true;
+                }
+                else
+                {
+                    var targetScene = scenes.Find(val => val.Setting.DisplayName == "Default");
+
+                    if (targetScene != null)
+                    {
+                        scenes.Remove(targetScene);
+                        targetScene.IsSelected = true;
+                    }
                 }
 
                 foreach (var scene in scenes)
@@ -58,6 +70,7 @@ namespace umamusumeKeyCtl.CaptureScene
             catch (Exception e)
             {
                 Debug.Print(e.ToString());
+                throw;
             }
             finally
             {
@@ -65,16 +78,18 @@ namespace umamusumeKeyCtl.CaptureScene
             }
         }
 
-        private async Task<List<MatchingResult>> GetMatchingResults(Bitmap capturedImage)
+        private async Task<List<MatchingResult>> GetMatchingResults(Bitmap capturedImage, List<Scene> scenes)
         {
             try
             {
                 var rootTask = new List<Task<MatchingResult>>();
-                
+
                 // Create task that gets matching result.
-                foreach (var scene in SceneHolder.Instance.Scenes.ToArray())
+                scenes = scenes.Where(val => val.Setting.DisplayName != "Default").ToList();
+                
+                foreach (var scene in scenes)
                 {
-                    var cloned = ((Bitmap) capturedImage.Clone()).PerformScale(300).PerformGrayScale();
+                    var cloned = ((Bitmap) capturedImage.Clone());
 
                     if (_printResult && scene.Setting.DisplayName == "ホーム")
                     {
@@ -87,16 +102,17 @@ namespace umamusumeKeyCtl.CaptureScene
                         SrcTgtImgPrinted?.Invoke(new (src, tgt));
                     }
 
+
                     rootTask.Add(GetMatchingResult(cloned, scene, scene.ScrappedImage.FeaturePoints));
                 }
-                
+
                 // Run task.
                 var resultsList = await Task<List<MatchingResult>>.WhenAll(rootTask.ToArray());
 
                 // Sorting list.
                 var returns = resultsList.OrderByDescending(val => val.Result).ThenBy(val => val.Score).ToList();
                 
-                if (_printResult)
+                if (false && _printResult)
                 {
                     var str = "Matches count | Result | SceneName\n";
                     foreach (var matchingResult in returns)
@@ -109,9 +125,9 @@ namespace umamusumeKeyCtl.CaptureScene
                 // For debug.
                 if (_printResult && returns.Exists(val => val.Result))
                 {
-                    using var cloned = ((Bitmap) capturedImage.Clone()).PerformScale(300).PerformGrayScale();
+                    using var cloned = (Bitmap) capturedImage.Clone();
                     
-                    var scene = SceneHolder.Instance.Scenes.Find(val => val.Setting.Guid == returns.First().SceneGuid);
+                    var scene = scenes.ToList().Find(val => val.Setting.Guid == returns.First().SceneGuid);
                     
                     var tgtResult = ImageSimilaritySearcher.DetectAndCompete(cloned, MatchingFeaturePointMethod.ORB,
                         scene.ScrappedImage.Setting.ScrapInfos.Select(val => val.ScrapArea.ToOpenCvRect()).ToArray());
@@ -123,14 +139,17 @@ namespace umamusumeKeyCtl.CaptureScene
                     using Mat output = new Mat();
                     try
                     {
-                        Cv2.DrawMatches(srcMat,
-                            srcResult,
-                            tgtMat,
-                            tgtResult.KeyPoints,
-                            result.Matches,
-                            output,
-                            matchColor: Scalar.Green,
-                            flags: DrawMatchesFlags.Default);
+                        if (srcResult.Length > 0 && tgtResult.KeyPoints.Length > 0 )
+                        {
+                            Cv2.DrawMatches(srcMat,
+                                srcResult,
+                                tgtMat,
+                                tgtResult.KeyPoints,
+                                result.Matches,
+                                output,
+                                matchColor: Scalar.Green,
+                                flags: DrawMatchesFlags.Default);
+                        }
                     }
                     catch (Exception e)
                     {
@@ -139,6 +158,7 @@ namespace umamusumeKeyCtl.CaptureScene
 
                     ResultPrinted?.Invoke(output);
                 }
+
                 return returns.ToList();
             }
             catch (Exception e)
@@ -152,14 +172,16 @@ namespace umamusumeKeyCtl.CaptureScene
         {
             return await Task<MatchingResult>.Run(() =>
             {
-                using (capturedImage)
+                var maskArea = scene.ScrappedImage.SamplingAreas.Select(val => val.ScrapArea.ToOpenCvRect()).ToArray();
+
+                var matchingResult = ImageSimilaritySearcher.FeaturePointsMatching(featurePoint, capturedImage, MatchingFeaturePointMethod.ORB, maskArea);
+
+                _ = Task.Run(() =>
                 {
-                    var maskArea = scene.ScrappedImage.SamplingAreas.Select(val => val.ScrapArea.ToOpenCvRect()).ToArray();
+                    capturedImage.Dispose();
+                });
 
-                    var matchingResult = ImageSimilaritySearcher.FeaturePointsMatching(featurePoint, capturedImage, MatchingFeaturePointMethod.ORB, maskArea);
-
-                    return matchingResult.WithSceneName(scene.Setting.DisplayName).WithSceneGuid(scene.Setting.Guid);
-                }
+                return matchingResult.WithSceneName(scene.Setting.DisplayName).WithSceneGuid(scene.Setting.Guid);
             });
         }
     }

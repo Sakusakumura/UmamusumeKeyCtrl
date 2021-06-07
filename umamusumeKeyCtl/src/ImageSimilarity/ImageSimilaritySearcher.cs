@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Linq;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using OpenCvSharp.Flann;
@@ -13,6 +14,17 @@ namespace umamusumeKeyCtl
 {
     public class ImageSimilaritySearcher
     {
+        // defines are in https://github.com/opencv/opencv/blob/383559c2285baaf3df8cf0088072d104451a30ce/modules/flann/include/opencv2/flann/defines.h#L68
+        private const int FLANN_INDEX_LINEAR = 0;
+        private const int FLANN_INDEX_KDTREE = 1;
+        private const int FLANN_INDEX_KMEANS = 2;
+        private const int FLANN_INDEX_COMPOSITE = 3;
+        private const int FLANN_INDEX_KDTREE_SINGLE = 4;
+        private const int FLANN_INDEX_HIERARCHICAL = 5;
+        private const int FLANN_INDEX_LSH = 6;
+        private const int FLANN_INDEX_SAVED = 254;
+        private const int FLANN_INDEX_AUTOTUNED = 255;
+        
         public static double TemplateMatch(Bitmap srcImage, Bitmap targetImage)
         {
             // 検索対象の画像とテンプレート画像
@@ -85,6 +97,40 @@ namespace umamusumeKeyCtl
                 throw;
             }
         }
+
+        public static DetectAndCompeteResult Detect(Bitmap source, MatchingFeaturePointMethod method, Rect[] maskAreas = null)
+        {
+            try
+            {
+                // Convert bitmap to mat.
+                using var mat = BitmapConverter.ToMat(source);
+                
+                // Create mask.
+                if (maskAreas != null)
+                {
+                    using Mat mask = new Mat(new Size(mat.Width, mat.Height), MatType.CV_8UC4, Scalar.Black);
+
+                    foreach (var maskArea in maskAreas)
+                    {
+                        Cv2.Rectangle(mask, maskArea, Scalar.White, thickness: -1);
+                    }
+
+                    Cv2.BitwiseAnd(mat, mask, mat);
+                    
+                    return new FeaturePointMethodFactory().Create(method).Detect(mat, mask);
+                }
+
+                // Get result.
+                var result = new FeaturePointMethodFactory().Create(method).Detect(mat, null);
+
+                return result;
+            }
+            catch (Exception e)
+            {   
+                Debug.Write(e);
+                throw;
+            }
+        }
         
         public static MatchingResult FeaturePointsMatching(Bitmap srcImage, Bitmap tgtImage,
             MatchingFeaturePointMethod method, Rect[] sourceImageMask = null, Rect[] targetImageMask = null)
@@ -110,29 +156,26 @@ namespace umamusumeKeyCtl
             {
                 if (srcResult.KeyPoints.Length <= 2 || targetResult.KeyPoints.Length <= 2)
                 {
-                    //Debug.Print(
-                    //    $"Not enough keypoints.\nsourceKeypoints.Length: {srcResult.KeyPoints.Length}, targetKeypoints.Length: {targetResult.KeyPoints.Length}");
+                    //Debug.Print($"Not enough keypoints.\nsourceKeypoints.Length: {srcResult.KeyPoints.Length}, targetKeypoints.Length: {targetResult.KeyPoints.Length}");
                     return MatchingResult.FailWithScore(new DMatch[0]);
                 }
 
-                using var inputParams = new IndexParams();
-                inputParams.SetAlgorithm(1);
-                inputParams.SetInt("trees", 5);
+                using var indexParams = new IndexParams();
+                indexParams.SetAlgorithm(FLANN_INDEX_LSH);
+                indexParams.SetInt("table_number", 6);
+                indexParams.SetInt("key_size", 12);
+                indexParams.SetInt("multi_probe_level", 1);
 
                 using var searchParams = new SearchParams();
                 searchParams.SetInt("checks", 50);
 
-                using var flannBasedMatcher = new FlannBasedMatcher(inputParams, searchParams);
+                using var flannBasedMatcher = new FlannBasedMatcher(indexParams, searchParams);
 
-                using var convertedSD = new Mat();
-                srcResult.Mat.ConvertTo(convertedSD, MatType.CV_32F);
-
-                using var convertedTD = new Mat();
-                targetResult.Mat.ConvertTo(convertedTD, MatType.CV_32F);
-
-                var matches = flannBasedMatcher.KnnMatch(convertedSD, convertedTD, 2);
+                var matches = flannBasedMatcher.KnnMatch(srcResult.Mat, targetResult.Mat, 2);
 
                 var goods = new List<DMatch>();
+
+                matches = matches.ToList().Where(val => val.Length >= 2).ToArray();
 
                 foreach (var match in matches)
                 {
@@ -154,7 +197,7 @@ namespace umamusumeKeyCtl
             }
             catch (Exception e)
             {
-                Debug.Print(e.ToString());
+                Debug.Write(e);
                 throw;
             }
         }

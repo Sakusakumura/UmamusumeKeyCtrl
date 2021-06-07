@@ -96,10 +96,7 @@ namespace umamusumeKeyCtl.CaptureScene
                             {
                                 using (bitmap)
                                 {
-                                    using (var grayScaled = bitmap.PerformGrayScale())
-                                    {
-                                        grayScaled.Save($"./CapturedImages/{sceneSetting.Guid}.bmp", ImageFormat.Bmp);
-                                    }
+                                    bitmap.Save($"./CapturedImages/{sceneSetting.Guid}.bmp", ImageFormat.Bmp);
                                 }
 
                                 OnCaptureSettingSetCreated?.Invoke(sceneSetting);

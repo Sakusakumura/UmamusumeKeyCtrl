@@ -14,6 +14,11 @@ namespace umamusumeKeyCtl.CaptureScene
         private VirtualKeySetting _setting;
         public VirtualKeySetting Setting => _setting;
         public IntPtr UmaWndH { get; set; }
+        
+        private bool _isKeyPressedBefore = false;
+        
+        private const int WM_KEYDOWN = 0x0100;
+        private const int WM_KEYUP = 0x0101;
 
         public VirtualKey(VirtualKeySetting setting)
         {
@@ -21,12 +26,20 @@ namespace umamusumeKeyCtl.CaptureScene
             UmaWndH = IntPtr.Zero;
         }
 
-        public void Push()
+        public void OnKeyHook(KeyPressedArgs pressedArgs)
         {
-            if (UmaWndH == IntPtr.Zero)
+            if (pressedArgs.WParam == WM_KEYUP)
+            {
+                _isKeyPressedBefore = false;
+                return;
+            }
+
+            if (UmaWndH == IntPtr.Zero || _isKeyPressedBefore)
             {
                 return;
             }
+
+            _isKeyPressedBefore = true;
             
             var prePos = MouseHelper.GetMousePosition();
             var rect = WindowHelper.GetWindowRect(UmaWndH);
@@ -40,7 +53,7 @@ namespace umamusumeKeyCtl.CaptureScene
             var scaled = CalcurateScaledPoint(_setting.PressPos, rect);
             dest.Offset(scaled);
 
-            VirtualKeyPushExecutor.Instance.EnQueue(Push(dest));
+            VirtualKeyPushExecutor.Instance.EnQueue(OnKeyHook(dest));
             
             VirtualMouse.MoveTo(prePos);
         }
@@ -57,16 +70,16 @@ namespace umamusumeKeyCtl.CaptureScene
             return new Point((int) (source.X * k), (int) (source.Y * k));
         }
 
-        private Task Push(Point point)
+        private Task OnKeyHook(Point point)
         {
             var prePos = MouseHelper.GetMousePosition();
 
             VirtualMouse.MoveTo(point);
-            Thread.Sleep(20);
+            Thread.Sleep(40);
             VirtualMouse.Down(MouseButton.Left);
-            Thread.Sleep(20);
+            Thread.Sleep(40);
             VirtualMouse.Up(MouseButton.Left);
-            Thread.Sleep(20);
+            Thread.Sleep(40);
             VirtualMouse.MoveTo(prePos);
 
             return Task.CompletedTask;

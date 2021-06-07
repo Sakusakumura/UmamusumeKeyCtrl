@@ -28,6 +28,7 @@ namespace umamusumeKeyCtl.UserInput
     {
         private const int WH_KEYBOARD_LL = 13;
         private const int WM_KEYDOWN = 0x0100;
+        private const int WM_KEYUP = 0x0101;
         private const int WM_SYSKEYDOWN = 0x0104;
  
         [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
@@ -76,11 +77,11 @@ namespace umamusumeKeyCtl.UserInput
  
         private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
         {
-            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_SYSKEYDOWN)
+            if (nCode >= 0 && wParam == (IntPtr)WM_KEYDOWN || wParam == (IntPtr)WM_KEYUP || wParam == (IntPtr)WM_SYSKEYDOWN)
             {
                 int vkCode = Marshal.ReadInt32(lParam);
  
-                if (OnKeyPressed != null) { OnKeyPressed(this, new KeyPressedArgs(KeyInterop.KeyFromVirtualKey(vkCode))); }
+                if (OnKeyPressed != null) { OnKeyPressed(this, new KeyPressedArgs(KeyInterop.KeyFromVirtualKey(vkCode), wParam.ToInt32())); }
             }
  
             return CallNextHookEx(_hookID, nCode, wParam, lParam);
@@ -90,10 +91,14 @@ namespace umamusumeKeyCtl.UserInput
     public class KeyPressedArgs : EventArgs
     {
         public Key KeyPressed { get; private set; }
+        
+        /// KeyDown=256 KeyUp=257
+        public int WParam { get; private set; }
  
-        public KeyPressedArgs(Key key)
+        public KeyPressedArgs(Key key, int wParam)
         {
             KeyPressed = key;
+            WParam = wParam;
         }
     }
 }
