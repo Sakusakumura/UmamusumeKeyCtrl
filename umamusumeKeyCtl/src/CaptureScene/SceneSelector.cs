@@ -16,7 +16,8 @@ namespace umamusumeKeyCtl.CaptureScene
     {
         private bool _printResult;
         private bool _isBusy;
-        public event Action<List<MatchingResult>> OnGetMatchingResults; 
+        public event Action<List<MatchingResult>> OnGetMatchingResults;
+        public event EventHandler<Scene> SceneSelected; 
         public event Action<Mat> ResultPrinted; 
         public event Action<(Mat Src, Mat Tgt)> SrcTgtImgPrinted;
 
@@ -39,15 +40,16 @@ namespace umamusumeKeyCtl.CaptureScene
                 var scenes = SceneHolder.Instance.Scenes.ToList();
                 
                 var matchingResults = await GetMatchingResults(capturedImage, scenes);
-                var succeeds = matchingResults.Where(val => val.Result).ToList();
+                var succeeds = matchingResults.Where(val => val.Result);
 
 
-                if (succeeds.Count > 0)
+                if (succeeds.Count() > 0)
                 {
                     var targetScene = scenes.Find(val => val.Setting.Guid == succeeds.First().SceneGuid);
 
                     scenes.Remove(targetScene);
                     targetScene.IsSelected = true;
+                    SceneSelected?.Invoke(this, targetScene);
                 }
                 else
                 {
@@ -55,8 +57,12 @@ namespace umamusumeKeyCtl.CaptureScene
 
                     if (targetScene != null)
                     {
+                        var defaultMResult = new MatchingResult(true, 0);
+                        matchingResults.Add(defaultMResult);
+                        
                         scenes.Remove(targetScene);
                         targetScene.IsSelected = true;
+                        SceneSelected?.Invoke(this, targetScene);
                     }
                 }
 
@@ -91,7 +97,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 {
                     var cloned = ((Bitmap) capturedImage.Clone());
 
-                    if (_printResult && scene.Setting.DisplayName == "ホーム")
+                    if (_printResult && scene.Setting.DisplayName == "育成/トレーニング１")
                     {
                         using Mat src = BitmapConverter.ToMat(scene.ScrappedImage.Image);
                         Cv2.DrawKeypoints(src, scene.ScrappedImage.FeaturePoints.KeyPoints, src, Scalar.Green);
