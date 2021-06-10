@@ -7,7 +7,7 @@ namespace umamusumeKeyCtl.ImageSimilarity.Method
     public class Fast : MatchingMethodBase
     {
         private FastFeatureDetector _fast;
-        public int Threshold = 10;
+        public int Threshold = 10; // Experimental: 40
 
         public Fast()
         {
