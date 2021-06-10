@@ -2,8 +2,10 @@
 using System.IO;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using umamusumeKeyCtl.CaptureScene;
+using umamusumeKeyCtl.ImageSimilarity.Factory;
 
 namespace umamusumeKeyCtl
 {
@@ -25,10 +27,10 @@ namespace umamusumeKeyCtl
             }
         }
 
-        public event Action<string> OnConfirm; 
-        public event Action OnCanceled;
+        public event EventHandler<Tuple<string, DetectorMethod, DescriptorMethod>> Confirm; 
+        public event EventHandler Canceled;
         
-        public NameInputPopupWindow()   
+        public NameInputPopupWindow(bool isCreateNewMode, string defaultNameText = "", int defaultDetectorMethod = 0, int defaultExtructorMethod = 0)   
         {
             InitializeComponent();
             
@@ -40,8 +42,17 @@ namespace umamusumeKeyCtl
             this.WindowStartupLocation = WindowStartupLocation.CenterOwner;
 
             ErrorMessage = "";
-            
+
+            if (!isCreateNewMode)
+            {
+                ConfirmButton.Content = "変更";
+            }
+
+            NameTextBox.Text = defaultNameText;
             NameTextBox.PreviewTextInput += NameTextBoxOnPreviewTextInput;
+
+            DetectorComboBox.SelectedIndex = defaultDetectorMethod;
+            DescriberComboBox.SelectedIndex = defaultExtructorMethod;
             
             this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, OnCloseWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
@@ -61,7 +72,14 @@ namespace umamusumeKeyCtl
 
         private void OnConfirmButtonEvent(object sender, RoutedEventArgs e)
         {
-            OnConfirm?.Invoke(NameTextBox.Text);
+            Confirm?.Invoke(
+                this,
+                new Tuple<string, DetectorMethod, DescriptorMethod>(
+                    NameTextBox.Text,
+                    (DetectorMethod) DetectorComboBox.SelectedIndex,
+                    (DescriptorMethod) DescriberComboBox.SelectedIndex
+                )
+            );
             this.Close();
         }
 
@@ -82,7 +100,7 @@ namespace umamusumeKeyCtl
 
         private void OnCancelButtonEvent(object sender, RoutedEventArgs e)
         {
-            OnCanceled?.Invoke();
+            Canceled?.Invoke(this, e);
             this.Close();
         }
         

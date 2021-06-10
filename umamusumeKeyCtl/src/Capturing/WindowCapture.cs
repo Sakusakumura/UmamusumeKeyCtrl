@@ -89,7 +89,7 @@ namespace umamusumeKeyCtl
                     stopWatch.Stop();
 
                     var waitTime = Math.Max(captureSetting.Interval - stopWatch.ElapsedMilliseconds, 0);
-                    Debug.Print($"[{this.GetType().Name}] Elapsed Millisecs: {stopWatch.ElapsedMilliseconds} WaitTime: {waitTime}");
+                    
                     await Task.Delay((int) waitTime);
                 }
             }

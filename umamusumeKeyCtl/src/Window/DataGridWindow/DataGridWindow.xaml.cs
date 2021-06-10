@@ -19,7 +19,7 @@ namespace umamusumeKeyCtl
 
             this.DataContext = Vm;
 
-            DataGrid.ItemsSource = Vm.Results;
+            DataGrid.ItemsSource = Vm.DataGridItems;
 
             this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, OnCloseWindow));
             this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));

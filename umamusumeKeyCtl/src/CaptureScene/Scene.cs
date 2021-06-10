@@ -44,7 +44,7 @@ namespace umamusumeKeyCtl.CaptureScene
 
             if (vKey != null)
             {
-                vKey.OnKeyHook(e);
+                vKey.Perform(e);
             }
         }
 

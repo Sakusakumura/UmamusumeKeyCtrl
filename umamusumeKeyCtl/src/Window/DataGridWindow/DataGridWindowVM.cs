@@ -1,23 +1,23 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Windows.Controls;
 using umamusumeKeyCtl.Annotations;
 
 namespace umamusumeKeyCtl
 {
     public class DataGridWindowVM
     {
-        private ObservableCollection<DataGridItem> _results = new();
+        private ObservableCollection<DataGridItem> _dataGridItems = new();
 
-        public ObservableCollection<DataGridItem> Results
+        public ObservableCollection<DataGridItem> DataGridItems
         {
-            get => _results;
+            get => _dataGridItems;
             set
             {
-                _results = value;
+                _dataGridItems = value;
             }
         }
         
@@ -27,32 +27,34 @@ namespace umamusumeKeyCtl
 
         public void UpdateResults(List<MatchingResult> results)
         {
-            foreach (var dataGridItem in Results.ToArray())
+            var copiedList = DataGridItems.ToList();
+            foreach (var dataGridItem in copiedList)
             {
                 if (!results.Exists(val => val.SceneName == dataGridItem.SceneName))
                 {
-                    Results.Remove(dataGridItem);
+                    DataGridItems.Remove(dataGridItem);
                 }
             }
 
             foreach (var matchingResult in results)
             {
-                var find = Results.ToList().Find(val => val.SceneName == matchingResult.SceneName);
-                if (find == null)
+                if (!DataGridItems.Any(val => val.SceneName == matchingResult.SceneName))
                 {
-                    Results.Add(new DataGridItem(matchingResult.Result, matchingResult.Score, matchingResult.SceneName));
+                    DataGridItems.Add(new DataGridItem(matchingResult.Result, matchingResult.Score, matchingResult.SceneName, matchingResult.Matches.Count));
                     continue;
                 }
+                var first = DataGridItems.First(val => val.SceneName == matchingResult.SceneName);
 
-                if (find.Result != matchingResult.Result) find.Result = matchingResult.Result;
-                if (find.Score != matchingResult.Score) find.Score = matchingResult.Score;
-                if (find.SceneName != matchingResult.SceneName) find.SceneName = matchingResult.SceneName;
+                first.MatchCount = matchingResult.Matches.Count;
+                first.Result = matchingResult.Result;
+                first.Score = matchingResult.Score;
+                first.SceneName = matchingResult.SceneName;
             }
 
-            var sorted = Results.OrderByDescending(val => val.Result).ThenBy(val => val.Score).ToList();
+            var sorted = DataGridItems.OrderByDescending(val => val.Result).ThenBy(val => val.Score).ToList();
             for (int i = 0; i < sorted.Count; i++)
             {
-                Results.Move(Results.IndexOf(sorted[i]), i);
+                DataGridItems.Move(DataGridItems.IndexOf(sorted[i]), i);
             }
         }
     }
@@ -95,15 +97,28 @@ namespace umamusumeKeyCtl
             }
         }
 
+        private int _matchCount;
+
+        public int MatchCount
+        {
+            get => _matchCount;
+            set
+            {
+                _matchCount = value;
+                OnItemPropertyChanged("MatchCount");
+            }
+        }
+
         public DataGridItem()
         {
         }
 
-        public DataGridItem(bool result, double score, string sceneName)
+        public DataGridItem(bool result, double score, string sceneName, int matchCount)
         {
             Result = result;
             Score = score;
             SceneName = sceneName;
+            MatchCount = matchCount;
         }
 
         public event PropertyChangedEventHandler PropertyChanged;

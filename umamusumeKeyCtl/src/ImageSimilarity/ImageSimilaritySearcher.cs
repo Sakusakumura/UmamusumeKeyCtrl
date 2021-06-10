@@ -6,13 +6,15 @@ using System.Linq;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using OpenCvSharp.Flann;
-using umamusumeKeyCtl.Factory;
-using umamusumeKeyCtl.FeaturePointMethod;
+using umamusumeKeyCtl.Annotations;
+using umamusumeKeyCtl.ImageSimilarity.Factory;
+using umamusumeKeyCtl.ImageSimilarity.Method;
+using umamusumeKeyCtl.Properties;
 using Size = OpenCvSharp.Size;
 
 namespace umamusumeKeyCtl
 {
-    public class ImageSimilaritySearcher
+    public class ImageSimilaritySearcher : IDisposable
     {
         // defines are in https://github.com/opencv/opencv/blob/383559c2285baaf3df8cf0088072d104451a30ce/modules/flann/include/opencv2/flann/defines.h#L68
         private const int FLANN_INDEX_LINEAR = 0;
@@ -24,8 +26,22 @@ namespace umamusumeKeyCtl
         private const int FLANN_INDEX_LSH = 6;
         private const int FLANN_INDEX_SAVED = 254;
         private const int FLANN_INDEX_AUTOTUNED = 255;
+
+        private DetectorMethod _detectorMethod;
+        private DescriptorMethod _descriptorMethod;
+        private MatchingMethod _matchingMethod;
+
+        public int Knn_K { get; set; } = 2;
+
+        public ImageSimilaritySearcher(DetectorMethod detectorMethod, DescriptorMethod descriptorMethod, int knn_k = 2)
+        {
+            Knn_K = knn_k;
+            _detectorMethod = detectorMethod;
+            _descriptorMethod = descriptorMethod;
+            _matchingMethod = new FeaturePointMatchingMethodFactory().Create(_detectorMethod, _descriptorMethod);
+        }
         
-        public static double TemplateMatch(Bitmap srcImage, Bitmap targetImage)
+        public double TemplateMatch(Bitmap srcImage, Bitmap targetImage)
         {
             // 検索対象の画像とテンプレート画像
             using (Mat src = BitmapConverter.ToMat(srcImage))
@@ -62,7 +78,7 @@ namespace umamusumeKeyCtl
             }
         }
         
-        public static DetectAndCompeteResult DetectAndCompete(Bitmap source, MatchingFeaturePointMethod method, Rect[] maskAreas = null)
+        public DetectAndComputeResult DetectAndCompete(Bitmap source, [CanBeNull] Rect[] maskAreas = null)
         {
             try
             {
@@ -85,7 +101,40 @@ namespace umamusumeKeyCtl
                 }
 
                 // Get result.
-                var result = new FeaturePointMethodFactory().Create(method).DetectAndCompute(mat, null);
+                var result = _matchingMethod.DetectAndCompute(mat, mask);
+                
+                mask?.Dispose();
+                
+                return result;
+            }
+            catch (Exception e)
+            {   
+                Debug.Print(e.ToString());
+                throw;
+            }
+        }
+        
+        public DetectAndComputeResult DetectAndCompete(Mat source, [CanBeNull] Rect[] maskAreas = null)
+        {
+            try
+            {
+                // Create mask.
+                Mat mask = null;
+
+                if (maskAreas != null)
+                {
+                    mask = new Mat(new Size(source.Width, source.Height), MatType.CV_8UC4, Scalar.Black);
+                
+                    foreach (var maskArea in maskAreas)
+                    {
+                        Cv2.Rectangle(mask, maskArea, Scalar.White, thickness: -1);
+                    }
+                    
+                    Cv2.BitwiseAnd(source, mask, source);
+                }
+
+                // Get result.
+                var result = _matchingMethod.DetectAndCompute(source, mask);
                 
                 mask?.Dispose();
                 
@@ -98,7 +147,7 @@ namespace umamusumeKeyCtl
             }
         }
 
-        public static DetectAndCompeteResult Detect(Bitmap source, MatchingFeaturePointMethod method, Rect[] maskAreas = null)
+        public KeyPoint[] Detect(Bitmap source, [CanBeNull] Rect[] maskAreas = null)
         {
             try
             {
@@ -117,11 +166,11 @@ namespace umamusumeKeyCtl
 
                     Cv2.BitwiseAnd(mat, mask, mat);
                     
-                    return new FeaturePointMethodFactory().Create(method).Detect(mat, mask);
+                    return _matchingMethod.Detect(mat, mask);
                 }
 
                 // Get result.
-                var result = new FeaturePointMethodFactory().Create(method).Detect(mat, null);
+                var result = _matchingMethod.Detect(mat, null);
 
                 return result;
             }
@@ -131,33 +180,15 @@ namespace umamusumeKeyCtl
                 throw;
             }
         }
-        
-        public static MatchingResult FeaturePointsMatching(Bitmap srcImage, Bitmap tgtImage,
-            MatchingFeaturePointMethod method, Rect[] sourceImageMask = null, Rect[] targetImageMask = null)
-        {
-            return FeaturePointsMatching(DetectAndCompete(srcImage, method, sourceImageMask), DetectAndCompete(tgtImage, method, targetImageMask));
-        }
-        
-        public static MatchingResult FeaturePointsMatching(Bitmap srcImage, DetectAndCompeteResult tgtResult,
-            MatchingFeaturePointMethod method, Rect[] sourceImageMask = null)
-        {
-            return FeaturePointsMatching(DetectAndCompete(srcImage, method, sourceImageMask), tgtResult);
-        }
 
-        public static MatchingResult FeaturePointsMatching(DetectAndCompeteResult srcResult, Bitmap tgtImage,
-            MatchingFeaturePointMethod method, Rect[] targetImageMask = null)
-        {
-            return FeaturePointsMatching(srcResult, DetectAndCompete(tgtImage, method, targetImageMask));
-        }
-
-        public static MatchingResult FeaturePointsMatching(DetectAndCompeteResult srcResult, DetectAndCompeteResult targetResult)
+        public MatchingResult KnnMatch(DetectAndComputeResult srcResult, DetectAndComputeResult targetResult)
         {
             try
             {
                 if (srcResult.KeyPoints.Length <= 2 || targetResult.KeyPoints.Length <= 2)
                 {
                     //Debug.Print($"Not enough keypoints.\nsourceKeypoints.Length: {srcResult.KeyPoints.Length}, targetKeypoints.Length: {targetResult.KeyPoints.Length}");
-                    return MatchingResult.FailWithScore(new DMatch[0]);
+                    return MatchingResult.FailWithScore(new ());
                 }
 
                 using var indexParams = new IndexParams();
@@ -171,35 +202,51 @@ namespace umamusumeKeyCtl
 
                 using var flannBasedMatcher = new FlannBasedMatcher(indexParams, searchParams);
 
-                var matches = flannBasedMatcher.KnnMatch(srcResult.Mat, targetResult.Mat, 2);
+                if (!srcResult.Mat.IsContinuous() || !targetResult.Mat.IsContinuous() || srcResult.Mat.Rows < 2 || targetResult.Mat.Rows < 2)
+                {
+                    return MatchingResult.FailWithScore(new ());
+                }
 
+                var matches = flannBasedMatcher.KnnMatch(srcResult.Mat, targetResult.Mat, Knn_K);
+                
                 var goods = new List<DMatch>();
-
-                matches = matches.ToList().Where(val => val.Length >= 2).ToArray();
-
                 foreach (var match in matches)
                 {
-                    if (match[0].Distance < 0.7 * match[1].Distance)
+                    var flag = false;
+                    for (int i = 0; i < match.Length - 1; i++)
+                    {
+                        if (match[i].Distance < 0.7 * match[i + 1].Distance)
+                        {
+                            flag = true;
+                        }
+                    }
+                    
+                    if (flag)
                     {
                         goods.Add(match[0]);
                     }
                 }
 
-                if (goods.Count < srcResult.KeyPoints.Length * 0.35 && goods.Count < 80)
+                if (goods.Count < srcResult.KeyPoints.Length * 0.35 && goods.Count < 60)
                 {
                     //Debug.Print($"Not enough match: {goods.Count}");
-                    return MatchingResult.FailWithScore(goods.ToArray());
+                    return MatchingResult.FailWithScore(goods);
                 }
 
                 //Debug.Print($"Enough match: {goods.Count}");
 
-                return MatchingResult.SuccessWithScore(goods.ToArray());
+                return MatchingResult.SuccessWithScore(goods).WithKnnMatchResult(matches);
             }
             catch (Exception e)
             {
                 Debug.Write(e);
                 throw;
             }
+        }
+
+        public void Dispose()
+        {
+            _matchingMethod?.Dispose();
         }
     }
 }

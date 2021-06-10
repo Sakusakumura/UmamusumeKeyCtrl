@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Threading;
+using umamusumeKeyCtl.ImageSimilarity.Factory;
 using umamusumeKeyCtl.Properties;
 
 namespace umamusumeKeyCtl.CaptureScene
@@ -35,6 +36,8 @@ namespace umamusumeKeyCtl.CaptureScene
         private UIElement _uiElement;
 
         private string _name;
+        private DetectorMethod _detectorMethod;
+        private DescriptorMethod _descriptorMethod;
         private ScrapSetting _scrapSetting;
         private List<VirtualKeySetting> _virtualKeySettings;
 
@@ -58,8 +61,8 @@ namespace umamusumeKeyCtl.CaptureScene
         {
             if (state == CaptureSettingMakeState.Naming)
             {
-                var nameInWnd = new NameInputPopupWindow();
-                nameInWnd.OnConfirm += OnGetName;
+                var nameInWnd = new NameInputPopupWindow(true);
+                nameInWnd.Confirm += OnConfirm;
                 nameInWnd.ShowDialog();
                 
                 return;
@@ -68,7 +71,7 @@ namespace umamusumeKeyCtl.CaptureScene
             if (state == CaptureSettingMakeState.ScrapSetting)
             {
                 var scrapSettingMaker = new ScrapSettingMaker(_canvas, _uiElement, true);
-                scrapSettingMaker.OnMadeScrapSetting += OnGetScrapSetting;
+                scrapSettingMaker.MadeScrapSetting += OnGetScrapSetting;
                 
                 return;
             }
@@ -76,12 +79,12 @@ namespace umamusumeKeyCtl.CaptureScene
             if (state == CaptureSettingMakeState.VirtualKeySetting)
             {
                 var virtualKeySettingMaker = new VirtualKeySettingMaker(_canvas, _uiElement, true);
-                virtualKeySettingMaker.OnSettingCreated += OnGetVirtualKeySetting;
+                virtualKeySettingMaker.SettingCreated += OnGetVirtualKeySetting;
             }
 
             if (state == CaptureSettingMakeState.Completed)
             {
-                var sceneSetting = new SceneSetting(Guid.NewGuid(), _name, _virtualKeySettings, _scrapSetting);
+                var sceneSetting = new SceneSetting(Guid.NewGuid(), _name, _virtualKeySettings, _scrapSetting, _detectorMethod, _descriptorMethod);
 
                 // take a screenshot.
                 var capture = new WindowCapture(new CaptureSetting(Settings.Default.CaptureInterval, Settings.Default.CaptureWindowTitle));
@@ -126,9 +129,11 @@ namespace umamusumeKeyCtl.CaptureScene
             _settingMakeState = CaptureSettingMakeState.Waiting;
         }
 
-        private void OnGetName(string str)
+        private void OnConfirm(object sender, Tuple<string, DetectorMethod, DescriptorMethod> tuple)
         {
-            _name = str;
+            _name = tuple.Item1;
+            _detectorMethod = tuple.Item2;
+            _descriptorMethod = tuple.Item3;
             SettingMakeState = CaptureSettingMakeState.ScrapSetting;
         }
 

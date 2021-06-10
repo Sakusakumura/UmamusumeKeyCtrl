@@ -9,16 +9,13 @@ namespace umamusumeKeyCtl.Util
         {
             get
             {
-                if ((object) Singleton<T>.instance == null)
+                lock (Singleton<T>.instanceLock)
                 {
-                    lock (Singleton<T>.instanceLock)
-                    {
-                        if ((object) Singleton<T>.instance == null)
-                            Singleton<T>.instance = new T();
-                    }
+                    if ((object) Singleton<T>.instance == null)
+                        Singleton<T>.instance = new T();
+                    
+                    return Singleton<T>.instance;
                 }
-
-                return Singleton<T>.instance;
             }
         }
     }

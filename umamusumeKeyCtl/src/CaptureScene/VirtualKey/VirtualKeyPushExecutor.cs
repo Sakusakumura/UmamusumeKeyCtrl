@@ -3,27 +3,33 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 using umamusumeKeyCtl.Util;
 
 namespace umamusumeKeyCtl.CaptureScene
 {
     public class VirtualKeyPushExecutor : Singleton<VirtualKeyPushExecutor>, IDisposable
     {
-        private ConcurrentQueue<Task> _queue;
-        public void EnQueue(Task task) => _queue.Enqueue(task);
+        private ConcurrentQueue<Func<Dispatcher, Task>> _queue;
+        public void EnQueue(Func<Dispatcher, Task> task) => _queue.Enqueue(task);
         private CancellationTokenSource _cancellationTokenSource;
+        private Dispatcher _dispatcher;
 
         public VirtualKeyPushExecutor()
         {
-            _queue = new ConcurrentQueue<Task>();
+            _dispatcher = Dispatcher.FromThread(Application.Current.Dispatcher.Thread);
+            _queue = new ConcurrentQueue<Func<Dispatcher, Task>>();
             _cancellationTokenSource = new CancellationTokenSource();
-            ExecuteQueue(_cancellationTokenSource.Token);
+            Task.Run(() => ExecuteQueue(_cancellationTokenSource.Token));
         }
 
         private async void ExecuteQueue(CancellationToken token)
         {
             try
             {
+                Task task;
+                
                 while (token.IsCancellationRequested == false)
                 {
                     while (_queue.Count == 0 && token.IsCancellationRequested == false)
@@ -31,13 +37,19 @@ namespace umamusumeKeyCtl.CaptureScene
                         await Task.Delay(1);
                     }
 
-                    Task task = Task.CompletedTask;
-                    while (!_queue.TryDequeue(out task))
+                    Func<Dispatcher, Task> func;
+                    
+                    while (!_queue.TryDequeue(out func) && token.IsCancellationRequested == false)
                     {
-                        await Task.Delay(1);
                     }
 
+                    task = func.Invoke(_dispatcher);
+
+                    Debug.Print($"[{this.GetType().Name}] Dequeued. ({_queue.Count} left)");
+                    
                     await task;
+
+                    await Task.Delay(30);
                 }
             }
             catch (Exception e)

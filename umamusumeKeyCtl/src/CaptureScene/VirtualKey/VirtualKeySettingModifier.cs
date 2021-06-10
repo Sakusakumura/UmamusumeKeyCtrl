@@ -21,7 +21,7 @@ namespace umamusumeKeyCtl.CaptureScene
         private int _targetIndex;
         private VirtualKeySetting _selectingSetting;
 
-        public event Action<List<VirtualKeySetting>> OnChangeVirtualKeys;
+        public event Action<List<VirtualKeySetting>> ChangeVirtualKeys;
         
         public VirtualKeySettingModifier(List<VirtualKeySetting> keySettings, Canvas canvas)
         {
@@ -61,7 +61,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 if (_state == EditState.Adding)
                 {
                     _maker.Cancel();
-                    _maker.OnSettingCreated -= OnSettingCreatedNewly;
+                    _maker.SettingCreated -= OnSettingCreatedNewly;
                     _maker = null;
                 }
                 _state = EditState.Waiting;
@@ -70,7 +70,7 @@ namespace umamusumeKeyCtl.CaptureScene
             if (mode == EditMode.Add)
             {
                 _maker = new VirtualKeySettingMaker(_canvas, _canvas, true, _virtualKeySettings.ToArray());
-                _maker.OnSettingCreated += OnSettingCreatedNewly;
+                _maker.SettingCreated += OnSettingCreatedNewly;
                 _state = EditState.Adding;
                 return;
             }
@@ -80,7 +80,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 if (_state == EditState.Adding)
                 {
                     _maker.Cancel();
-                    _maker.OnSettingCreated -= OnSettingCreatedNewly;
+                    _maker.SettingCreated -= OnSettingCreatedNewly;
                     _maker = null;
                 }
                 _state = EditState.Removing;
@@ -152,7 +152,7 @@ namespace umamusumeKeyCtl.CaptureScene
             
             _virtualKeySettings = settings;
             
-            OnChangeVirtualKeys?.Invoke(_virtualKeySettings);
+            ChangeVirtualKeys?.Invoke(_virtualKeySettings);
 
             _state = EditState.Waiting;
         }
@@ -167,7 +167,7 @@ namespace umamusumeKeyCtl.CaptureScene
             var target = _virtualKeySettings.Find(val => val.Index == setting.Index);
             _virtualKeySettings.Remove(target);
             
-            OnChangeVirtualKeys?.Invoke(_virtualKeySettings);
+            ChangeVirtualKeys?.Invoke(_virtualKeySettings);
         }
 
         private void OnMouseLeftDown(Grid sender, MouseButtonEventArgs args, VirtualKeySetting setting)
@@ -207,7 +207,7 @@ namespace umamusumeKeyCtl.CaptureScene
             
             _virtualKeySettings.Add(new VirtualKeySetting(_targetIndex, _selectingSetting.BindKey, args.GetPosition(sender)));
             
-            OnChangeVirtualKeys?.Invoke(_virtualKeySettings);
+            ChangeVirtualKeys?.Invoke(_virtualKeySettings);
 
             _state = EditState.Waiting;
         }
@@ -254,7 +254,7 @@ namespace umamusumeKeyCtl.CaptureScene
             _virtualKeySettings.Remove(_virtualKeySettings.Find(val => val.Index == setting.Index));
             _virtualKeySettings.Add(newSetting);
             
-            OnChangeVirtualKeys?.Invoke(_virtualKeySettings);
+            ChangeVirtualKeys?.Invoke(_virtualKeySettings);
 
             _keyboardListener.UnHookKeyboard();
             _keyboardListener = null;

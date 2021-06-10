@@ -29,6 +29,7 @@ namespace umamusumeKeyCtl
         private SceneSettingViewer _sceneSettingViewer;
         private SceneSelector _sceneSelector;
         private SceneViewer _sceneViewer;
+        private DataGridWindow _debugWindow;
 
         public MainWindow()
         {
@@ -63,7 +64,7 @@ namespace umamusumeKeyCtl
             
             SceneSettingHolder.Instance.OnLoadSettings += settingSets =>
             {
-                this.Dispatcher.Invoke(() => _sceneSettingViewer.OnLoadSettings(settingSets, Canvas, ToolPanel, SettingsView));
+                this.Dispatcher.InvokeAsync(() => _sceneSettingViewer.OnLoadSettings(settingSets, Canvas, ToolPanel, SettingsView));
             };
             
             ((INotifyCollectionChanged)SettingsView.Items).CollectionChanged += (_, _) =>
@@ -76,36 +77,36 @@ namespace umamusumeKeyCtl
             _sceneViewer = new SceneViewer(Canvas);
 
             // Instantiate debugWindow
-            var debugWindow = new DataGridWindow();
-            debugWindow.Show();
+            _debugWindow = new DataGridWindow();
+            _debugWindow.Show();
 
             // Initialize sceneSelector
-            _sceneSelector = new SceneSelector(true);
-            
-            _sceneSelector.ResultPrinted += mat => this.Dispatcher.Invoke(() => Cv2.ImShow("output", mat));
-            _sceneSelector.SrcTgtImgPrinted += tuple =>
+            _sceneSelector = new SceneSelector();
+            Settings.Default.PropertyChanged += (_, args) =>
             {
-                this.Dispatcher.Invoke(() =>
+                if (args.PropertyName != null && args.PropertyName == "IsDebugMode")
                 {
-                    Cv2.ImShow("src", tuple.Src);
-                    Cv2.ImShow("tgt", tuple.Tgt);
-                });
+                    if (Settings.Default.IsDebugMode)
+                    {
+                        // Instantiate debugWindow
+                        _debugWindow = new DataGridWindow();
+                        _debugWindow.Show();
+                    }
+                    else
+                    {
+                        _debugWindow.Close();
+                        _debugWindow = null;
+                    }
+                    
+                    Cv2.DestroyAllWindows();
+                    _sceneSelector.IsDebugMode = Settings.Default.IsDebugMode;
+                }
             };
-            _sceneSelector.OnGetMatchingResults += list =>
-            {
-                this.Dispatcher.Invoke(() =>
-                {
-                    debugWindow.Vm.UpdateResults(list);
-                });
-            };
-            _sceneSelector.SceneSelected += (_, scene) =>
-            {
-                this.Dispatcher.Invoke(() =>
-                {
-                    _sceneViewer.DrawScene(scene);
-                });
-            };
-            
+            _sceneSelector.OnGetMatchingResults += (_, list) => this.Dispatcher.InvokeAsync(() => _debugWindow?.Vm.UpdateResults(list));
+            _sceneSelector.SceneSelected += (_, scene) => this.Dispatcher.InvokeAsync(() => _sceneViewer.DrawScene(scene));
+            _sceneSelector.ResultPrinted += (_, mat) => this.Dispatcher.InvokeAsync(() => Cv2.ImShow("MatchingResult", mat));
+            _sceneSelector.SrcTgtImgPrinted += (_, mat) => this.Dispatcher.InvokeAsync(() => Cv2.ImShow("SrcTgtImg", mat));
+
             //Load settings
             SceneSettingHolder.Instance.LoadSettings();
             
@@ -141,7 +142,7 @@ namespace umamusumeKeyCtl
                     }
                 }, _tokenSource.Token);
                 
-                this.Dispatcher.Invoke(() =>
+                this.Dispatcher.InvokeAsync(() =>
                 {
                     Canvas.Width = Image.Width;
                     Canvas.Height = Image.Height;

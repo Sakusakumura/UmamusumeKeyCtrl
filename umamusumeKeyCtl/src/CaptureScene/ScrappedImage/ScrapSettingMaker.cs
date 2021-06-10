@@ -10,7 +10,7 @@ namespace umamusumeKeyCtl.CaptureScene
 {
     public class ScrapSettingMaker
     {
-        public event Action<ScrapSetting> OnMadeScrapSetting;
+        public event Action<ScrapSetting> MadeScrapSetting;
 
         private Canvas _canvas;
         private UIElement _element;
@@ -74,7 +74,7 @@ namespace umamusumeKeyCtl.CaptureScene
             
             _getters.Clear();
             
-            OnMadeScrapSetting?.Invoke(new ScrapSetting(_rectangles));
+            MadeScrapSetting?.Invoke(new ScrapSetting(_rectangles));
         }
     }
 }
