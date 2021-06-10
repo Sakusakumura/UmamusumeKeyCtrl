@@ -25,15 +25,18 @@ namespace umamusumeKeyCtl
 
         private Bitmap _waitingImage;
 
+        private bool _stopIfBackground;
+
         /// <summary>
         /// Constructor of Window Capture.
         /// Capturing will automatically start.
         /// </summary>
         /// <param name="captureWindowName"></param>
         /// <param name="captureInterval">Capture interval setting. (milliseconds)</param>
-        public WindowCapture(CaptureSetting setting)
+        public WindowCapture(CaptureSetting setting, bool stopIfBackground = true)
         {
             _captureSetting = setting;
+            _stopIfBackground = stopIfBackground;
             _cancellationTokenSource = new CancellationTokenSource();
             _captureResultSubject = new Subject<Bitmap>();
 
@@ -78,7 +81,7 @@ namespace umamusumeKeyCtl
                         hWnd = await WindowHelper.AsyncGetHWndByName(captureSetting.CaptureWndName);
                     }
 
-                    while (hWnd != WindowHelper.GetForegroundWindow() && token.IsCancellationRequested == false)
+                    while (hWnd != WindowHelper.GetForegroundWindow() && _stopIfBackground && token.IsCancellationRequested == false)
                     {
                         await Task.Delay(250);
                     }

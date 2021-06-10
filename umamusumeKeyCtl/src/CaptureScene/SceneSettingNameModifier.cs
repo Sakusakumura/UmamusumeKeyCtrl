@@ -9,11 +9,15 @@ namespace umamusumeKeyCtl.CaptureScene
         
         private ModifyState _state = ModifyState.Waiting;
         private NameInputPopupWindow _window;
-        private SceneSetting _sceneSetting;
+        private string _displayName;
+        private int _detectorMethod;
+        private int _descriptorMethod;
 
         public SceneSettingNameModifier(SceneSetting sceneSetting)
         {
-            _sceneSetting = sceneSetting;
+            _displayName = sceneSetting.DisplayName;
+            _detectorMethod = (int) sceneSetting.DetectorMethod;
+            _descriptorMethod = (int) sceneSetting.DescriptorMethod;
         }
 
         public void OnModifyTitleClicked()
@@ -23,28 +27,32 @@ namespace umamusumeKeyCtl.CaptureScene
                 return;
             }
 
-            _window = new NameInputPopupWindow(false, _sceneSetting.DisplayName, (int) _sceneSetting.DetectorMethod, (int) _sceneSetting.DescriptorMethod);
+            _state = ModifyState.Naming;
+            
+            _window = new NameInputPopupWindow(false, _displayName, _detectorMethod, _descriptorMethod);
             _window.Confirm += NameInputPopupWindowOnConfirm;
             _window.Canceled += NameInputPopupWindowOnCanceled;
             _window.ShowDialog();
-
-            _state = ModifyState.Naming;
         }
 
         private void NameInputPopupWindowOnCanceled(object sender, EventArgs eventArgs)
         {
+            _state = ModifyState.Waiting;
+            
             _window.Confirm -= NameInputPopupWindowOnConfirm;
             _window.Canceled -= NameInputPopupWindowOnCanceled;
             _window = null;
-
-            _state = ModifyState.Waiting;
         }
 
         private void NameInputPopupWindowOnConfirm(object sender, Tuple<string, DetectorMethod, DescriptorMethod> tuple)
         {
-            CompleteInputName?.Invoke(this, tuple);
-
             _state = ModifyState.Waiting;
+
+            _displayName = tuple.Item1;
+            _detectorMethod = (int) tuple.Item2;
+            _descriptorMethod = (int) tuple.Item3;
+            
+            CompleteInputName?.Invoke(this, tuple);
         }
 
         private enum ModifyState
