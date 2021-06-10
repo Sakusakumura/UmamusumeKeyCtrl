@@ -37,7 +37,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 return;
             }
 
-            if (UmaWndH == IntPtr.Zero || _isKeyPressedBefore || UmaWndH != GetForegroundWindow())
+            if (UmaWndH == IntPtr.Zero || _isKeyPressedBefore || UmaWndH != WindowHelper.GetForegroundWindow())
             {
                 return;
             }
@@ -106,8 +106,5 @@ namespace umamusumeKeyCtl.CaptureScene
             
             return Task.CompletedTask;
         }
-        
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
     }
 }

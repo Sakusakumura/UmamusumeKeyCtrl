@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using umamusumeKeyCtl.Helpers;
 using umamusumeKeyCtl.ImageSimilarity.Factory;
 using umamusumeKeyCtl.ImageSimilarity.Method;
 using umamusumeKeyCtl.Properties;

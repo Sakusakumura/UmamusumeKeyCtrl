@@ -6,6 +6,7 @@ using System.IO;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
+using umamusumeKeyCtl.Helpers;
 using Image = System.Drawing.Image;
 
 namespace umamusumeKeyCtl
@@ -50,6 +51,7 @@ namespace umamusumeKeyCtl
         public void StopCapture()
         {
             _cancellationTokenSource.Cancel();
+            _cancellationTokenSource.Dispose();
             _captureResultSubject.Dispose();
         }
 
@@ -69,11 +71,21 @@ namespace umamusumeKeyCtl
                         _captureResultSubject.OnNext((Bitmap) _waitingImage.Clone());
                     }
 
-                    while (hWnd == IntPtr.Zero)
+                    while (hWnd == IntPtr.Zero && token.IsCancellationRequested == false)
                     {
-                        await Task.Delay(1000);
+                        await Task.Delay(500);
 
                         hWnd = await WindowHelper.AsyncGetHWndByName(captureSetting.CaptureWndName);
+                    }
+
+                    while (hWnd != WindowHelper.GetForegroundWindow() && token.IsCancellationRequested == false)
+                    {
+                        await Task.Delay(250);
+                    }
+
+                    if (token.IsCancellationRequested)
+                    {
+                        break;
                     }
 
                     stopWatch.Start();

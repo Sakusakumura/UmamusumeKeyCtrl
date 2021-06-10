@@ -3,12 +3,10 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Interop;
-using WpfScreenHelper;
 using Point = System.Drawing.Point;
 
-namespace umamusumeKeyCtl
+namespace umamusumeKeyCtl.Helpers
 {
     public class WindowHelper
     {
@@ -22,8 +20,11 @@ namespace umamusumeKeyCtl
         public static extern int GetClientRect(IntPtr hWnd, out Rect rect);
         
         [DllImport("user32")]
-        public static extern int ClientToScreen(IntPtr hWnd, out System.Drawing.Point lpPoint);
-        
+        public static extern int ClientToScreen(IntPtr hWnd, out Point lpPoint);
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetForegroundWindow();
+
         [StructLayout(LayoutKind.Sequential)]
         public struct Rect
         {
