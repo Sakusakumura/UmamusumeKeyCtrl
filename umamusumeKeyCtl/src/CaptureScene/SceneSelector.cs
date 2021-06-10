@@ -25,9 +25,15 @@ namespace umamusumeKeyCtl.CaptureScene
         public event EventHandler<Mat> ResultPrinted; 
         public event EventHandler<Mat> SrcTgtImgPrinted;
 
+        /// <summary>
+        /// Holds Guids of previous successful matching result.
+        /// </summary>
+        private List<Guid> _previousResult;
+
         public SceneSelector()
         {
             this.IsDebugMode = Settings.Default.IsDebugMode;
+            _previousResult = new List<Guid>();
         }
 
         public async Task SelectScene(Bitmap capturedImage)
@@ -42,8 +48,18 @@ namespace umamusumeKeyCtl.CaptureScene
             try
             {
                 var sceneSettings = SceneHolder.Instance.Scenes.Select(val => (val.Setting, FeaturePoints: val.ScrappedImage.FeaturePointsInfo)).ToList();
+                List<MatchingResult> matchingResults = new ();
 
-                var matchingResults = await GetMatchingResults(capturedImage, sceneSettings);
+                if (_previousResult.Count > 0)
+                {
+                    var checkSettings = sceneSettings.Where(val => _previousResult.Contains(val.Setting.Guid));
+                    matchingResults = await GetMatchingResults(capturedImage, checkSettings);
+                }
+
+                if (matchingResults.Count(val => val.Result) == 0)
+                {
+                    matchingResults = await GetMatchingResults(capturedImage, sceneSettings);
+                }
 
                 var succeeds = matchingResults.Where(val => val.Result);
                 
@@ -65,6 +81,9 @@ namespace umamusumeKeyCtl.CaptureScene
 
                 if (succeeds.Count() > 0)
                 {
+                    _previousResult.Clear();
+                    _previousResult.AddRange(succeeds.Select(val => val.SceneGuid));
+                    
                     var targetScene = scenes.Find(val => val.Setting.Guid == succeeds.First().SceneGuid);
 
                     scenes.Remove(targetScene);

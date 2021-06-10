@@ -227,10 +227,21 @@ namespace umamusumeKeyCtl
                     }
                 }
 
-                if (goods.Count < srcResult.KeyPoints.Length * 0.35 && goods.Count < 60)
+                if (_detectorMethod == DetectorMethod.FAST)
                 {
-                    //Debug.Print($"Not enough match: {goods.Count}");
-                    return MatchingResult.FailWithScore(goods);
+                    if (goods.Count < srcResult.KeyPoints.Length * 0.5)
+                    {
+                        //Debug.Print($"Not enough match: {goods.Count}");
+                        return MatchingResult.FailWithScore(goods);
+                    }
+                }
+                else
+                {
+                    if (goods.Count < srcResult.KeyPoints.Length * 0.35 && goods.Count < 60)
+                    {
+                        //Debug.Print($"Not enough match: {goods.Count}");
+                        return MatchingResult.FailWithScore(goods);
+                    }
                 }
 
                 //Debug.Print($"Enough match: {goods.Count}");
