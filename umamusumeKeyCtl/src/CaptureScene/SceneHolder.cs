@@ -6,6 +6,8 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
+using umamusumeKeyCtl.ImageSimilarity.Factory;
+using umamusumeKeyCtl.ImageSimilarity.Method;
 using umamusumeKeyCtl.Properties;
 using umamusumeKeyCtl.UserInput;
 using umamusumeKeyCtl.Util;
@@ -106,7 +108,7 @@ namespace umamusumeKeyCtl.CaptureScene
             {
                 using (var source = new Bitmap(sourcePath))
                 {
-                    var scrappedImage = new ScrappedImage((Bitmap) source.Clone(), setting.ScrapSetting);
+                    var scrappedImage = new ScrappedImage((Bitmap) source.Clone(), setting.ScrapSetting, setting.DetectorMethod, setting.DescriptorMethod);
 
                     var vkList = new List<VirtualKey>();
                     foreach (var virtualKeySetting in setting.VirtualKeySettings)
@@ -126,7 +128,7 @@ namespace umamusumeKeyCtl.CaptureScene
             }
             catch (Exception e)
             {
-                Debug.Print(e.ToString());
+                Debug.Write(e);
                 throw;
             }
 

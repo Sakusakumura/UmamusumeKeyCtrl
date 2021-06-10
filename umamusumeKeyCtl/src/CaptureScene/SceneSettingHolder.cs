@@ -6,6 +6,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using umamusumeKeyCtl.ImageSimilarity.Factory;
 using umamusumeKeyCtl.Util;
 
 namespace umamusumeKeyCtl.CaptureScene
@@ -58,17 +59,18 @@ namespace umamusumeKeyCtl.CaptureScene
 
             try
             {
-                if (!File.Exists("ScrapSettings.txt"))
+                if (!File.Exists("ScrapSettings.json"))
                 {
-                    using var stream = await Task<FileStream>.Run(() => File.Create("ScrapSettings.txt"));
+                    using var stream = await Task<FileStream>.Run(() => File.Create("ScrapSettings.json"));
                     var defaultSceneSettings = new List<SceneSetting>()
                     {
-                        new SceneSetting(Guid.NewGuid(), "Default", new List<VirtualKeySetting>(), new ScrapSetting(new List<ScrapInfo>()))
+                        new(Guid.NewGuid(), "Default", new List<VirtualKeySetting>(), new ScrapSetting(new List<ScrapInfo>()), DetectorMethod.FAST,
+                            DescriptorMethod.BRIEF)
                     };
                     stream.Write(JsonSerializer.SerializeToUtf8Bytes(defaultSceneSettings));
                 }
             
-                var str = File.ReadAllText("ScrapSettings.txt");
+                var str = File.ReadAllText("ScrapSettings.json");
 
                 if (String.IsNullOrEmpty(str))
                 {
@@ -96,7 +98,7 @@ namespace umamusumeKeyCtl.CaptureScene
             try
             {
                 var str = JsonSerializer.Serialize(Settings);
-                File.WriteAllText("ScrapSettings.txt", str, Encoding.Unicode);
+                File.WriteAllText("ScrapSettings.json", str, Encoding.Unicode);
             }
             catch (Exception e)
             {

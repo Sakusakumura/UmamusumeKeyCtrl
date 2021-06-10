@@ -8,6 +8,9 @@ using System.Windows.Documents;
 using OpenCvSharp;
 using OpenCvSharp.Extensions;
 using umamusumeKeyCtl.Util;
+using Point = OpenCvSharp.Point;
+using Range = OpenCvSharp.Range;
+using Rect = OpenCvSharp.Rect;
 using Size = OpenCvSharp.Size;
 
 namespace umamusumeKeyCtl
@@ -29,15 +32,31 @@ namespace umamusumeKeyCtl
             for (int i = 0; i < sampleCount; i++)
             {
                 Debug.Print("Task #1 start.");
+                
+                var random = new Random();
 
-                var doPerformScalingResult = MaskByGraphics(maxLoop);
+                var randomNums = new List<List<int>>();
+                var min = Math.Min(source.Width, source.Height);
+                var maskAreas = new List<Rect>();
+                for (int j = 0; j < 9; j++)
+                {
+                    randomNums.Add(new List<int>());
+                    for (int k = 0; k < 4; k++)
+                    {
+                        randomNums[j].Add(random.Next(0, min));
+                    }
+                    
+                    maskAreas.Add(new Rect(randomNums[j][0], randomNums[j][1], randomNums[j][2], randomNums[j][3]));
+                }
+
+                var doPerformScalingResult = Do1(maxLoop, maskAreas);
                 stopwatches1.Add(doPerformScalingResult);
 
                 Debug.Print($"Task #1 end. Elapsed time: {doPerformScalingResult.ElapsedMilliseconds}");
             
                 Debug.Print("Task #2 start.");
 
-                var doPerformAffinResult = DoByCv2(maxLoop);
+                var doPerformAffinResult = Do2(maxLoop, maskAreas);
                 stopwatches2.Add(doPerformAffinResult);
 
                 Debug.Print($"Task #2 end. Elapsed time: {doPerformAffinResult.ElapsedMilliseconds}");
@@ -46,7 +65,7 @@ namespace umamusumeKeyCtl
             List<(string, long, long)> results = new();
             
             Debug.Print("Result:");
-            Debug.Print("No. | PerformScaling | PerformAffin");
+            Debug.Print("No. | #1 | #2");
             
             for (int i = 0; i < sampleCount; i++)
             {
@@ -57,7 +76,7 @@ namespace umamusumeKeyCtl
             
             Debug.Print($"Average:");
             
-            Debug.Print("PerformScaling | PerformAffin");
+            Debug.Print("#1 | #2");
             
             long average1 = 0;
 
@@ -80,81 +99,55 @@ namespace umamusumeKeyCtl
             Debug.Print($"{average1} | {average2}");
         }
 
-        private Stopwatch MaskByGraphics(int maxLoop)
+        private Stopwatch Do1(int maxLoop, List<Rect> maskAreas)
         {
             var stopWatch = new Stopwatch();
 
-            var clone = (Bitmap) source.Clone();
-            var white = new Bitmap(clone.Width, clone.Height);
-            using (Graphics g = Graphics.FromImage(white))
-            {
-                g.Clear(Color.White);
-            }
+            var sourceMat = BitmapConverter.ToMat(source);
+            var list = new List<Mat>(){sourceMat};
 
             stopWatch.Start();
             
-            for (int i = 0; i < maxLoop; i++)
+            for (int j = 0; j < maxLoop; j++)
             {
-                var random = new Random();
-                var maskList = new List<Rectangle>();
-                for (int j = 0; j < maxLoop/10; j++)
+                var mask = new Mat();
+                mask.ConvertTo(mask, MatType.CV_8UC4);
+                Cv2.Rectangle(mask, new Point(0, 0), new Point(sourceMat.Cols, sourceMat.Rows), Scalar.Black, thickness: -1);
+                foreach (var maskArea in maskAreas)
                 {
-                    var mask = new Rectangle(random.Next(0, clone.Width - 1), random.Next(0, clone.Height - 1), random.Next(1, clone.Width), random.Next(1, clone.Height));
-                    maskList.Add(mask);
+                    Cv2.Rectangle(mask, maskArea, Scalar.White, thickness: -1);
                 }
-
-                var img = new Bitmap(clone.Width, clone.Height);
-                using (Graphics graphics = Graphics.FromImage(img))
-                {
-                    foreach (var rect in maskList)
-                    {
-                        graphics.DrawImageUnscaledAndClipped(white, rect);
-                    }
-                }
-                
-                img.Dispose();
+                list.Add(mask);
             }
 
             stopWatch.Stop();
-            clone.Dispose();
+            list.ForEach(val => val.Dispose());
 
             return stopWatch;
         }
         
-        private Stopwatch DoByCv2(int maxLoop)
+        private Stopwatch Do2(int maxLoop, List<Rect> maskAreas)
         {
             var stopWatch = new Stopwatch();
 
+            var sourceMat = BitmapConverter.ToMat(source);
+            var list = new List<Mat>(){sourceMat};
 
-            var clone = (Bitmap) source.Clone();
-            
             stopWatch.Start();
             
-            for (int i = 0; i < maxLoop; i++)
+            for (int j = 0; j < maxLoop; j++)
             {
-                var random = new Random();
-                var maskList = new List<OpenCvSharp.Rect>();
-                for (int j = 0; j < maxLoop/10; j++)
-                {
-                    var mask = new OpenCvSharp.Rect(random.Next(0, clone.Width - 1), random.Next(0, clone.Height - 1), random.Next(1, clone.Width), random.Next(1, clone.Height));
-                    maskList.Add(mask);
-                }
-
-                using var mat = BitmapConverter.ToMat(clone);
-                using Mat maskMat = new Mat(new Size(mat.Width, mat.Height), MatType.CV_8UC4, Scalar.Black);
-                foreach (var mask in maskList)
-                {
-                    Cv2.Rectangle(maskMat, mask, Scalar.White, thickness: -1);
-                }
+                var mask = new Mat(sourceMat.Size(), MatType.CV_8UC4, Scalar.Black);
                 
-                Cv2.BitwiseAnd(mat, maskMat, mat);
-                
-                mat.Dispose();
+                foreach (var maskArea in maskAreas)
+                {
+                    Cv2.Rectangle(mask, maskArea, Scalar.White, thickness: -1);
+                }
+                list.Add(mask);
             }
-            
+
             stopWatch.Stop();
-            
-            clone.Dispose();
+            list.ForEach(val => val.Dispose());
 
             return stopWatch;
         }

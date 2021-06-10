@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Linq;
-using umamusumeKeyCtl.Factory;
-using umamusumeKeyCtl.FeaturePointMethod;
+using umamusumeKeyCtl.ImageSimilarity.Factory;
+using umamusumeKeyCtl.ImageSimilarity.Method;
 
 namespace umamusumeKeyCtl.CaptureScene
 {
@@ -12,10 +12,10 @@ namespace umamusumeKeyCtl.CaptureScene
     {
         public ScrapSetting Setting { get; }
         public Bitmap Image { get; }
-        public DetectAndCompeteResult FeaturePoints { get; }
+        public DetectAndComputeResult FeaturePointsInfo { get; }
         public ReadOnlyCollection<ScrapInfo> SamplingAreas { get; }
         
-        public ScrappedImage(Bitmap source, ScrapSetting setting)
+        public ScrappedImage(Bitmap source, ScrapSetting setting, DetectorMethod detectorMethod, DescriptorMethod descriptorMethod)
         {
             Setting = setting;
 
@@ -23,7 +23,7 @@ namespace umamusumeKeyCtl.CaptureScene
             
             Image = CropImage((Bitmap) source.Clone(), setting.ScrapInfos);
             
-            FeaturePoints = ImageSimilaritySearcher.DetectAndCompete(Image, MatchingFeaturePointMethod.ORB);
+            FeaturePointsInfo = new ImageSimilaritySearcher(detectorMethod, descriptorMethod).DetectAndCompete(Image);
         }
         
         /// <summary>

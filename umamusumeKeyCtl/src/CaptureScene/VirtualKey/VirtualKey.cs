@@ -1,8 +1,10 @@
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using System.Windows.Threading;
 using umamusumeKeyCtl.Helpers;
 using umamusumeKeyCtl.Properties;
 using umamusumeKeyCtl.UserInput;
@@ -26,7 +28,7 @@ namespace umamusumeKeyCtl.CaptureScene
             UmaWndH = IntPtr.Zero;
         }
 
-        public void OnKeyHook(KeyPressedArgs pressedArgs)
+        public void Perform(KeyPressedArgs pressedArgs)
         {
             if (pressedArgs.WParam == WM_KEYUP)
             {
@@ -53,9 +55,7 @@ namespace umamusumeKeyCtl.CaptureScene
             var scaled = CalcurateScaledPoint(_setting.PressPos, rect);
             dest.Offset(scaled);
 
-            VirtualKeyPushExecutor.Instance.EnQueue(OnKeyHook(dest));
-            
-            VirtualMouse.MoveTo(prePos);
+            VirtualKeyPushExecutor.Instance.EnQueue(dispatcher => Perform(dest, dispatcher));
         }
 
         /// <summary>
@@ -70,18 +70,38 @@ namespace umamusumeKeyCtl.CaptureScene
             return new Point((int) (source.X * k), (int) (source.Y * k));
         }
 
-        private Task OnKeyHook(Point point)
+        private Task Perform(Point point, Dispatcher dispatcher)
         {
-            var prePos = MouseHelper.GetMousePosition();
+            var random = new Random().Next();
+            Debug.Print($"[{this.GetType()}] Start. ({random})");
 
-            VirtualMouse.MoveTo(point);
-            Thread.Sleep(40);
-            VirtualMouse.Down(MouseButton.Left);
-            Thread.Sleep(40);
-            VirtualMouse.Up(MouseButton.Left);
-            Thread.Sleep(40);
-            VirtualMouse.MoveTo(prePos);
+            try
+            {
+                var prePos = MouseHelper.GetMousePosition();
 
+                dispatcher.InvokeAsync(() => VirtualMouse.MoveTo(point));
+
+                Thread.Sleep(30);
+
+                dispatcher.InvokeAsync(() => VirtualMouse.Down(MouseButton.Left));
+
+                Thread.Sleep(30);
+                
+                dispatcher.InvokeAsync(() => VirtualMouse.Up(MouseButton.Left));
+
+                Thread.Sleep(30);
+
+                dispatcher.InvokeAsync(() => VirtualMouse.MoveTo(prePos));
+            }
+            catch (Exception e)
+            {
+                Debug.Print($"[{this.GetType()}] Exception. ({random})");
+                Debug.WriteLine(e);
+                throw;
+            }
+            
+            Debug.Print($"[{this.GetType()}] End. ({random})");
+            
             return Task.CompletedTask;
         }
     }

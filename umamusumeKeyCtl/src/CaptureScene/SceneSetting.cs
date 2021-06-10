@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using umamusumeKeyCtl.ImageSimilarity.Factory;
 
 namespace umamusumeKeyCtl.CaptureScene
 {
@@ -17,12 +18,20 @@ namespace umamusumeKeyCtl.CaptureScene
         private ScrapSetting _scrapSetting;
         public ScrapSetting ScrapSetting => _scrapSetting;
 
-        public SceneSetting(Guid guid, string displayName, List<VirtualKeySetting> virtualKeySettings, ScrapSetting scrapSetting)
+        private DetectorMethod _detectorMethod;
+        public DetectorMethod DetectorMethod => _detectorMethod;
+
+        private DescriptorMethod _descriptorMethod;
+        public DescriptorMethod DescriptorMethod => _descriptorMethod;
+
+        public SceneSetting(Guid guid, string displayName, List<VirtualKeySetting> virtualKeySettings, ScrapSetting scrapSetting, DetectorMethod detectorMethod, DescriptorMethod descriptorMethod)
         {
             _guid = guid;
             _displayName = displayName;
             _virtualKeySettings = virtualKeySettings;
             _scrapSetting = scrapSetting;
+            _detectorMethod = detectorMethod;
+            _descriptorMethod = descriptorMethod;
         }
 
         public override string ToString()

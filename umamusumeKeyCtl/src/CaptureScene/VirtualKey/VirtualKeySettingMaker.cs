@@ -13,7 +13,7 @@ namespace umamusumeKeyCtl.CaptureScene
     public class VirtualKeySettingMaker
     {
         private List<VirtualKeySetting> _settings;
-        public event Action<List<VirtualKeySetting>> OnSettingCreated;
+        public event Action<List<VirtualKeySetting>> SettingCreated;
 
         private UIElement _eventListeningSource;
         
@@ -174,7 +174,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 
                 _eventListeningSource.MouseLeftButtonUp -= OnMouseLeftUp;
                 
-                OnSettingCreated?.Invoke(_settings);
+                SettingCreated?.Invoke(_settings);
             }
         }
         

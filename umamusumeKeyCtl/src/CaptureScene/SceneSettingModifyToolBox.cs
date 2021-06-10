@@ -10,6 +10,7 @@ namespace umamusumeKeyCtl.CaptureScene
     public class SceneSettingModifyToolBox
     {
         private StackPanel _toolPanel;
+        private ListView _settingsView;
         private StackPanel _rootPanel;
 
         private EditMode _scrapSettingEditMode = EditMode.Modify;
@@ -45,6 +46,8 @@ namespace umamusumeKeyCtl.CaptureScene
         {
             _toolPanel = toolPanel;
             _toolPanel.Children.Add(CreateToolBox());
+            var currentMainWindow = (MainWindow) Application.Current.MainWindow;
+            _settingsView = currentMainWindow.SettingsView;
         }
 
         public void Discard()
@@ -279,7 +282,11 @@ namespace umamusumeKeyCtl.CaptureScene
                 HorizontalAlignment = HorizontalAlignment.Right,
                 Margin = new Thickness(0, 1, 5, 1),
             };
-            finishButton.Click += (_, _) => OnFinishEditing.Invoke();
+            finishButton.Click += (_, _) =>
+            {
+                OnFinishEditing.Invoke();
+                _settingsView.Visibility = _settingsView.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
+            };
 
             grid.Children.Add(finishButton);
 

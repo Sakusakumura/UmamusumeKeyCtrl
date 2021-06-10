@@ -24,7 +24,7 @@ namespace umamusumeKeyCtl.CaptureScene
         private Canvas _canvas;
         private ScrapSettingMaker _maker;
 
-        public event Action<ScrapSetting> OnChangeScrapSetting;
+        public event Action<ScrapSetting> ChangeScrapSetting;
         
         public ScrapSettingModifier(ScrapSetting scrapSetting, Canvas drawToCanvas)
         {
@@ -64,7 +64,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 if (_editState == EditState.Adding)
                 {
                     _maker.Cancel();
-                    _maker.OnMadeScrapSetting -= OnSettingCreatedNewly;
+                    _maker.MadeScrapSetting -= OnSettingCreatedNewly;
                     _maker = null;
                 }
                 _editState = EditState.Waiting;
@@ -73,7 +73,7 @@ namespace umamusumeKeyCtl.CaptureScene
             if (mode == EditMode.Add)
             {
                 _maker = new ScrapSettingMaker(_canvas, _canvas, true);
-                _maker.OnMadeScrapSetting += OnSettingCreatedNewly;
+                _maker.MadeScrapSetting += OnSettingCreatedNewly;
 
                 _editState = EditState.Adding;
                 return;
@@ -83,7 +83,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 if (_editState == EditState.Adding)
                 {
                     _maker.Cancel();
-                    _maker.OnMadeScrapSetting -= OnSettingCreatedNewly;
+                    _maker.MadeScrapSetting -= OnSettingCreatedNewly;
                     _maker = null;
                 }
                 _editState = EditState.Removing;
@@ -140,7 +140,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 _scrapSetting.ScrapInfos.Add(indexed);
             }
             
-            OnChangeScrapSetting?.Invoke(_scrapSetting);
+            ChangeScrapSetting?.Invoke(_scrapSetting);
 
             _editState = EditState.Waiting;
         }
@@ -173,7 +173,7 @@ namespace umamusumeKeyCtl.CaptureScene
             var target = _scrapSetting.ScrapInfos.Find(val => val.Index == setting.Index);
             _scrapSetting.ScrapInfos.Remove(target);
             
-            OnChangeScrapSetting?.Invoke(_scrapSetting);
+            ChangeScrapSetting?.Invoke(_scrapSetting);
         }
         
         private void OnMouseLeftDown(Canvas sender, MouseButtonEventArgs args, ScrapInfo info)
@@ -275,7 +275,7 @@ namespace umamusumeKeyCtl.CaptureScene
             
             _scrapSetting.ScrapInfos.Add(newScrapInfo);
             
-            OnChangeScrapSetting?.Invoke(_scrapSetting);
+            ChangeScrapSetting?.Invoke(_scrapSetting);
             
             Discard();
             foreach (var scrapInfo in _scrapSetting.ScrapInfos)

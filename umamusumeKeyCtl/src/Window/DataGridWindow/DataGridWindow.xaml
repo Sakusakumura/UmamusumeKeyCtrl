@@ -76,7 +76,7 @@
 
         </DockPanel>
 
-        <DataGrid x:Name="DataGrid" DataContext="{Binding Results}" HorizontalContentAlignment="Stretch" AutoGenerateColumns="True" CanUserReorderColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False">
+        <DataGrid x:Name="DataGrid" DataContext="{Binding DataGridItems}" HorizontalContentAlignment="Stretch" AutoGenerateColumns="True" CanUserReorderColumns="False" CanUserSortColumns="False" CanUserResizeColumns="False" CanUserResizeRows="False">
         </DataGrid>
     </DockPanel>
 </Window>
