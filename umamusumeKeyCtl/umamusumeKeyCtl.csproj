@@ -9,10 +9,8 @@
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="MDbg" Version="0.1.0" />
       <PackageReference Include="OpenCvSharp4.Windows" Version="4.5.2.20210404" />
       <PackageReference Include="System.Reactive" Version="5.0.0" />
-      <PackageReference Include="UniRx" Version="5.4.1" />
       <PackageReference Include="WpfScreenHelper" Version="1.0.0" />
     </ItemGroup>
 
