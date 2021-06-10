@@ -229,7 +229,7 @@ namespace umamusumeKeyCtl
 
                 if (_detectorMethod == DetectorMethod.FAST)
                 {
-                    if (goods.Count < srcResult.KeyPoints.Length * 0.5)
+                    if (goods.Count < srcResult.KeyPoints.Length * 0.5 && goods.Count < 100)
                     {
                         //Debug.Print($"Not enough match: {goods.Count}");
                         return MatchingResult.FailWithScore(goods);
