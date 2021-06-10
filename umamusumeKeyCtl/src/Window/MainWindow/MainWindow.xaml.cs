@@ -45,8 +45,6 @@ namespace umamusumeKeyCtl
 
             SetUpWindowCapture(_vm);
 
-            _ = SampleImageHolder.Instance;
-
             _ = SceneHolder.Instance;
 
             _ = VirtualKeyPushExecutor.Instance;
@@ -151,7 +149,6 @@ namespace umamusumeKeyCtl
             }, exception => Console.Write(exception));
 
             Closing += (_, _) => windowCapture.StopCapture();
-            Closing += (_, _) => SampleImageHolder.Instance.Dispose();
         }
 
         private async void ChangeColor(CancellationToken token)
@@ -288,7 +285,6 @@ namespace umamusumeKeyCtl
 
         protected override void OnClosing(CancelEventArgs e)
         {
-            SampleImageHolder.Instance.Dispose();
             _tokenSource.Cancel();
             base.OnClosing(e);
         }

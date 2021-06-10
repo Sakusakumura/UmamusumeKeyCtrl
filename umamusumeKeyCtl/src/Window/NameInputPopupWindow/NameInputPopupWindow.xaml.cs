@@ -116,7 +116,6 @@ namespace umamusumeKeyCtl
 
         private void OnCloseWindow(object sender, ExecutedRoutedEventArgs e)
         {
-            SampleImageHolder.Instance.Dispose();
             SystemCommands.CloseWindow(this);
         }
 
