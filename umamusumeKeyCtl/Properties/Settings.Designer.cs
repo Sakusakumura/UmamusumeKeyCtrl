@@ -121,22 +121,10 @@ namespace umamusumeKeyCtl.Properties {
         
         [global::System.Configuration.ApplicationScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("0.2")]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.3")]
         public string AppSettingVersion {
             get {
                 return ((string)(this["AppSettingVersion"]));
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3")]
-        public int DetectorMethod {
-            get {
-                return ((int)(this["DetectorMethod"]));
-            }
-            set {
-                this["DetectorMethod"] = value;
             }
         }
     }

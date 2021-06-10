@@ -170,6 +170,8 @@ namespace umamusumeKeyCtl.CaptureScene
                 {
                     new SceneSettingModifier(setting, canvas, toolPanel);
                     OnChangeModifyMode.Invoke(false);
+
+                    panel.Visibility = Visibility.Collapsed;
                     _settingsView.Visibility = _settingsView.Visibility == Visibility.Collapsed ? Visibility.Visible : Visibility.Collapsed;
                 };
                 modifyLabel.Visibility = Visibility.Collapsed;
