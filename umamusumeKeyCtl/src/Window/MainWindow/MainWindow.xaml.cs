@@ -104,7 +104,7 @@ namespace umamusumeKeyCtl
             };
             _sceneSelector.OnGetMatchingResults += (_, list) => this.Dispatcher.InvokeAsync(() => _debugWindow?.Vm.UpdateResults(list));
             _sceneSelector.SceneSelected += (_, scene) => this.Dispatcher.InvokeAsync(() => _sceneViewer.DrawScene(scene));
-            _sceneSelector.ResultPrinted += (_, mat) => this.Dispatcher.InvokeAsync(() => Cv2.ImShow("MatchingResult", mat));
+            _sceneSelector.ResultPrinted += (_, mat) => this.Dispatcher.Invoke(() => Cv2.ImShow("MatchingResult", mat));
             _sceneSelector.SrcTgtImgPrinted += (_, mat) => this.Dispatcher.InvokeAsync(() => Cv2.ImShow("SrcTgtImg", mat));
 
             //Load settings

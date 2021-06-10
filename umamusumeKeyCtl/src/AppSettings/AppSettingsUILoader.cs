@@ -70,7 +70,6 @@ namespace umamusumeKeyCtl.AppSettings
             var descriptions = _appSetting.Descriptions;
             descriptions.Add(new AppSettingDescription("AutoSave", "bool", "自動保存", "設定が追加・削除・編集されると自動で編集内容が保存されます。"));
             descriptions.Add(new AppSettingDescription("CaptureInterval", "int", "キャプチャ間隔", "ゲーム画面をキャプチャする間隔です。（ミリ秒）"));
-            descriptions.Add(new AppSettingDescription("DetectorMethod", "int", "検出器メソッド", "検出器のメソッド。"));
             descriptions.Add(new AppSettingDescription("IsDebugMode", "bool", "デバッグモード", "デバッグ機能を有効にします。\nデバッグ機能使用中はCPUにより大きな負荷がかかります。"));
 
             var json = JsonSerializer.Serialize(_appSetting.ToSerializedAppSetting());
