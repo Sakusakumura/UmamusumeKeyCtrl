@@ -1,6 +1,7 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -36,14 +37,13 @@ namespace umamusumeKeyCtl.CaptureScene
                 return;
             }
 
-            if (UmaWndH == IntPtr.Zero || _isKeyPressedBefore)
+            if (UmaWndH == IntPtr.Zero || _isKeyPressedBefore || UmaWndH != GetForegroundWindow())
             {
                 return;
             }
 
             _isKeyPressedBefore = true;
             
-            var prePos = MouseHelper.GetMousePosition();
             var rect = WindowHelper.GetWindowRect(UmaWndH);
             
             if (rect == Rectangle.Empty)
@@ -72,6 +72,8 @@ namespace umamusumeKeyCtl.CaptureScene
 
         private Task Perform(Point point, Dispatcher dispatcher)
         {
+            
+            
             var random = new Random().Next();
             Debug.Print($"[{this.GetType()}] Start. ({random})");
 
@@ -104,5 +106,8 @@ namespace umamusumeKeyCtl.CaptureScene
             
             return Task.CompletedTask;
         }
+        
+        [DllImport("user32.dll")]
+        private static extern IntPtr GetForegroundWindow();
     }
 }
