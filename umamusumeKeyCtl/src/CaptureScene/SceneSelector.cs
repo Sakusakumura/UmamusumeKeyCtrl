@@ -25,9 +25,15 @@ namespace umamusumeKeyCtl.CaptureScene
         public event EventHandler<Mat> ResultPrinted; 
         public event EventHandler<Mat> SrcTgtImgPrinted;
 
+        /// <summary>
+        /// Holds Guids of previous successful matching result.
+        /// </summary>
+        private List<Guid> _previousResult;
+
         public SceneSelector()
         {
             this.IsDebugMode = Settings.Default.IsDebugMode;
+            _previousResult = new List<Guid>();
         }
 
         public async Task SelectScene(Bitmap capturedImage)
@@ -42,8 +48,18 @@ namespace umamusumeKeyCtl.CaptureScene
             try
             {
                 var sceneSettings = SceneHolder.Instance.Scenes.Select(val => (val.Setting, FeaturePoints: val.ScrappedImage.FeaturePointsInfo)).ToList();
+                List<MatchingResult> matchingResults = new ();
 
-                var matchingResults = await GetMatchingResults(capturedImage, sceneSettings);
+                if (_previousResult.Count > 0)
+                {
+                    var checkSettings = sceneSettings.Where(val => _previousResult.Contains(val.Setting.Guid));
+                    matchingResults = await GetMatchingResults(capturedImage, checkSettings);
+                }
+
+                if (matchingResults.Count(val => val.Result) == 0)
+                {
+                    matchingResults = await GetMatchingResults(capturedImage, sceneSettings);
+                }
 
                 var succeeds = matchingResults.Where(val => val.Result);
                 
@@ -53,20 +69,21 @@ namespace umamusumeKeyCtl.CaptureScene
                 {
                     var sceneList = SceneHolder.Instance.Scenes.ToList();
                     var mat = BitmapConverter.ToMat(capturedImage);
-                    
-                    
-                    var printSrcTgtImgTask = Task.Run(() => PrintSrcTgtImg(sceneList, mat));
-                    var printMatchingResultTask = Task.Run(() => PrintMatchingResult(sceneList, mat, matchingResults.ToList()));
 
-                    _ = Task.Run(async () =>
+                    _ = Task.Run(() =>
                     {
-                        await Task.WhenAll(printSrcTgtImgTask, printMatchingResultTask);
+                        PrintSrcTgtImg(sceneList, mat);
+                        PrintMatchingResult(sceneList, mat, matchingResults.ToList());
+                        
                         mat.Dispose();
                     });
                 }
 
                 if (succeeds.Count() > 0)
                 {
+                    _previousResult.Clear();
+                    _previousResult.AddRange(succeeds.Select(val => val.SceneGuid));
+                    
                     var targetScene = scenes.Find(val => val.Setting.Guid == succeeds.First().SceneGuid);
 
                     scenes.Remove(targetScene);
@@ -197,7 +214,8 @@ namespace umamusumeKeyCtl.CaptureScene
                 {
                     // Draw Source KeyPoints.
                     var scene = sceneList[i];
-                    using Mat srcMat = BitmapConverter.ToMat(scene.ScrappedImage.Image);
+                    using var cloned = (Bitmap) scene.ScrappedImage.Image.Clone();
+                    using Mat srcMat = BitmapConverter.ToMat(cloned);
                     Cv2.DrawKeypoints(srcMat, scene.ScrappedImage.FeaturePointsInfo.KeyPoints, srcMat, Scalar.Green);
                     Cv2.Resize(srcMat, srcMat, srcSize);
 
@@ -287,7 +305,8 @@ namespace umamusumeKeyCtl.CaptureScene
                     var sourceKeyPoints = scene.ScrappedImage.FeaturePointsInfo.KeyPoints;
                     var result = results[i];
 
-                    using var srcMat = BitmapConverter.ToMat(scene.ScrappedImage.Image);
+                    using var cloned = (Bitmap) scene.ScrappedImage.Image.Clone();
+                    using var srcMat = BitmapConverter.ToMat(cloned);
                     using var tgtMat = sourceMat.Clone();
                     using Mat matchesDrawedMat = new Mat();
                 
@@ -306,7 +325,6 @@ namespace umamusumeKeyCtl.CaptureScene
                             // Copy to root.
                             var rowRange = new Range((i % 2) * matchesDrawedMat.Rows, (i % 2 + 1) * matchesDrawedMat.Rows);
                             var colRange = new Range((int) Math.Floor(i / 2.0) * matchesDrawedMat.Cols, ((int) Math.Floor(i / 2.0) + 1) * matchesDrawedMat.Cols);
-                            Debug.Print($"[{this.GetType().Name}] succeeds={succeeds.Count()}, rowRange.Start={rowRange.Start}, rowRange.End={rowRange.End}, rootMat.rows={rootMat.Rows}");
                             matchesDrawedMat.CopyTo(rootMat
                                 .RowRange(rowRange)
                                 .ColRange(colRange));

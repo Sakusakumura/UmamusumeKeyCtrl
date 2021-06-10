@@ -6,10 +6,10 @@ namespace umamusumeKeyCtl.ImageSimilarity.Method
     public class Orb : MatchingMethodBase
     {
         private ORB _orb;
-        public int edgeThreshold = 31;
-        public int patchSize = 31;
+        public int edgeThreshold = 25;
+        public int patchSize = 25;
         public int fastThreshold = 23;
-        public int nFeatures = 300;
+        public int nFeatures = 200;
 
         public Orb()
         {
