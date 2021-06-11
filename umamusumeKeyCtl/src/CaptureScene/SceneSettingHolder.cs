@@ -59,9 +59,9 @@ namespace umamusumeKeyCtl.CaptureScene
 
             try
             {
-                if (!File.Exists("ScrapSettings.json"))
+                if (!File.Exists("SceneSettings.json"))
                 {
-                    using var stream = await Task<FileStream>.Run(() => File.Create("ScrapSettings.json"));
+                    using var stream = await Task<FileStream>.Run(() => File.Create("SceneSettings.json"));
                     var defaultSceneSettings = new List<SceneSetting>()
                     {
                         new(Guid.NewGuid(), "Default", new List<VirtualKeySetting>(), new ScrapSetting(new List<ScrapInfo>()), DetectorMethod.FAST,
@@ -70,7 +70,7 @@ namespace umamusumeKeyCtl.CaptureScene
                     stream.Write(JsonSerializer.SerializeToUtf8Bytes(defaultSceneSettings));
                 }
             
-                var str = File.ReadAllText("ScrapSettings.json");
+                var str = File.ReadAllText("SceneSettings.json");
 
                 if (String.IsNullOrEmpty(str))
                 {
@@ -98,7 +98,7 @@ namespace umamusumeKeyCtl.CaptureScene
             try
             {
                 var str = JsonSerializer.Serialize(Settings);
-                File.WriteAllText("ScrapSettings.json", str, Encoding.Unicode);
+                File.WriteAllText("SceneSettings.json", str, Encoding.Unicode);
             }
             catch (Exception e)
             {

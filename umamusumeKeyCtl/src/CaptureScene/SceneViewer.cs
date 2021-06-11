@@ -1,6 +1,4 @@
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Threading;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -14,14 +12,22 @@ namespace umamusumeKeyCtl.CaptureScene
         private List<UIElement> _uiElements = new();
         private List<TextBlock> _textBlocks = new();
         private Canvas _canvas;
+        private MainWndState _mainWndState = MainWndState.Default;
 
         public SceneViewer(Canvas canvas)
         {
+            var currentMainWindow = (MainWindow) Application.Current.MainWindow;
+            currentMainWindow.MainWndStateChanged += CurrentMainWindowOnMainWndStateChanged;
             _canvas = canvas;
         }
 
         public void DrawScene(Scene scene)
         {
+            if (_mainWndState != MainWndState.Default)
+            {
+                return;
+            }
+            
             var sceneSetting = scene.Setting;
             
             DrawScrapArea(sceneSetting.ScrapSetting, _canvas);
@@ -43,6 +49,23 @@ namespace umamusumeKeyCtl.CaptureScene
             }
             
             _shapes.Clear();
+
+            foreach (var textBlock in _textBlocks)
+            {
+                _canvas.Children.Remove(textBlock);
+            }
+            
+            _textBlocks.Clear();
+        }
+
+        private void CurrentMainWindowOnMainWndStateChanged(object? sender, MainWndState e)
+        {
+            if (e != MainWndState.Default)
+            {
+                Discard();
+            }
+
+            _mainWndState = e;
         }
 
         private void DrawScrapArea(ScrapSetting scrapSetting, Canvas canvas)
