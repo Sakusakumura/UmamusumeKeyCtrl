@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Windows;
 using System.Windows.Controls;
 using umamusumeKeyCtl.ImageSimilarity.Factory;
 
@@ -13,9 +14,12 @@ namespace umamusumeKeyCtl.CaptureScene
         private ScrapSettingModifier _scrapSettingModifier;
         private VirtualKeySettingModifier _virtualKeySettingModifier;
         private Canvas _canvas;
+        private MainWindow _mainWindow;
 
         public SceneSettingModifier(SceneSetting sceneSetting, Canvas drawToCanvas, StackPanel toolPanel)
         {
+            _mainWindow = (MainWindow) Application.Current.MainWindow;
+            
             _toolBox = new SceneSettingModifyToolBox(toolPanel);
             _toolBox.OnFinishEditing += OnFinishEditing;
 
@@ -34,6 +38,8 @@ namespace umamusumeKeyCtl.CaptureScene
 
         private void OnFinishEditing()
         {
+            _mainWindow.SetState(MainWndState.Default);
+            
             var instance = SceneSettingHolder.Instance;
             instance.RemoveSetting(_sceneSetting.Guid);
             instance.AddSettings(_sceneSetting);

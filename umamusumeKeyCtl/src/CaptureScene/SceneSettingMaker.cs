@@ -41,7 +41,7 @@ namespace umamusumeKeyCtl.CaptureScene
         private ScrapSetting _scrapSetting;
         private List<VirtualKeySetting> _virtualKeySettings;
 
-        public SceneSettingMaker(Canvas canvas, UIElement uiElement)
+        public SceneSettingMaker(MainWindow mainWindow, Canvas canvas, UIElement uiElement)
         {
             _uiElement = uiElement;
             _canvas = canvas;
@@ -51,6 +51,8 @@ namespace umamusumeKeyCtl.CaptureScene
 
             OnCaptureSettingSetCreated += setting =>
             {
+                mainWindow.SetState(MainWndState.Default);
+                
                 SceneSettingHolder.Instance.AddSettings(setting);
                 SceneSettingHolder.Instance.SaveSettings();
                 SceneSettingHolder.Instance.LoadSettings();

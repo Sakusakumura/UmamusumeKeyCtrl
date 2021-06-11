@@ -46,6 +46,8 @@ namespace umamusumeKeyCtl.CaptureScene
         public event Action<bool> OnChangeRemoveMode;
         public event Action<bool> OnChangeModifyMode;
 
+        private MainWndState _mainWndState = MainWndState.Default;
+
         public SceneSettingViewer()
         {
             var currentMainWindow = (MainWindow) Application.Current.MainWindow;
@@ -59,6 +61,8 @@ namespace umamusumeKeyCtl.CaptureScene
                 Debug.Print($"[{this.GetType().Name}] MTAのスレッドで実行されています。STAで実行してください。");
                 return;
             }
+            
+            var mainWindow = (MainWindow) Application.Current.MainWindow;
             
             var dockPanels = new List<DockPanel>();
             var converter = new BrushConverter();
@@ -168,6 +172,8 @@ namespace umamusumeKeyCtl.CaptureScene
                 };
                 modifyLabel.MouseLeftButtonUp += (_, _) =>
                 {
+                    mainWindow.SetState(MainWndState.ModifyingSetting);
+                    
                     new SceneSettingModifier(setting, canvas, toolPanel);
                     OnChangeModifyMode.Invoke(false);
 

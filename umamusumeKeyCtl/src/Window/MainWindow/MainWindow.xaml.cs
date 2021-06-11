@@ -30,14 +30,18 @@ namespace umamusumeKeyCtl
         private SceneSelector _sceneSelector;
         private SceneViewer _sceneViewer;
         private DataGridWindow _debugWindow;
+        private MainWndState _state = MainWndState.Default;
+        private readonly object _setStateLock = new();
+
+        public event EventHandler<MainWndState> MainWndStateChanged;
 
         public MainWindow()
         {
             Initialize();
 
-            this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, OnCloseWindow));
-            this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, OnMinimizeWindow, OnCanMinimizeWindow));
-            this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, OnRestoreWindow, OnCanResizeWindow));
+            this.CommandBindings.Add(new CommandBinding(SystemCommands.CloseWindowCommand, CaptionPanel_OnCloseWindow));
+            this.CommandBindings.Add(new CommandBinding(SystemCommands.MinimizeWindowCommand, CaptionPanel_OnMinimizeWindow, OnCanMinimizeWindow));
+            this.CommandBindings.Add(new CommandBinding(SystemCommands.RestoreWindowCommand, CaptionPanel_OnRestoreWindow, OnCanResizeWindow));
             
             var _vm = new MainWndVM();
 
@@ -50,11 +54,21 @@ namespace umamusumeKeyCtl
             _ = VirtualKeyPushExecutor.Instance;
         }
 
+        public void SetState(MainWndState state)
+        {
+            lock (_setStateLock)
+            {
+                if (state != _state)
+                {
+                    _state = state;
+                    MainWndStateChanged?.Invoke(this, _state);
+                }
+            }
+        }
+
         private void Initialize()
         {
             _tokenSource = new CancellationTokenSource();
-            
-            SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT.DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
             
             InitializeComponent();
             
@@ -188,33 +202,8 @@ namespace umamusumeKeyCtl
                 await Task.Delay(1);
             }
         }
-        
-        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e)
-        {
-        }
-        
-        [DllImport("User32.dll")]
-        public static extern DPI_AWARENESS_CONTEXT SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT dpiContext);
 
-        public enum DPI_AWARENESS_CONTEXT
-        {
-            DPI_AWARENESS_CONTEXT_DEFAULT = 0,
-            DPI_AWARENESS_CONTEXT_UNAWARE = -1,
-            DPI_AWARENESS_CONTEXT_SYSTEM_AWARE = -2, 
-            DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE = -3,
-            DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 = -4,
-            DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED = -5
-        }
-
-        public void OnButtonClick(object sender, RoutedEventArgs e)
-        {
-            new SceneSettingMaker(Canvas, Canvas);
-        }
-
-        private void OnSaveSettingsButtonClick(object sender, RoutedEventArgs e)
-        {
-            SceneSettingHolder.Instance.SaveSettings();
-        }
+        #region CaptionPanelUIEvents
 
         private void OnCanMinimizeWindow(object sender, CanExecuteRoutedEventArgs e)
         {
@@ -226,17 +215,17 @@ namespace umamusumeKeyCtl
             e.CanExecute = this.ResizeMode == ResizeMode.CanResize || this.ResizeMode == ResizeMode.CanResizeWithGrip;
         }
 
-        private void OnCloseWindow(object sender, ExecutedRoutedEventArgs e)
+        private void CaptionPanel_OnCloseWindow(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
         }
 
-        private void OnMinimizeWindow(object sender, ExecutedRoutedEventArgs e)
+        private void CaptionPanel_OnMinimizeWindow(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.MinimizeWindow(this);
         }
 
-        private void OnRestoreWindow(object sender, ExecutedRoutedEventArgs e)
+        private void CaptionPanel_OnRestoreWindow(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.RestoreWindow(this);
         }
@@ -246,19 +235,59 @@ namespace umamusumeKeyCtl
             this.DragMove();
         }
 
-        private void OnReloadButtonClick(object sender, RoutedEventArgs e)
+        #endregion
+
+        #region SceneSettingsUIEvents
+
+        private void SceneSettingsContextMenu_OnSaveSettingsButtonClick(object sender, RoutedEventArgs e)
         {
+            SceneSettingHolder.Instance.SaveSettings();
+        }
+
+        public void SceneSettingsContextMenu_OnCreateNewButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (_state != MainWndState.Default)
+            {
+                new MessageWindow("設定の作成中または編集中です。").ShowDialog();
+                return;
+            }
+            
+            SetState(MainWndState.CreatingSetting);
+            
+            new SceneSettingMaker(this, Canvas, Canvas);
+        }
+
+        private void SceneSettingsContextMenu_OnReloadButtonClick(object sender, RoutedEventArgs e)
+        {
+            if (_state != MainWndState.Default)
+            {
+                new MessageWindow("設定の作成中または編集中です。").ShowDialog();
+                return;
+            }
+            
             SceneSettingHolder.Instance.LoadSettings();
         }
 
-        private void OnRemoveButtonClick(object sender, RoutedEventArgs e)
+        private void SceneSettingsContextMenu_OnRemoveButtonClick(object sender, RoutedEventArgs e)
         {
+            if (_state != MainWndState.Default)
+            {
+                new MessageWindow("設定の作成中または編集中です。").ShowDialog();
+                return;
+            }
+            
             _sceneSettingViewer.ModifyMode = false;
             _sceneSettingViewer.RemoveMode = true;
         }
         
-        public void OnModifyButtonClick(object sender, RoutedEventArgs routedEventArgs)
+        public void SceneSettingsContextMenu_OnModifyButtonClick(object sender, RoutedEventArgs routedEventArgs)
         {
+            if (_state != MainWndState.Default)
+            {
+                new MessageWindow("設定の作成中または編集中です。").ShowDialog();
+                return;
+            }
+            
             _sceneSettingViewer.RemoveMode = false;
             _sceneSettingViewer.ModifyMode = true;
         }
@@ -269,6 +298,14 @@ namespace umamusumeKeyCtl
                 ? Visibility.Visible
                 : Visibility.Collapsed;
         }
+
+        private void SceneSettingsListView_OnScroll(object sender, ScrollEventArgs e)
+        {
+            SettingsView.UpdateLayout();
+            ChangeColor(_tokenSource.Token);
+        }
+
+        #endregion
 
         public void OnToggleSettingViewButtonClick(object sender, RoutedEventArgs routedEventArgs)
         {
@@ -292,12 +329,6 @@ namespace umamusumeKeyCtl
         public void Dispose()
         {
             _tokenSource?.Dispose();
-        }
-
-        private void SettingsView_OnScroll(object sender, ScrollEventArgs e)
-        {
-            SettingsView.UpdateLayout();
-            ChangeColor(_tokenSource.Token);
         }
     }
 }
