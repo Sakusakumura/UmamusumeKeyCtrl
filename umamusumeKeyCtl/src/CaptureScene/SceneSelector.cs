@@ -67,11 +67,11 @@ namespace umamusumeKeyCtl.CaptureScene
                 
                 if (IsDebugMode)
                 {
-                    var sceneList = SceneHolder.Instance.Scenes.ToList();
-                    var mat = BitmapConverter.ToMat(capturedImage);
-
                     _ = Task.Run(() =>
                     {
+                        var sceneList = SceneHolder.Instance.Scenes.ToList();
+                        var mat = BitmapConverter.ToMat(capturedImage);
+                        
                         PrintSrcTgtImg(sceneList, mat);
                         PrintMatchingResult(sceneList, mat, matchingResults.ToList());
                         
