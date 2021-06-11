@@ -83,15 +83,15 @@ namespace umamusumeKeyCtl.CaptureScene
 
                 dispatcher.InvokeAsync(() => VirtualMouse.MoveTo(point));
 
-                Thread.Sleep(30);
+                Thread.Sleep(45);
 
                 dispatcher.InvokeAsync(() => VirtualMouse.Down(MouseButton.Left));
 
-                Thread.Sleep(30);
+                Thread.Sleep(45);
                 
                 dispatcher.InvokeAsync(() => VirtualMouse.Up(MouseButton.Left));
 
-                Thread.Sleep(30);
+                Thread.Sleep(45);
 
                 dispatcher.InvokeAsync(() => VirtualMouse.MoveTo(prePos));
             }
