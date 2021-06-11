@@ -46,8 +46,6 @@ namespace umamusumeKeyCtl.CaptureScene
         public event Action<bool> OnChangeRemoveMode;
         public event Action<bool> OnChangeModifyMode;
 
-        private MainWndState _mainWndState = MainWndState.Default;
-
         public SceneSettingViewer()
         {
             var currentMainWindow = (MainWindow) Application.Current.MainWindow;

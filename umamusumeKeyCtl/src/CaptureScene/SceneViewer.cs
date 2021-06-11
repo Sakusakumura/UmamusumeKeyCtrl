@@ -58,7 +58,7 @@ namespace umamusumeKeyCtl.CaptureScene
             _textBlocks.Clear();
         }
 
-        private void CurrentMainWindowOnMainWndStateChanged(object? sender, MainWndState e)
+        private void CurrentMainWindowOnMainWndStateChanged(object sender, MainWndState e)
         {
             if (e != MainWndState.Default)
             {
