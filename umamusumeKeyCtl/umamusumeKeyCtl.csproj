@@ -15,69 +15,25 @@
     </ItemGroup>
 
     <ItemGroup>
-      <EmbeddedResource Include="Resources\devilman.bmp">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </EmbeddedResource>
-      <EmbeddedResource Include="Resources\devilman.jpg" />
       <None Remove="devilman.jpg" />
       <None Remove="yagidenryu.png" />
       <None Remove="devilman.bmp" />
       <None Remove="Resource\bar_ikusei.png" />
-      <Resource Include="Resources\bar_ikusei.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\bar_lase.png" />
       <None Remove="Resource\bar_skill.png" />
-      <Resource Include="Resources\bar_skill.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\bar_training.png" />
-      <Resource Include="Resources\bar_training.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\confirm_oyasumi.png" />
-      <Resource Include="Resources\confirm_oyasumi.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\gotolase.png" />
       <None Remove="Resource\ikuseiEvent.png" />
-      <Resource Include="Resources\ikuseiEvent.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\ikuseiMenu.png" />
-      <Resource Include="Resources\ikuseiMenu.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\ikuseiresult.png" />
-      <Resource Include="Resources\ikuseiresult.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\ikuseiResult_next.png" />
-      <Resource Include="Resources\ikuseiResult_next.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\inshikeishow.png" />
-      <Resource Include="Resources\inshikeishow.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\skill_button.png" />
-      <Resource Include="Resources\skill_button.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\yosoukekka.png" />
-      <Resource Include="Resources\yagidenryu.png" />
-      <Resource Include="Resources\yosoukekka.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="docs\umamusu_gamenCaptures.afphoto" />
       <None Remove="Resource\bar_race.png" />
-      <Resource Include="Resources\bar_race.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
       <None Remove="Resource\gotorace.png" />
-      <Resource Include="Resources\gotorace.png">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </Resource>
     </ItemGroup>
 
     <ItemGroup>

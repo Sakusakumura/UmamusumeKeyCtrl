@@ -7,6 +7,7 @@ using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using umamusumeKeyCtl.Helpers;
+using umamusumeKeyCtl.Properties;
 using Image = System.Drawing.Image;
 
 namespace umamusumeKeyCtl
@@ -40,10 +41,7 @@ namespace umamusumeKeyCtl
             _cancellationTokenSource = new CancellationTokenSource();
             _captureResultSubject = new Subject<Bitmap>();
 
-            using (var image = (Bitmap) Image.FromFile("Resources/devilman.bmp"))
-            {
-                _waitingImage = (Bitmap) image.Clone();
-            }
+            _waitingImage = CreateWaitingImage();
 
             internalAsyncCaptureTask = InternalAsyncCapture(_captureSetting, _cancellationTokenSource.Token);
         }
@@ -56,6 +54,21 @@ namespace umamusumeKeyCtl
             _cancellationTokenSource.Cancel();
             _cancellationTokenSource.Dispose();
             _captureResultSubject.Dispose();
+        }
+
+        private Bitmap CreateWaitingImage()
+        {
+            var width = Settings.Default.ImageResolutionWidth;
+            var height = (int) (Settings.Default.GameAspectRatio * Settings.Default.ImageResolutionWidth);
+
+            var image = new Bitmap(width, height);
+            using (var graphics = Graphics.FromImage(image))
+            {
+                var color = ColorTranslator.FromHtml("#2B2C2B");
+                graphics.Clear(color);
+            }
+
+            return image;
         }
 
         private async Task InternalAsyncCapture(CaptureSetting captureSetting, CancellationToken token)
