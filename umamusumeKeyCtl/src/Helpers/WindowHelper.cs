@@ -3,19 +3,12 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading.Tasks;
-using System.Windows.Interop;
 using Point = System.Drawing.Point;
 
 namespace umamusumeKeyCtl.Helpers
 {
     public class WindowHelper
     {
-        [DllImport("user32.dll")]
-        extern static bool SetProcessDPIAware();
-        
-        [DllImport("dwmapi.dll")]
-        private static extern long DwmGetWindowAttribute(IntPtr hWnd, DWMWINDOWATTRIBUTE dwAttribute, out RECT rect, int cbAttribute);
-        
         [DllImport("user32")]
         public static extern int GetClientRect(IntPtr hWnd, out Rect rect);
         
@@ -24,6 +17,9 @@ namespace umamusumeKeyCtl.Helpers
 
         [DllImport("user32.dll")]
         public static extern IntPtr GetForegroundWindow();
+        
+        [DllImport("user32.dll")]
+        public static extern bool IsWindow(IntPtr hWnd);
 
         [StructLayout(LayoutKind.Sequential)]
         public struct Rect
@@ -40,36 +36,6 @@ namespace umamusumeKeyCtl.Helpers
                 this.width = width;
                 this.height = height;
             }
-        }
-        
-        enum DWMWINDOWATTRIBUTE
-        {
-            DWMWA_NCRENDERING_ENABLED = 1,
-            DWMWA_NCRENDERING_POLICY,
-            DWMWA_TRANSITIONS_FORCEDISABLED,
-            DWMWA_ALLOW_NCPAINT,
-            DWMWA_CAPTION_BUTTON_BOUNDS,
-            DWMWA_NONCLIENT_RTL_LAYOUT,
-            DWMWA_FORCE_ICONIC_REPRESENTATION,
-            DWMWA_FLIP3D_POLICY,
-            DWMWA_EXTENDED_FRAME_BOUNDS,//ウィンドウのRect
-            DWMWA_HAS_ICONIC_BITMAP,
-            DWMWA_DISALLOW_PEEK,
-            DWMWA_EXCLUDED_FROM_PEEK,
-            DWMWA_CLOAK,
-            DWMWA_CLOAKED,
-            DWMWA_FREEZE_REPRESENTATION,
-            DWMWA_LAST
-        };
-        
-        [DllImport("gdi32.dll")]
-        static extern int GetDeviceCaps(IntPtr hdc, int nIndex);
-        public enum DeviceCap
-        {
-            VERTRES = 10,
-            DESKTOPVERTRES = 117,
-
-            // http://pinvoke.net/default.aspx/gdi32/GetDeviceCaps.html
         }
         
         /// <summary>
@@ -122,18 +88,6 @@ namespace umamusumeKeyCtl.Helpers
             Rectangle _Rectangle = new Rectangle(point.X, point.Y, rect.width, rect.height);
 
             return _Rectangle;
-        }
-
-        private static (double X, double Y) GetScreenScale(IntPtr targetHwnd)
-        {
-            var hwndSource = HwndSource.FromHwnd(targetHwnd);
-
-            if (hwndSource == null)
-            {
-                return (1, 1);
-            }
-            
-            return (hwndSource.CompositionTarget.TransformToDevice.M11, hwndSource.CompositionTarget.TransformToDevice.M12);
         }
     }
 }
