@@ -81,7 +81,7 @@ namespace umamusumeKeyCtl
                         hWnd = await WindowHelper.AsyncGetHWndByName(captureSetting.CaptureWndName);
                     }
 
-                    while (hWnd != WindowHelper.GetForegroundWindow() && _stopIfBackground && token.IsCancellationRequested == false)
+                    while (_stopIfBackground && hWnd != WindowHelper.GetForegroundWindow() && WindowHelper.IsWindow(hWnd) && token.IsCancellationRequested == false)
                     {
                         await Task.Delay(250);
                     }
