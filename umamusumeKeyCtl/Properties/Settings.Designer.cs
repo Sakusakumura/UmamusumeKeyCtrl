@@ -58,5 +58,74 @@ namespace umamusumeKeyCtl.Properties {
                 this["ImageResolutionWidth"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("1.77777779")]
+        public float GameAspectRatio {
+            get {
+                return ((float)(this["GameAspectRatio"]));
+            }
+            set {
+                this["GameAspectRatio"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("./CapturedImages")]
+        public string ScreenShotLocation {
+            get {
+                return ((string)(this["ScreenShotLocation"]));
+            }
+            set {
+                this["ScreenShotLocation"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoSave {
+            get {
+                return ((bool)(this["AutoSave"]));
+            }
+            set {
+                this["AutoSave"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("10")]
+        public int MinExtent {
+            get {
+                return ((int)(this["MinExtent"]));
+            }
+            set {
+                this["MinExtent"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool IsDebugMode {
+            get {
+                return ((bool)(this["IsDebugMode"]));
+            }
+            set {
+                this["IsDebugMode"] = value;
+            }
+        }
+        
+        [global::System.Configuration.ApplicationScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("0.3")]
+        public string AppSettingVersion {
+            get {
+                return ((string)(this["AppSettingVersion"]));
+            }
+        }
     }
 }

@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "umamusumeKeyCtl": {
+      "commandName": "Project",
+      "nativeDebugging": true
+    }
+  }
+}

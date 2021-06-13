@@ -1,0 +1,257 @@
+﻿<Window x:Class="umamusumeKeyCtl.NameInputPopupWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="設定作成ウィザード" Height="Auto" Width="Auto" MaxWidth="500"
+        SizeToContent="WidthAndHeight"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        VirtualizingStackPanel.IsVirtualizing="False">
+    <Window.Resources>
+        <SolidColorBrush x:Key="BorderBrush" Color="#131413"/>
+
+        <Style x:Key="CaptionButtonStyle" TargetType="Button">
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid x:Name="LayoutRoot" Background="Transparent" Width="44" Height="30">
+                            <TextBlock x:Name="txt" Text="{TemplateBinding Content}" FontFamily="Segoe MDL2 Assets" FontSize="10" 
+                                Foreground="#f4f5f4" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                RenderOptions.ClearTypeHint="Auto" TextOptions.TextRenderingMode="Aliased"  TextOptions.TextFormattingMode="Display"/>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="LayoutRoot" Property="Background" Value="#E5E5E5"/>
+                                <Setter TargetName="txt" Property="Foreground" Value="#000000"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="txt" Property="Foreground" Value="#939795"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="MinimizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE949;"/>
+        </Style>
+
+        <Style x:Key="MaximizeButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE739;"/>
+        </Style>
+
+        <Style x:Key="RestoreButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE923;"/>
+        </Style>
+
+        <Style x:Key="CloseButtonStyle" TargetType="Button" BasedOn="{StaticResource CaptionButtonStyle}">
+            <Setter Property="Content" Value="&#xE711;"/>
+        </Style>
+
+        <Style x:Key="ComboBoxItemStyle" TargetType="ComboBoxItem">
+            <Setter Property="Background" Value="Red" />
+        </Style>
+        <ItemsPanelTemplate x:Key="ComboBoxItemsPanelTemplate">
+            <StackPanel IsItemsHost="True" Background="Red"/>
+        </ItemsPanelTemplate>
+        
+        <ControlTemplate x:Key="ComboBoxToggleButton" TargetType="ToggleButton">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition />
+                    <ColumnDefinition Width="20" />
+                </Grid.ColumnDefinitions>
+                <Border
+                    x:Name="Border" 
+                    Grid.ColumnSpan="2"
+                    Background="#686d6b"
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="1" />
+                <Border 
+                    Grid.Column="0"
+                    Margin="1" 
+                    Background="Transparent" 
+                    BorderBrush="{StaticResource BorderBrush}"
+                    BorderThickness="0,0,1,0" />
+                <Path 
+                    x:Name="Arrow"
+                    Grid.Column="1"     
+                    Fill="#f4f5f4"
+                    HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Data="M 0 0 L 4 4 L 8 0 Z"/>
+            </Grid>
+            <ControlTemplate.Triggers>
+                <Trigger Property="ToggleButton.IsMouseOver" Value="true">
+                    <Setter TargetName="Border" Property="Background" Value="#494d4b" />
+                </Trigger>
+                <Trigger Property="ToggleButton.IsChecked" Value="true">
+                    <Setter TargetName="Border" Property="Background" Value="#222322" />
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter TargetName="Border" Property="Background" Value="#686d6b" />
+                    <Setter TargetName="Border" Property="BorderBrush" Value="{StaticResource BorderBrush}" />
+                    <Setter Property="Foreground" Value="#f4f5f4"/>
+                    <Setter TargetName="Arrow" Property="Fill" Value="#f4f5f4" />
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <ControlTemplate x:Key="ComboBoxTextBox" TargetType="TextBox">
+            <Border x:Name="PART_ContentHost" Focusable="False" Background="{TemplateBinding Background}" />
+        </ControlTemplate>
+
+        <Style x:Key="ComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Foreground" Value="#f4f5f4"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ComboBox">
+                        <Grid>
+                            <ToggleButton
+                                Name="ToggleButton"
+                                Template="{StaticResource ComboBoxToggleButton}"
+                                Grid.Column="2"
+                                Focusable="false"
+                                IsChecked="{Binding Path=IsDropDownOpen,Mode=TwoWay,RelativeSource={RelativeSource TemplatedParent}}"
+                                ClickMode="Press" />
+                            <ContentPresenter
+                                Name="ContentSite"
+                                IsHitTestVisible="False"
+                                Content="{TemplateBinding SelectionBoxItem}"
+                                ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                ContentTemplateSelector="{TemplateBinding ItemTemplateSelector}"
+                                Margin="3,3,23,3"
+                                VerticalAlignment="Center"
+                                HorizontalAlignment="Left" />
+                            <TextBox x:Name="PART_EditableTextBox"
+                                     Style="{x:Null}"
+                                     Template="{StaticResource ComboBoxTextBox}"
+                                     HorizontalAlignment="Left"
+                                     VerticalAlignment="Center"
+                                     Margin="3,3,23,3"
+                                     Focusable="True"
+                                     Background="Transparent"
+                                     Visibility="Hidden"
+                                     IsReadOnly="{TemplateBinding IsReadOnly}" />
+                            <Popup
+                                Name="Popup"
+                                Placement="Bottom"
+                                IsOpen="{TemplateBinding IsDropDownOpen}"
+                                AllowsTransparency="True"
+                                Focusable="False"
+                                PopupAnimation="Slide">
+                                <Grid
+                                    Name="DropDown"
+                                    SnapsToDevicePixels="True"
+                                    MinWidth="{TemplateBinding ActualWidth}"
+                                    MaxHeight="{TemplateBinding MaxDropDownHeight}">
+                                    <Border
+                                        x:Name="DropDownBorder"
+                                        Background="#686d6b"
+                                        BorderThickness="1"
+                                        BorderBrush="{StaticResource BorderBrush}" />
+                                    <ScrollViewer Margin="4,6,4,6" SnapsToDevicePixels="True">
+                                        <StackPanel IsItemsHost="True"
+                                                    KeyboardNavigation.DirectionalNavigation="Contained" />
+                                    </ScrollViewer>
+                                </Grid>
+                            </Popup>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="HasItems" Value="false">
+                                <Setter TargetName="DropDownBorder" Property="MinHeight" Value="95" />
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="false">
+                                <Setter Property="Foreground" Value="#343736" />
+                            </Trigger>
+                            <Trigger Property="IsGrouping" Value="true">
+                                <Setter Property="ScrollViewer.CanContentScroll" Value="false" />
+                            </Trigger>
+                            <Trigger SourceName="Popup" Property="Popup.AllowsTransparency" Value="true">
+                                <Setter TargetName="DropDownBorder" Property="CornerRadius" Value="0" />
+                                <Setter TargetName="DropDownBorder" Property="Margin" Value="0,2,0,0" />
+                            </Trigger>
+                            <Trigger Property="IsEditable"
+                                     Value="true">
+                                <Setter Property="IsTabStop" Value="false" />
+                                <Setter TargetName="PART_EditableTextBox" Property="Visibility" Value="Visible" />
+                                <Setter TargetName="ContentSite" Property="Visibility" Value="Hidden" />
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+        
+    </Window.Resources>
+
+    <DockPanel Background="#2B2C2B" LastChildFill="True">
+        <DockPanel Name="CaptionPanel" DockPanel.Dock="Top" Background="#535755" LastChildFill="True" MouseLeftButtonDown="CaptionPanel_MouseLeftButtonDown">
+            <Label Margin="10, 0, 0, 0" VerticalContentAlignment="Center" DockPanel.Dock="Left" Content="設定編集ウィザード" Foreground="#f4f5f4"/>
+            <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center">
+                <Button x:Name="MinimizeButton"
+                        KeyboardNavigation.IsTabStop="False"
+                        Command="{x:Static SystemCommands.MinimizeWindowCommand}"
+                        Style="{StaticResource MinimizeButtonStyle}" IsEnabled="False"/>
+
+                <Button x:Name="MaximizeButton" 
+                        Command="{x:Static SystemCommands.MaximizeWindowCommand}" 
+                        Style="{StaticResource MaximizeButtonStyle}" IsEnabled="False"/>
+
+                <Button x:Name="CloseButton" 
+                        Command="{x:Static SystemCommands.CloseWindowCommand}" 
+                        Style="{StaticResource CloseButtonStyle}" IsEnabled="False"/>
+            </StackPanel>
+        </DockPanel>
+
+        <StackPanel Orientation="Vertical" Margin="10">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="設定名" Height="30" Foreground="#f4f5f4" Margin="0"></Label>
+                <TextBox Grid.Column="1" Width="400" Name="NameTextBox" BorderBrush="{StaticResource BorderBrush}" Background="#535755" FontSize="18" Foreground="#e9eaea" Margin="10" AcceptsReturn="False" TextWrapping="NoWrap" PreviewTextInput="NameTextBoxOnPreviewTextInput"></TextBox>
+            </Grid>
+            <Separator/>
+            <Label Name="ErrorLabel" Content="" Height="0" VerticalContentAlignment="Top" HorizontalContentAlignment="Center" Foreground="#E74C3C"/>
+
+            <Label Content="特徴点のマッチングに使用するメソッド" Foreground="#f4f5f4"/>
+            <UniformGrid Margin="0, 0, 10, 0" Rows="1">
+                <Grid Margin="10, 0, 10, 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <Label Grid.Row="0" Content="Detector" Height="30" Foreground="#f4f5f4" Margin="0"></Label>
+                    <Label Grid.Row="1" Content="Describer" Height="30" Foreground="#f4f5f4" Margin="0"></Label>
+                </Grid>
+                <Grid Margin="0, 0, 10, 0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition/>
+                        <RowDefinition/>
+                    </Grid.RowDefinitions>
+                    <ComboBox x:Name="DetectorComboBox" Grid.Row="0" SelectedIndex="0" Height="25" Style="{StaticResource ComboBoxStyle}">
+                        <ComboBoxItem Content="FAST (推奨、速い)"/>
+                        <ComboBoxItem Content="ORB (クオリティ)"/>
+                        <ComboBoxItem Content="SIFT (ハイクオリティ、低速)"/>
+                    </ComboBox>
+                    <ComboBox x:Name="DescriberComboBox" Grid.Row="1" SelectedIndex="0" Height="25" Style="{StaticResource ComboBoxStyle}">
+                        <ComboBoxItem Content="BRIEF (推奨、速い)"/>
+                        <ComboBoxItem Content="ORB (クオリティ)"/>
+                        <ComboBoxItem Content="SIFT (ハイクオリティ、低速)"/>
+                    </ComboBox>
+                </Grid>
+            </UniformGrid>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0, 20, 0, 0">
+                <Button Name="ConfirmButton" Content="作成" Width="100" Height="20" Click="OnConfirmButtonEvent" BorderBrush="{StaticResource BorderBrush}" Foreground="#f4f5f4" Background="#6f7472" Margin="0, 0, 5, 0"></Button>
+                <Button Name="CancelEvent" Content="キャンセル" Width="100" Height="20" Click="OnCancelButtonEvent" BorderBrush="{StaticResource BorderBrush}" Foreground="#f4f5f4" Background="#6f7472" Margin="5, 0, 0, 0"></Button>
+            </StackPanel>
+        </StackPanel>
+
+    </DockPanel>
+</Window>
