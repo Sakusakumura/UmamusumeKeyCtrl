@@ -16,6 +16,7 @@
 
     <ItemGroup>
       <None Remove="devilman.jpg" />
+      <None Remove="LICENSE" />
       <None Remove="yagidenryu.png" />
       <None Remove="devilman.bmp" />
       <None Remove="Resource\bar_ikusei.png" />
@@ -65,9 +66,14 @@
       <Content Include="..\.gitignore">
         <Link>.gitignore</Link>
       </Content>
-      <Content Include="..\README.md">
+      <EmbeddedResource Include="..\LICENSE">
+        <Link>LICENSE</Link>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
+      <EmbeddedResource Include="..\README.md">
         <Link>README.md</Link>
-      </Content>
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
     </ItemGroup>
 
     <ItemGroup>

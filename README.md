@@ -10,9 +10,17 @@ UmamusumeKeyCtlは、DMM版ウマ娘をキーボードから操作できるよ�
 表示されているホットキーを押すと、ウマ娘上での対応する場所が押されるようになっています。  
 なお、DMM版ウマ娘がバックグラウンド状態の場合は動作を停止するようになっています。
 
+詳しくは [wiki/使い方](https://github.com/Sakusakumura/UmamusumeKeyCtl/wiki/%E4%BD%BF%E3%81%84%E6%96%B9)
+を参照してください。
+
+## 最新版
+
+[v1.0.0](https://github.com/Sakusakumura/UmamusumeKeyCtl/releases/tag/1.0.0)
+
 ## インストール
 
-ReleasesページからumamusumeKeyCtl_[version].zipをダウンロードして解凍し、解凍されたフォルダを好きな場所に移動してください。  
+[Releasesページ](https://github.com/Sakusakumura/UmamusumeKeyCtl/releases) 
+からumamusumeKeyCtl_[任意のバージョン].zipをダウンロードして解凍し、解凍されたフォルダを好きな場所に移動してください。  
 フォルダ内のumamusumeKeyCtl.exeを実行すると起動します。
 
 ## アンインストール
