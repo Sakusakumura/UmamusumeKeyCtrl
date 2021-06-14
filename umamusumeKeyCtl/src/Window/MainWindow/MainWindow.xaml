@@ -7,7 +7,7 @@
         xmlns:properties="clr-namespace:umamusumeKeyCtl.Properties"
         xmlns:ui="http://schemas.modernwpf.com/2019"
         mc:Ignorable="d"
-        Title="MainWindow" Height="Auto" Width="Auto" MaxHeight="565"
+        Title="UmamusumeKeyCtl" Height="Auto" Width="Auto" MaxHeight="565"
         SizeToContent="WidthAndHeight"
         WindowStyle="None"
         AllowsTransparency="True"
