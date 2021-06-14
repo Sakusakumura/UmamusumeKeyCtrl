@@ -142,7 +142,7 @@ namespace umamusumeKeyCtl
             }
 
             using var copyOfScreen = TakeCopyOfScreen(rectangle);
-            using var scaled = copyOfScreen.PerformScaleByTransform(Properties.Settings.Default.ImageResolutionWidth);
+            using var scaled = copyOfScreen.PerformScale(Settings.Default.ImageResolutionWidth);
             var grayscaled = scaled.PerformGrayScale();
             
             return new CaptureResult(true, grayscaled);

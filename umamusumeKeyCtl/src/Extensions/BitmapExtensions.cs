@@ -50,11 +50,11 @@ namespace umamusumeKeyCtl
                 throw new ArgumentException("targetWidth must be larger than 0.");
             }
             
-            var targetSizing = (float) targetWidth / (float) source.Width;
+            var targetSizing = targetWidth / (float) source.Width;
                 
             try
             {
-                var scaled = new Bitmap(targetWidth, (int) (Settings.Default.GameAspectRatio * (float) targetWidth));
+                var scaled = new Bitmap(targetWidth, (int) (Settings.Default.GameAspectRatio * targetWidth));
                 using (Graphics graphics = Graphics.FromImage(scaled))
                 {
                     graphics.ScaleTransform(targetSizing, targetSizing);
@@ -74,10 +74,11 @@ namespace umamusumeKeyCtl
 
         public static Bitmap PerformScale(this Bitmap source, int targetWidth)
         {
-            var bmp = new Bitmap(targetWidth, (int) (Settings.Default.GameAspectRatio * (float) targetWidth));
+            var size = new Size(targetWidth, (int) (Settings.Default.GameAspectRatio * targetWidth));
+            var bmp = new Bitmap(size.Width, size.Height);
             using (var g = Graphics.FromImage(bmp))
             {
-                var sizing = (float)targetWidth / source.Width;
+                var sizing = targetWidth / (float) source.Width;
                 if (sizing > 0.25)
                 {
                     g.InterpolationMode = InterpolationMode.Bicubic;
@@ -91,7 +92,7 @@ namespace umamusumeKeyCtl
                     g.InterpolationMode = InterpolationMode.Default;
                 }
                 
-                g.DrawImage(source, new Rectangle(Point.Empty, source.Size));
+                g.DrawImage(source, new Rectangle(Point.Empty, size));
                 g.Save();
             }
 
@@ -113,7 +114,7 @@ namespace umamusumeKeyCtl
             {
                 using Graphics g = Graphics.FromImage(temp);
                 ColorMatrix colorMatrix = new ColorMatrix(
-                    new float[][]
+                    new[]
                     {
                         new[] {.3f, .3f, .3f, 0, 0},
                         new[] {.59f, .59f, .59f, 0, 0},
