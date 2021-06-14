@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:vm="clr-namespace:umamusumeKeyCtl"
         mc:Ignorable="d"
-        Title="MessageWindow"  Height="Auto" Width="Auto"
+        Title="Matching Result" Height="Auto" Width="Auto"
         SizeToContent="WidthAndHeight"
         WindowStyle="None"
         AllowsTransparency="True"
