@@ -56,9 +56,11 @@ namespace umamusumeKeyCtl.CaptureScene
                     matchingResults = await GetMatchingResults(capturedImage, checkSettings);
                 }
 
-                if (matchingResults.Count(val => val.Result) == 0)
+                if (!matchingResults.Any(val => val.Result))
                 {
                     matchingResults = await GetMatchingResults(capturedImage, sceneSettings);
+                    _previousResult.Clear();
+                    _previousResult.AddRange(matchingResults.Where(val => val.Result || val.Score > 50).Select(val => val.SceneGuid));
                 }
 
                 var succeeds = matchingResults.Where(val => val.Result);
@@ -81,9 +83,6 @@ namespace umamusumeKeyCtl.CaptureScene
 
                 if (succeeds.Count() > 0)
                 {
-                    _previousResult.Clear();
-                    _previousResult.AddRange(succeeds.Select(val => val.SceneGuid));
-                    
                     var targetScene = scenes.Find(val => val.Setting.Guid == succeeds.First().SceneGuid);
 
                     scenes.Remove(targetScene);
@@ -236,9 +235,9 @@ namespace umamusumeKeyCtl.CaptureScene
                         Cv2.Rectangle(mask, maskArea, Scalar.White, thickness: -1);
                     }
                     using var masked = sourceMat.BitwiseAnd(mask);
-                    
-                    using var detectAndCompeteResult =
-                        new ImageSimilaritySearcher(scene.Setting.DetectorMethod, scene.Setting.DescriptorMethod).DetectAndCompete(masked);
+
+                    using var imageSimilaritySearcher = new ImageSimilaritySearcher(scene.Setting.DetectorMethod, scene.Setting.DescriptorMethod);
+                    using var detectAndCompeteResult = imageSimilaritySearcher.DetectAndCompete(masked);
                     keyPoints.AddRange(detectAndCompeteResult.KeyPoints);
                 }
                 
