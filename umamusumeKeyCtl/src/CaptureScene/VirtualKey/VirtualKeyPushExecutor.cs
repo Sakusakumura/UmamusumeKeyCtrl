@@ -45,8 +45,6 @@ namespace umamusumeKeyCtl.CaptureScene
 
                     task = func.Invoke(_dispatcher);
 
-                    Debug.Print($"[{this.GetType().Name}] Dequeued. ({_queue.Count} left)");
-                    
                     await task;
 
                     await Task.Delay(30);

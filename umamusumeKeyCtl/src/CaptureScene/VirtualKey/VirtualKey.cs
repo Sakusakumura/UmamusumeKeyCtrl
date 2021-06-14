@@ -17,8 +17,21 @@ namespace umamusumeKeyCtl.CaptureScene
         private VirtualKeySetting _setting;
         public VirtualKeySetting Setting => _setting;
         public IntPtr UmaWndH { get; set; }
-        
+
+        private object _isKeyPressedBeforeLock = new object();
         private bool _isKeyPressedBefore = false;
+
+        private bool IsKeyPressedBefore
+        {
+            get => _isKeyPressedBefore;
+            set
+            {
+                lock (_isKeyPressedBeforeLock)
+                {
+                    _isKeyPressedBefore = value;
+                }
+            }
+        }
         
         private const int WM_KEYDOWN = 0x0100;
         private const int WM_KEYUP = 0x0101;
@@ -29,23 +42,29 @@ namespace umamusumeKeyCtl.CaptureScene
             UmaWndH = IntPtr.Zero;
         }
 
+        public void Initialize()
+        {
+            _isKeyPressedBefore = false;
+        }
+
         public void Perform(KeyPressedArgs pressedArgs)
         {
             if (pressedArgs.WParam == WM_KEYUP)
             {
-                _isKeyPressedBefore = false;
+                Debug.Print($"[{this.GetType().Name}] Key: {Setting.BindKey.ToString()}, return condition: pressedArgs.WParam == WM_KEYUP");
+                IsKeyPressedBefore = false;
                 return;
             }
 
-            if (UmaWndH == IntPtr.Zero || _isKeyPressedBefore || UmaWndH != WindowHelper.GetForegroundWindow())
+            if (UmaWndH == IntPtr.Zero || IsKeyPressedBefore || UmaWndH != WindowHelper.GetForegroundWindow())
             {
                 return;
             }
 
-            _isKeyPressedBefore = true;
-            
+            IsKeyPressedBefore = true;
+
             var rect = WindowHelper.GetWindowRect(UmaWndH);
-            
+
             if (rect == Rectangle.Empty)
             {
                 return;
@@ -75,7 +94,7 @@ namespace umamusumeKeyCtl.CaptureScene
             
             
             var random = new Random().Next();
-            Debug.Print($"[{this.GetType()}] Start. ({random})");
+            Debug.Print($"[{this.GetType().Name}] Start. ({random})");
 
             try
             {
@@ -97,12 +116,12 @@ namespace umamusumeKeyCtl.CaptureScene
             }
             catch (Exception e)
             {
-                Debug.Print($"[{this.GetType()}] Exception. ({random})");
+                Debug.Print($"[{this.GetType().Name}] Exception. ({random})");
                 Debug.WriteLine(e);
                 throw;
             }
             
-            Debug.Print($"[{this.GetType()}] End. ({random})");
+            Debug.Print($"[{this.GetType().Name}] End. ({random})");
             
             return Task.CompletedTask;
         }
