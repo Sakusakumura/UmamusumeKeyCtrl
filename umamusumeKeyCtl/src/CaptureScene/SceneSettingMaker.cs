@@ -24,13 +24,14 @@ namespace umamusumeKeyCtl.CaptureScene
             set
             {
                 _settingMakeState = value;
-                _onMakeStateChanged?.Invoke(_settingMakeState);
+                _stateChanged?.Invoke(this, _settingMakeState);
             }
         }
 
-        public event Action<SceneSetting> OnCaptureSettingSetCreated; 
+        public event EventHandler<SceneSetting> CaptureSettingSetCreated;
+        public event EventHandler Canceled; 
 
-        private event Action<CaptureSettingMakeState> _onMakeStateChanged;
+        private event EventHandler<CaptureSettingMakeState> _stateChanged;
 
         private Canvas _canvas;
         private UIElement _uiElement;
@@ -45,11 +46,13 @@ namespace umamusumeKeyCtl.CaptureScene
         {
             _uiElement = uiElement;
             _canvas = canvas;
-            _onMakeStateChanged += OnStateChanged;
+            _stateChanged += OnStateChanged;
 
+            Canceled += (_, _) => mainWindow.SetState(MainWndState.Default);
+            
             SettingMakeState = CaptureSettingMakeState.Naming;
 
-            OnCaptureSettingSetCreated += setting =>
+            CaptureSettingSetCreated += (_, setting) =>
             {
                 mainWindow.SetState(MainWndState.Default);
                 
@@ -59,18 +62,19 @@ namespace umamusumeKeyCtl.CaptureScene
             };
         }
 
-        private void OnStateChanged(CaptureSettingMakeState state)
+        private void OnStateChanged(object sender, CaptureSettingMakeState captureSettingMakeState)
         {
-            if (state == CaptureSettingMakeState.Naming)
+            if (captureSettingMakeState == CaptureSettingMakeState.Naming)
             {
                 var nameInWnd = new NameInputPopupWindow(true);
                 nameInWnd.Confirm += OnConfirm;
+                nameInWnd.Canceled += NameInWndOnCanceled;
                 nameInWnd.ShowDialog();
                 
                 return;
             }
 
-            if (state == CaptureSettingMakeState.ScrapSetting)
+            if (captureSettingMakeState == CaptureSettingMakeState.ScrapSetting)
             {
                 var scrapSettingMaker = new ScrapSettingMaker(_canvas, _uiElement, true);
                 scrapSettingMaker.MadeScrapSetting += OnGetScrapSetting;
@@ -78,13 +82,13 @@ namespace umamusumeKeyCtl.CaptureScene
                 return;
             }
 
-            if (state == CaptureSettingMakeState.VirtualKeySetting)
+            if (captureSettingMakeState == CaptureSettingMakeState.VirtualKeySetting)
             {
                 var virtualKeySettingMaker = new VirtualKeySettingMaker(_canvas, _uiElement, true);
                 virtualKeySettingMaker.SettingCreated += OnGetVirtualKeySetting;
             }
 
-            if (state == CaptureSettingMakeState.Completed)
+            if (captureSettingMakeState == CaptureSettingMakeState.Completed)
             {
                 var sceneSetting = new SceneSetting(Guid.NewGuid(), _name, _virtualKeySettings, _scrapSetting, _detectorMethod, _descriptorMethod);
 
@@ -104,7 +108,7 @@ namespace umamusumeKeyCtl.CaptureScene
                                     bitmap.Save($"./CapturedImages/{sceneSetting.Guid}.bmp", ImageFormat.Bmp);
                                 }
 
-                                OnCaptureSettingSetCreated?.Invoke(sceneSetting);
+                                CaptureSettingSetCreated?.Invoke(this, sceneSetting);
                             }
                             catch (Exception e)
                             {
@@ -126,9 +130,9 @@ namespace umamusumeKeyCtl.CaptureScene
             }
         }
 
-        private void OnCancel()
+        private void NameInWndOnCanceled(object sender, EventArgs e)
         {
-            _settingMakeState = CaptureSettingMakeState.Waiting;
+            Canceled?.Invoke(this, EventArgs.Empty);
         }
 
         private void OnConfirm(object sender, Tuple<string, DetectorMethod, DescriptorMethod> tuple)
