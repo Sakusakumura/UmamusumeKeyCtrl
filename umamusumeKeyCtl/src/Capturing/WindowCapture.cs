@@ -1,19 +1,16 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
 using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using umamusumeKeyCtl.Helpers;
 using umamusumeKeyCtl.Properties;
-using Image = System.Drawing.Image;
 
 namespace umamusumeKeyCtl
 {
     /// <summary>
-    /// Capture window.
+    /// Provides functions to capture a specific window asynchronously.
     /// </summary>
     public class WindowCapture : IDisposable
     {
@@ -32,8 +29,8 @@ namespace umamusumeKeyCtl
         /// Constructor of Window Capture.
         /// Capturing will automatically start.
         /// </summary>
-        /// <param name="captureWindowName"></param>
-        /// <param name="captureInterval">Capture interval setting. (milliseconds)</param>
+        /// <param name="setting">Capture setting.</param>
+        /// <param name="stopIfBackground">If true, capturing will be paused when target window is in the background.</param>
         public WindowCapture(CaptureSetting setting, bool stopIfBackground = true)
         {
             _captureSetting = setting;
@@ -64,19 +61,29 @@ namespace umamusumeKeyCtl
             var image = new Bitmap(width, height);
             using (var graphics = Graphics.FromImage(image))
             {
-                var color = ColorTranslator.FromHtml("#2B2C2B");
+                var color = ColorTranslator.FromHtml("#2A2C2B");
                 graphics.Clear(color);
             }
 
             return image;
         }
 
+        /// <summary>
+        /// Capture target window asynchronosly.
+        /// Capturing will be paused when target window is not foreground or closed.
+        /// To shut down capturing, call StopCapture().
+        /// </summary>
+        /// <param name="captureSetting"></param>
+        /// <param name="token"></param>
         private async Task InternalAsyncCapture(CaptureSetting captureSetting, CancellationToken token)
         {
             try
             {
                 var hWnd = await WindowHelper.AsyncGetHWndByName(captureSetting.CaptureWndName);
                 var stopWatch = new Stopwatch();
+                
+                // Send waiting image for initialize.
+                _captureResultSubject.OnNext((Bitmap) _waitingImage.Clone());
 
                 while (token.IsCancellationRequested == false)
                 {
@@ -87,6 +94,7 @@ namespace umamusumeKeyCtl
                         _captureResultSubject.OnNext((Bitmap) _waitingImage.Clone());
                     }
 
+                    // Wait when target window is not found or closed.
                     while (hWnd == IntPtr.Zero && token.IsCancellationRequested == false)
                     {
                         await Task.Delay(500);
@@ -94,6 +102,7 @@ namespace umamusumeKeyCtl
                         hWnd = await WindowHelper.AsyncGetHWndByName(captureSetting.CaptureWndName);
                     }
 
+                    // Wait when target window is in the background, not closed, and not canceled.
                     while (_stopIfBackground && hWnd != WindowHelper.GetForegroundWindow() && WindowHelper.IsWindow(hWnd) && token.IsCancellationRequested == false)
                     {
                         await Task.Delay(250);
@@ -104,6 +113,7 @@ namespace umamusumeKeyCtl
                         break;
                     }
 
+                    // Generate a captured image.
                     stopWatch.Start();
                     using (CaptureResult result = await Task<CaptureResult>.Run(() => PrintBitmap(hWnd)))
                     {
@@ -116,6 +126,7 @@ namespace umamusumeKeyCtl
                     }
                     stopWatch.Stop();
 
+                    // The interval time will be shorter or longer due to processing time.
                     var waitTime = Math.Max(captureSetting.Interval - stopWatch.ElapsedMilliseconds, 0);
                     
                     await Task.Delay((int) waitTime);
@@ -167,6 +178,8 @@ namespace umamusumeKeyCtl
 
         public async void Dispose()
         {
+            _cancellationTokenSource?.Cancel();
+            
             while (internalAsyncCaptureTask?.Status == TaskStatus.Running)
             {
                 await Task.Yield();
