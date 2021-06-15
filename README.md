@@ -15,9 +15,9 @@ UmamusumeKeyCtlは、DMM版ウマ娘をキーボードから操作できるよ�
 
 ## 最新版
 
-### Windows
+### For Windows
 
-- [v1.0.0](https://github.com/Sakusakumura/UmamusumeKeyCtl/releases/tag/1.0.0)
+- [最新版](https://github.com/Sakusakumura/UmamusumeKeyCtl/releases/latest)
 
 ## インストール
 
