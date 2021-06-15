@@ -13,7 +13,18 @@ namespace umamusumeKeyCtl.CaptureScene
         public List<VirtualKey> VirtualKeys { get; }
 
         private LowLevelKeyboardListener _keyboardListener;
-        public bool IsSelected = false;
+
+        private bool _isSelected = false;
+
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                _isSelected = value;
+                VirtualKeys.ForEach(val => val.Initialize());
+            }
+        }
 
         public Scene(SceneSetting setting, ScrappedImage scrappedImage, List<VirtualKey> virtualKeys, LowLevelKeyboardListener listener)
         {

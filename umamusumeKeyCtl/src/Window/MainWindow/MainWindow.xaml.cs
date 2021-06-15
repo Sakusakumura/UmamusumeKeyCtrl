@@ -88,10 +88,6 @@ namespace umamusumeKeyCtl
             // Instantiate SceneViewer
             _sceneViewer = new SceneViewer(Canvas);
 
-            // Instantiate debugWindow
-            _debugWindow = new DataGridWindow();
-            _debugWindow.Show();
-
             // Initialize sceneSelector
             _sceneSelector = new SceneSelector();
             Settings.Default.PropertyChanged += (_, args) =>
@@ -106,7 +102,7 @@ namespace umamusumeKeyCtl
                     }
                     else
                     {
-                        _debugWindow.Close();
+                        _debugWindow?.Close();
                         _debugWindow = null;
                     }
                     
