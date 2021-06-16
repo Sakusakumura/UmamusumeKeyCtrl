@@ -1,6 +1,10 @@
 # UmamusumeKeyCtl
 
+## About
+
 UmamusumeKeyCtlは、DMM版ウマ娘をキーボードから操作できるようにするアプリケーションです。
+
+| [Wiki📚](https://github.com/Sakusakumura/UmamusumeKeyCtl/wiki/Home) | [Releases📜](https://github.com/Sakusakumura/UmamusumeKeyCtl/releases) |
 
 ## 使い方
 
