@@ -16,7 +16,6 @@ namespace umamusumeKeyCtl
     {
         private CaptureSetting _captureSetting;
         private CancellationTokenSource _cancellationTokenSource;
-        private Task internalAsyncCaptureTask;
 
         private Subject<Bitmap> _captureResultSubject;
         public IObservable<Bitmap> CaptureResultObservable => _captureResultSubject;
@@ -24,6 +23,7 @@ namespace umamusumeKeyCtl
         private Bitmap _waitingImage;
 
         private bool _stopIfBackground;
+        private bool _sendWaitingImage;
 
         /// <summary>
         /// Constructor of Window Capture.
@@ -31,26 +31,17 @@ namespace umamusumeKeyCtl
         /// </summary>
         /// <param name="setting">Capture setting.</param>
         /// <param name="stopIfBackground">If true, capturing will be paused when target window is in the background.</param>
-        public WindowCapture(CaptureSetting setting, bool stopIfBackground = true)
+        public WindowCapture(CaptureSetting setting, bool stopIfBackground = true, bool sendWaitingImage = true)
         {
             _captureSetting = setting;
             _stopIfBackground = stopIfBackground;
+            _sendWaitingImage = sendWaitingImage;
             _cancellationTokenSource = new CancellationTokenSource();
             _captureResultSubject = new Subject<Bitmap>();
 
             _waitingImage = CreateWaitingImage();
 
-            internalAsyncCaptureTask = InternalAsyncCapture(_captureSetting, _cancellationTokenSource.Token);
-        }
-
-        /// <summary>
-        /// Stop capturing.
-        /// </summary>
-        public void StopCapture()
-        {
-            _cancellationTokenSource.Cancel();
-            _cancellationTokenSource.Dispose();
-            _captureResultSubject.Dispose();
+            _ = InternalAsyncCapture(_captureSetting, _cancellationTokenSource.Token);
         }
 
         private Bitmap CreateWaitingImage()
@@ -81,14 +72,17 @@ namespace umamusumeKeyCtl
             {
                 var hWnd = await WindowHelper.AsyncGetHWndByName(captureSetting.CaptureWndName);
                 var stopWatch = new Stopwatch();
-                
+
                 // Send waiting image for initialize.
-                _captureResultSubject.OnNext((Bitmap) _waitingImage.Clone());
+                if (_sendWaitingImage)
+                { 
+                    _captureResultSubject.OnNext((Bitmap) _waitingImage.Clone());
+                }
 
                 while (token.IsCancellationRequested == false)
                 {
                     stopWatch.Reset();
-                    
+
                     if (hWnd == IntPtr.Zero)
                     {
                         _captureResultSubject.OnNext((Bitmap) _waitingImage.Clone());
@@ -121,14 +115,15 @@ namespace umamusumeKeyCtl
                         {
                             hWnd = IntPtr.Zero;
                         }
-                        
+
                         _captureResultSubject.OnNext((Bitmap) result.Image?.Clone() ?? new Bitmap(1, 1));
                     }
+
                     stopWatch.Stop();
 
                     // The interval time will be shorter or longer due to processing time.
                     var waitTime = Math.Max(captureSetting.Interval - stopWatch.ElapsedMilliseconds, 0);
-                    
+
                     await Task.Delay((int) waitTime);
                 }
             }
@@ -176,15 +171,9 @@ namespace umamusumeKeyCtl
             return bmp;
         }
 
-        public async void Dispose()
+        public void Dispose()
         {
             _cancellationTokenSource?.Cancel();
-            
-            while (internalAsyncCaptureTask?.Status == TaskStatus.Running)
-            {
-                await Task.Yield();
-            }
-            
             _cancellationTokenSource?.Dispose();
             _captureResultSubject?.Dispose();
             _waitingImage?.Dispose();
