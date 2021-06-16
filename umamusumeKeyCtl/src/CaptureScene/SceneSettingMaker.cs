@@ -93,7 +93,7 @@ namespace umamusumeKeyCtl.CaptureScene
                 var sceneSetting = new SceneSetting(Guid.NewGuid(), _name, _virtualKeySettings, _scrapSetting, _detectorMethod, _descriptorMethod);
 
                 // take a screenshot.
-                var capture = new WindowCapture(new CaptureSetting(Settings.Default.CaptureInterval, Settings.Default.CaptureWindowTitle), false);
+                var capture = new WindowCapture(new CaptureSetting(Settings.Default.CaptureInterval, Settings.Default.CaptureWindowTitle), false, false);
                 capture.CaptureResultObservable.Subscribe(bitmap =>
                 {
                     try
@@ -115,6 +115,8 @@ namespace umamusumeKeyCtl.CaptureScene
                                 Debug.Print(e.ToString());
                                 throw;
                             }
+                            
+                            capture.Dispose();
                         });
                     }
                     catch (Exception e)
@@ -122,10 +124,6 @@ namespace umamusumeKeyCtl.CaptureScene
                         Debug.Print(e.ToString());
                         throw;
                     }
-                            
-                    capture.StopCapture();
-
-                    capture.Dispose();
                 });
             }
         }

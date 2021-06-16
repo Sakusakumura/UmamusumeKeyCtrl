@@ -158,7 +158,7 @@ namespace umamusumeKeyCtl
 
             }, exception => Console.Write(exception));
 
-            Closing += (_, _) => windowCapture.StopCapture();
+            Closing += (_, _) => windowCapture.Dispose();
         }
 
         private async void ChangeColor(CancellationToken token)
