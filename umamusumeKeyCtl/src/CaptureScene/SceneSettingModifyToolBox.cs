@@ -209,7 +209,7 @@ namespace umamusumeKeyCtl.CaptureScene
 
             virtualKeyToolMenu.Children.Add(new Label()
             {
-                Content = "仮想キー",
+                Content = "ホットキー",
                 HorizontalContentAlignment = HorizontalAlignment.Left,
                 Foreground = (SolidColorBrush) converter.ConvertFromString("#f1f1f1"),
                 Background = Brushes.Transparent,
