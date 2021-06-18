@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -130,12 +131,6 @@ namespace umamusumeKeyCtl.CaptureScene
             // remove elements if exists in _scrapSetting.Scrapinfos.
             foreach (var scrapInfo in copy)
             {
-                if (!_scrapSetting.ScrapInfos.Exists(val => val.Index == scrapInfo.Index))
-                {
-                    _scrapSetting.ScrapInfos.Add(scrapInfo);
-                    continue;
-                }
-                
                 var indexed = new ScrapInfo(GetNewIndex(_scrapSetting.ScrapInfos), scrapInfo.ScrapArea);
                 _scrapSetting.ScrapInfos.Add(indexed);
             }
@@ -148,10 +143,17 @@ namespace umamusumeKeyCtl.CaptureScene
         private int GetNewIndex(List<ScrapInfo> infos)
         {
             int temp;
-
-            for (temp = 0; temp < infos.Count; temp++)
+            
+            if (infos.Count == 0)
             {
-                if (infos[temp].Index == temp)
+                return 0;
+            }
+            
+            int maxIndex = infos.Select(val => val.Index).Max();
+
+            for (temp = 0; temp <= maxIndex + 1; temp++)
+            {
+                if (infos.Any(val => val.Index == temp))
                 {
                     continue;
                 }
