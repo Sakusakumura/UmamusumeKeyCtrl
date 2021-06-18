@@ -163,7 +163,7 @@
                                                     </Button.Style>
                                                 </Button>
                                                 <Label Width="5" BorderBrush="#535755" BorderThickness="0, 0.5, 0, 0.25"></Label>
-                                                <Button Click="OnChangeCollapsedButtonClick" DockPanel.Dock="Left" Content="スクラップ設定" HorizontalContentAlignment="Left" Foreground="#f1f1f1" Background="Transparent" BorderBrush="#535755" BorderThickness="0, 0.5, 0, 0.25">
+                                                <Button Click="OnChangeCollapsedButtonClick" DockPanel.Dock="Left" Content="シーン設定" HorizontalContentAlignment="Left" Foreground="#f1f1f1" Background="Transparent" BorderBrush="#535755" BorderThickness="0, 0.5, 0, 0.25">
                                                     <ToolTipService.ToolTip>
                                                         <ToolTip Content="一覧表示を切替..."/>
                                                     </ToolTipService.ToolTip>
