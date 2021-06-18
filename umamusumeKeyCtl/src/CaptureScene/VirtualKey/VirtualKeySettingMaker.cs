@@ -178,40 +178,25 @@ namespace umamusumeKeyCtl.CaptureScene
             }
         }
         
-        private int GetNewIndex(List<VirtualKeySetting> infos)
+        private int GetNewIndex(List<VirtualKeySetting> settings)
         {
             int temp;
 
-            if (infos.Count == 0)
+            if (settings.Count == 0)
             {
                 return 0;
             }
 
-            var maxIndex = infos.Select(val => val.Index).Max();
+            var maxIndex = settings.Select(val => val.Index).Max();
 
-            for (temp = 0; temp < maxIndex; temp++)
+            for (temp = 0; temp <= maxIndex + 1; temp++)
             {
-                bool flag = false;
-                
-                foreach (var info in infos)
-                {
-                    if (info.Index == temp)
-                    {
-                        flag = true;
-                    }
-                }
-
-                if (flag)
+                if (settings.Any(val => val.Index == temp))
                 {
                     continue;
                 }
                 
                 break;
-            }
-
-            if (temp == maxIndex)
-            {
-                temp += 1;
             }
 
             return temp;
