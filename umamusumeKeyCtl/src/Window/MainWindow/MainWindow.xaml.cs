@@ -3,7 +3,6 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -31,6 +30,7 @@ namespace umamusumeKeyCtl
         private SceneViewer _sceneViewer;
         private DataGridWindow _debugWindow;
         private MainWndState _state = MainWndState.Default;
+        public MainWndState State => _state;
         private readonly object _setStateLock = new();
 
         public event EventHandler<MainWndState> MainWndStateChanged;

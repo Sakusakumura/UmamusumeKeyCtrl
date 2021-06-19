@@ -208,7 +208,7 @@ namespace umamusumeKeyCtl.CaptureScene
                     var modLabelVis = modifyLabel.Visibility == Visibility.Visible;
                     var remLabelVis = removeLabel.Visibility == Visibility.Visible;
                     
-                    if (modLabelVis || remLabelVis)
+                    if (mainWindow.State != MainWndState.Default || modLabelVis || remLabelVis)
                     {
                         return;
                     }
