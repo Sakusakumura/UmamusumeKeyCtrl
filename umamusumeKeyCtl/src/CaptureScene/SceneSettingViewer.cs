@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Security.Cryptography;
@@ -9,6 +10,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Media;
 using umamusumeKeyCtl.ImageSimilarity.Factory;
 using umamusumeKeyCtl.ImageSimilarity.Method;
+using umamusumeKeyCtl.Util;
 
 namespace umamusumeKeyCtl.CaptureScene
 {
@@ -139,7 +141,11 @@ namespace umamusumeKeyCtl.CaptureScene
                 methodLabelRoot.Children.Add(descriptorMethodGrid);
 
                 // Create remove and modify label.
-                var removeModifyLabelRoot = new Grid();
+                var removeModifyLabelRoot = new StackPanel()
+                {
+                    Orientation = Orientation.Horizontal,
+                    Margin = new Thickness(0),
+                };
 
                 var removeLabel = new Label()
                 {
@@ -188,13 +194,37 @@ namespace umamusumeKeyCtl.CaptureScene
                 utilLabelsRoot.Children.Add(removeModifyLabelRoot);
 
                 // setting name label.
-                var displayNameLabel = new Label()
+                var displayNameLabel = new HoldableLabel()
                 {
                     Content = setting.DisplayName,
                     Foreground = (Brush) converter.ConvertFromString("#e9eaea"),
                     Background = Brushes.Transparent,
                     VerticalContentAlignment = VerticalAlignment.Center,
-                    HorizontalContentAlignment = HorizontalAlignment.Left
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
+                    HoldDuration = TimeSpan.FromMilliseconds(500)
+                };
+                displayNameLabel.MouseLeftButtonHold += (_, _) =>
+                {
+                    var modLabelVis = modifyLabel.Visibility == Visibility.Visible;
+                    var remLabelVis = removeLabel.Visibility == Visibility.Visible;
+                    
+                    if (modLabelVis || remLabelVis)
+                    {
+                        return;
+                    }
+                    
+                    modifyLabel.Visibility = modLabelVis ? Visibility.Collapsed : Visibility.Visible;
+                    removeLabel.Visibility = remLabelVis ? Visibility.Collapsed : Visibility.Visible;
+                };
+                listView.SelectionChanged += (_, _) =>
+                {
+                    if (modifyLabel.Visibility != Visibility.Visible || removeLabel.Visibility != Visibility.Visible)
+                    {
+                        return;
+                    }
+                    
+                    modifyLabel.Visibility = Visibility.Collapsed;
+                    removeLabel.Visibility = Visibility.Collapsed;
                 };
 
                 panel.Children.Add(utilLabelsRoot);
