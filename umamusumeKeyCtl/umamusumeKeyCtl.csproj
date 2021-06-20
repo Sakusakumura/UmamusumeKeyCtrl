@@ -6,6 +6,7 @@
         <UseWPF>true</UseWPF>
         <ApplicationManifest>app.manifest</ApplicationManifest>
         <LangVersion>9</LangVersion>
+        <ApplicationIcon>docs\icon.ico</ApplicationIcon>
     </PropertyGroup>
 
     <ItemGroup>

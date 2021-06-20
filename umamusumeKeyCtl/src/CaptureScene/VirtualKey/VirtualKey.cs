@@ -91,28 +91,23 @@ namespace umamusumeKeyCtl.CaptureScene
 
         private Task Perform(Point point, Dispatcher dispatcher)
         {
-            
-            
             var random = new Random().Next();
             Debug.Print($"[{this.GetType().Name}] Start. ({random})");
 
             try
             {
                 var prePos = MouseHelper.GetMousePosition();
-
-                dispatcher.InvokeAsync(() => VirtualMouse.MoveTo(point));
-
-                Thread.Sleep(45);
-
-                dispatcher.InvokeAsync(() => VirtualMouse.Down(MouseButton.Left));
+                
+                dispatcher.Invoke(() =>
+                {
+                    VirtualMouse.MoveTo(point);
+                    VirtualMouse.Down(MouseButton.Left);
+                    VirtualMouse.Up(MouseButton.Left);
+                });
 
                 Thread.Sleep(45);
                 
-                dispatcher.InvokeAsync(() => VirtualMouse.Up(MouseButton.Left));
-
-                Thread.Sleep(45);
-
-                dispatcher.InvokeAsync(() => VirtualMouse.MoveTo(prePos));
+                dispatcher.Invoke(() => VirtualMouse.MoveTo(prePos));
             }
             catch (Exception e)
             {
