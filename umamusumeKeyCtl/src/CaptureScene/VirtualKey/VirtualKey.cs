@@ -97,17 +97,26 @@ namespace umamusumeKeyCtl.CaptureScene
             try
             {
                 var prePos = MouseHelper.GetMousePosition();
-                
+
                 dispatcher.Invoke(() =>
                 {
                     VirtualMouse.MoveTo(point);
                     VirtualMouse.Down(MouseButton.Left);
+                });
+                
+                Thread.Sleep(20);
+
+                dispatcher.Invoke(() =>
+                {
                     VirtualMouse.Up(MouseButton.Left);
                 });
 
                 Thread.Sleep(45);
                 
-                dispatcher.Invoke(() => VirtualMouse.MoveTo(prePos));
+                dispatcher.Invoke(() =>
+                {
+                    VirtualMouse.MoveTo(prePos);
+                });
             }
             catch (Exception e)
             {
